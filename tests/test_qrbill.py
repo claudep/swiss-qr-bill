@@ -86,7 +86,7 @@ class CommandLineTests(unittest.TestCase):
             [sys.executable, 'qrbill/bill.py'],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         ).communicate()
-        self.assertTrue('The account parameter is mandatory' in err)
+        self.assertTrue('The account parameter is mandatory' in err.decode())
 
 
 if __name__ == '__main__':
