@@ -9,9 +9,9 @@ from qrbill import QRBill
 class QRBillTests(unittest.TestCase):
     def test_mandatory_fields(self):
         with self.assertRaises(ValueError, msg="The account parameter is mandatory"):
-            bill = QRBill()
+            QRBill()
         with self.assertRaises(ValueError, msg="Creditor information is mandatory"):
-            bill = QRBill(account="CH4431999123000889012")
+            QRBill(account="CH4431999123000889012")
 
     def test_account(self):
         with self.assertRaises(ValueError, msg="IBAN must have exactly 21 characters"):

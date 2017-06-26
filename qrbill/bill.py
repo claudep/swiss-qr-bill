@@ -73,7 +73,6 @@ class QRBill:
         if amount is not None:
             m = re.match(AMOUNT_REGEX, amount)
             if not m:
-                import pdb; pdb.set_trace()
                 raise ValueError("If provided, the amount must match the pattern '###.##'")
         self.amount = amount
         if currency not in self.allowed_currencies:
@@ -134,7 +133,6 @@ class QRBill:
         )
 
     def draw_swiss_cross(self, dwg):
-        from svgwrite.container import Group
         group = dwg.add(dwg.g(id="swiss-cross"))
         group.add(
             dwg.polygon(points=[
@@ -200,7 +198,7 @@ class QRBill:
         ))
         dwg.add(dwg.text(
             "Amount", ('25mm', '90mm'), font_size=10.5, font_family='helvetica', font_weight='bold'
-        ))        
+        ))
         dwg.add(dwg.text(
             self.currency, (left_margin, '95mm'), font_size=11, font_family='helvetica'
         ))
@@ -231,7 +229,8 @@ class QRBill:
 
         if self.final_creditor:
             dwg.add(dwg.text(
-                "Ultimate creditor", (col_offset, '%smm' % y_pos), font_size=10.5, font_family='helvetica', font_weight='bold'
+                "Ultimate creditor", (col_offset, '%smm' % y_pos), font_size=10.5,
+                font_family='helvetica', font_weight='bold'
             ))
             y_pos += 5
             for line_text in self.final_creditor.as_paragraph():
@@ -242,17 +241,19 @@ class QRBill:
 
         if self.ref_number:
             dwg.add(dwg.text(
-                "Reference number", (col_offset, '%smm' % y_pos), font_size=10.5, font_family='helvetica', font_weight='bold'
+                "Reference number", (col_offset, '%smm' % y_pos), font_size=10.5,
+                font_family='helvetica', font_weight='bold'
             ))
             y_pos += 5
             dwg.add(dwg.text(
                 self.ref_number, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
             ))
             y_pos += 5
-            
+
         if self.extra_infos:
             dwg.add(dwg.text(
-                "Additional information", (col_offset, '%smm' % y_pos), font_size=10.5, font_family='helvetica', font_weight='bold'
+                "Additional information", (col_offset, '%smm' % y_pos), font_size=10.5,
+                font_family='helvetica', font_weight='bold'
             ))
             y_pos += 5
             if '##' in self.extra_infos:
@@ -275,7 +276,7 @@ class QRBill:
                 dwg.add(dwg.text(
                     line_text, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
                 ))
-                y_pos += 5            
+                y_pos += 5
 
         if self.due_date:
             dwg.add(dwg.text(
