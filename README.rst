@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/claudep/swiss-qr-bill.svg?branch=master
+    :target: https://travis-ci.org/claudep/swiss-qr-bill
+
 Python library to generate Swiss QR-bills
 =========================================
 
