@@ -42,7 +42,10 @@ class Address:
 
     def data_list(self):
         """Return address values as a list, appropriate for qr generation."""
-        return [self.name, self.street, self.house_num, self.pcode or '', self.city, self.country]
+        return [
+            self.name, self.street, self.house_num or '', self.pcode or '',
+            self.city, self.country
+        ]
 
     def as_paragraph(self):
         lines = [self.name, "%s-%s %s" % (self.country, self.pcode, self.city)]
@@ -136,7 +139,7 @@ class QRBill:
             error_correction=qrcode.constants.ERROR_CORRECT_L,
         )
 
-    def draw_swiss_cross(self, dwg):
+    def draw_swiss_cross(self, dwg, qr_width):
         group = dwg.add(dwg.g(id="swiss-cross"))
         group.add(
             dwg.polygon(points=[
@@ -157,7 +160,9 @@ class QRBill:
                 fill='none', stroke='white', stroke_width=1.4357,
             )
         )
-        group.translate(tx=80, ty=160)
+        x = 7 + (qr_width * 1.6)
+        y = 98 + (qr_width * 1.6)
+        group.translate(tx=x, ty=y)
 
     def as_svg(self, file_name):
         left_margin = '5mm'
@@ -180,7 +185,8 @@ class QRBill:
 
         # Get QR code SVG from qrcode lib, read it and redraw path in svgwrite drawing.
         buff = BytesIO()
-        self.qr_image().save(buff)
+        im = self.qr_image()
+        im.save(buff)
         m = re.search(r'<path [^>]*>', buff.getvalue().decode())
         if not m:
             raise Exception("Unable to extract path data from the QR code SVG image")
@@ -196,7 +202,7 @@ class QRBill:
         path.scale(sx=3, sy=3)
         dwg.add(path)
 
-        self.draw_swiss_cross(dwg)
+        self.draw_swiss_cross(dwg, im.width)
 
         dwg.add(dwg.text(
             "Currency", (left_margin, '90mm'), font_size=10.5, font_family='helvetica', font_weight='bold'
