@@ -47,7 +47,10 @@ class Address:
     def as_paragraph(self):
         lines = [self.name, "%s-%s %s" % (self.country, self.pcode, self.city)]
         if self.street:
-            lines.insert(1, " ".join([self.street, self.house_num]))
+            if self.house_num is not None:
+                lines.insert(1, " ".join([self.street, self.house_num or '']))
+            else:
+                lines.insert(1, self.street)
         return lines
 
 
@@ -172,8 +175,9 @@ class QRBill:
             "Supports", (left_margin, '16mm'), font_size=10.5, font_family='helvetica', font_weight='bold'
         ))
         dwg.add(dwg.text(
-            "Credittransfer", (left_margin, '21mm'), font_size=11, font_family='helvetica'
+            "Credit transfer", (left_margin, '21mm'), font_size=11, font_family='helvetica'
         ))
+
         # Get QR code SVG from qrcode lib, read it and redraw path in svgwrite drawing.
         buff = BytesIO()
         self.qr_image().save(buff)
@@ -204,7 +208,7 @@ class QRBill:
             self.currency, (left_margin, '95mm'), font_size=11, font_family='helvetica'
         ))
         dwg.add(dwg.text(
-            self.amount, ('25mm', '95mm'), font_size=11, font_family='helvetica'
+            self.amount or '', ('25mm', '95mm'), font_size=11, font_family='helvetica'
         ))
 
         # Right side of the bill
