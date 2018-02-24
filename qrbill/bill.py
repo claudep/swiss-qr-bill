@@ -1,4 +1,3 @@
-import argparse
 import re
 from io import BytesIO
 
@@ -289,57 +288,3 @@ class QRBill:
             y_pos += 5
 
         dwg.save()
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--account')
-    parser.add_argument('--creditor-name')
-    parser.add_argument('--creditor-street')
-    parser.add_argument('--creditor-housenumber')
-    parser.add_argument('--creditor-postalcode')
-    parser.add_argument('--creditor-city')
-    parser.add_argument('--creditor-country', default='CH')
-    parser.add_argument('--ucreditor-name')
-    parser.add_argument('--ucreditor-street')
-    parser.add_argument('--ucreditor-housenumber')
-    parser.add_argument('--ucreditor-postalcode')
-    parser.add_argument('--ucreditor-city')
-    parser.add_argument('--ucreditor-country', default='CH')
-    parser.add_argument('--amount')
-    parser.add_argument('--currency', default='CHF')
-    parser.add_argument('--due-date')
-    parser.add_argument('--debtor-name')
-    parser.add_argument('--debtor-street')
-    parser.add_argument('--debtor-housenumber')
-    parser.add_argument('--debtor-postalcode')
-    parser.add_argument('--debtor-city')
-    parser.add_argument('--debtor-country', default='CH')
-    parser.add_argument('--reference-number')
-    parser.add_argument('--extra-infos')
-    args = parser.parse_args()
-    creditor = {
-        'name': args.creditor_name, 'street': args.creditor_street,
-        'house_num': args.creditor_housenumber, 'pcode': args.creditor_postalcode,
-        'city': args.creditor_city, 'country': args.creditor_country,
-    } if args.creditor_name else None
-    final_creditor = {
-        'name': args.ucreditor_name, 'street': args.ucreditor_street,
-        'house_num': args.ucreditor_housenumber, 'pcode': args.ucreditor_postalcode,
-        'city': args.ucreditor_city, 'country': args.ucreditor_country,
-    } if args.ucreditor_name else None
-    debtor = {
-        'name': args.debtor_name, 'street': args.debtor_street,
-        'house_num': args.debtor_housenumber, 'pcode': args.debtor_postalcode,
-        'city': args.debtor_city, 'country': args.debtor_country,
-    } if args.debtor_name else None
-    bill = QRBill(
-        account=args.account,
-        creditor=creditor,
-        final_creditor=final_creditor,
-        amount=args.amount,
-        currency=args.currency,
-        due_date=args.due_date,
-        debtor=debtor,
-    )
-    bill.as_svg("test-svgwrite.svg")

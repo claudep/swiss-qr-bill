@@ -83,10 +83,13 @@ class QRBillTests(unittest.TestCase):
 class CommandLineTests(unittest.TestCase):
     def test_no_args(self):
         out, err = subprocess.Popen(
-            [sys.executable, 'qrbill/bill.py'],
+            [sys.executable, 'scripts/qrbill'],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         ).communicate()
-        self.assertTrue('The account parameter is mandatory' in err.decode())
+        self.assertTrue(
+            'error: the following arguments are required: --account, --creditor-name, '
+            '--creditor-postalcode, --creditor-city' in err.decode()
+        )
 
 
 if __name__ == '__main__':
