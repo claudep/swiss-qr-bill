@@ -8,15 +8,22 @@ from qrbill import QRBill
 
 class QRBillTests(unittest.TestCase):
     def test_mandatory_fields(self):
-        with self.assertRaises(ValueError, msg="The account parameter is mandatory"):
+        with self.assertRaisesRegex(ValueError, "The account parameter is mandatory"):
             QRBill()
-        with self.assertRaises(ValueError, msg="Creditor information is mandatory"):
+        with self.assertRaisesRegex(ValueError, "Creditor information is mandatory"):
             QRBill(account="CH4431999123000889012")
 
     def test_account(self):
-        with self.assertRaises(ValueError, msg="IBAN must have exactly 21 characters"):
+        with self.assertRaisesRegex(ValueError, "IBAN must have exactly 21 characters"):
             bill = QRBill(
                 account="CH44319991230008890",
+                creditor={
+                    'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
+                },
+            )
+        with self.assertRaisesRegex(ValueError, "Sorry, the IBAN is not valid"):
+            bill = QRBill(
+                account="CH4431999123000899012",
                 creditor={
                     'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
                 },

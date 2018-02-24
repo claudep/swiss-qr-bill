@@ -4,6 +4,7 @@ from io import BytesIO
 import qrcode
 import qrcode.image.svg
 import svgwrite
+import validators
 from iso3166 import countries
 
 IBAN_CH_LENGTH = 21
@@ -70,13 +71,16 @@ class QRBill:
     def __init__(
             self, account=None, creditor=None, final_creditor=None, amount=None,
             currency='CHF', due_date=None, debtor=None, ref_number=None, extra_infos=''):
-        # TODO: do more iban validation
+        # Account (IBAN) validation
         if not account:
             raise ValueError("The account parameter is mandatory")
         account = account.replace(' ', '')
         if account and len(account) != IBAN_CH_LENGTH:
             raise ValueError("IBAN must have exactly 21 characters")
+        elif account and not validators.iban(account):
+            raise ValueError("Sorry, the IBAN is not valid")
         self.account = account
+
         if amount is not None:
             m = re.match(AMOUNT_REGEX, amount)
             if not m:

@@ -12,7 +12,7 @@ setup(
     author_email='claude@2xlibre.net',
     packages=['qrbill'],
     scripts=['scripts/qrbill'],
-    install_requires=['iso3166', 'qrcode', 'svgwrite'],
+    install_requires=['iso3166', 'validators', 'qrcode', 'svgwrite'],
     test_suite='tests',
     classifiers=[
         'Development Status :: 3 - Alpha',
