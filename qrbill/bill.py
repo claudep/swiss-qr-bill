@@ -32,10 +32,12 @@ class Address:
         elif len(city) > 35:
             raise ValueError("A city cannot have more than 35 characters.")
         self.city = city
+        if not country:
+            country = 'CH'
         try:
             countries.get(country)
         except KeyError:
-            raise ValueError("The country code '%s' is not valid")
+            raise ValueError("The country code '%s' is not valid" % country)
         self.country = countries.get(country).alpha2
 
     def data_list(self):
@@ -118,9 +120,9 @@ class QRBill:
         values = [self.qr_type, self.version, self.coding, self.account]
         values.extend(self.creditor.data_list())
         values.extend(self.final_creditor.data_list() if self.final_creditor else [''] * 6)
-        values.extend([self.amount, self.currency, self.due_date])
+        values.extend([self.amount or '', self.currency, self.due_date or ''])
         values.extend(self.debtor.data_list() if self.debtor else [''] * 6)
-        values.extend([self.ref_type, self.ref_number, self.extra_infos])
+        values.extend([self.ref_type, self.ref_number or '', self.extra_infos])
         return "\r\n".join([str(v) for v in values])
 
     def qr_image(self):

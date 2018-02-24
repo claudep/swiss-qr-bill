@@ -30,6 +30,20 @@ class QRBillTests(unittest.TestCase):
         )
         self.assertEqual(bill.account, "CH4431999123000889012")
 
+    def test_minimal_data(self):
+        bill = QRBill(
+            account="CH 44 3199 9123 0008 89012",
+            creditor={
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+            },
+        )
+        self.assertEqual(
+            bill.qr_data(),
+            'SPC\r\n0100\r\n1\r\nCH4431999123000889012\r\nJane\r\n\r\n\r\n'
+            '1000\r\nLausanne\r\nCH\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\nCHF\r\n'
+            '\r\n\r\n\r\n\r\n\r\n\r\n\r\nNON\r\n\r\n'
+        )
+
     def test_spec_example1(self):
         bill = QRBill(
             account='CH4431999123000889012',
