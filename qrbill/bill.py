@@ -170,7 +170,7 @@ class QRBill:
 
     def as_svg(self, file_name):
         left_margin = '5mm'
-        col_offset = '80mm'
+        col_offset = '70mm'
 
         dwg = svgwrite.Drawing(
             size=('148mm', '105mm'),  # A6 horiz.
@@ -223,54 +223,47 @@ class QRBill:
 
         # Right side of the bill
         y_pos = 10
-        dwg.add(dwg.text(
-            "Account", (col_offset, '%smm' % y_pos), font_size=10.5, font_family='helvetica', font_weight='bold'
-        ))
-        y_pos += 5
+        line_space = 3.5
+
+        def add_header(text):
+            nonlocal dwg, col_offset, y_pos
+            y_pos += 1
+            dwg.add(dwg.text(
+                text, (col_offset, '%smm' % y_pos), font_size=10.5, font_family='helvetica', font_weight='bold'
+            ))
+            y_pos += line_space
+
+        add_header("Account")
+        # TODO: always display IBAN with spaces
         dwg.add(dwg.text(
             self.account, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
         ))
-        y_pos += 5
+        y_pos += line_space
 
-        dwg.add(dwg.text(
-            "Creditor", (col_offset, '%smm' % y_pos), font_size=10.5, font_family='helvetica', font_weight='bold'
-        ))
-        y_pos += 5
+        add_header("Creditor")
         for line_text in self.creditor.as_paragraph():
             dwg.add(dwg.text(
                 line_text, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
             ))
-            y_pos += 5
+            y_pos += line_space
 
         if self.final_creditor:
-            dwg.add(dwg.text(
-                "Ultimate creditor", (col_offset, '%smm' % y_pos), font_size=10.5,
-                font_family='helvetica', font_weight='bold'
-            ))
-            y_pos += 5
+            add_header("Ultimate creditor")
             for line_text in self.final_creditor.as_paragraph():
                 dwg.add(dwg.text(
                     line_text, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
                 ))
-                y_pos += 5
+                y_pos += line_space
 
         if self.ref_number:
-            dwg.add(dwg.text(
-                "Reference number", (col_offset, '%smm' % y_pos), font_size=10.5,
-                font_family='helvetica', font_weight='bold'
-            ))
-            y_pos += 5
+            add_header("Reference number")
             dwg.add(dwg.text(
                 self.ref_number, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
             ))
-            y_pos += 5
+            y_pos += line_space
 
         if self.extra_infos:
-            dwg.add(dwg.text(
-                "Additional information", (col_offset, '%smm' % y_pos), font_size=10.5,
-                font_family='helvetica', font_weight='bold'
-            ))
-            y_pos += 5
+            add_header("Additional information")
             if '##' in self.extra_infos:
                 extra_infos = self.extra_infos.split('##')
                 extra_infos[1] = '##' + extra_infos[1]
@@ -280,27 +273,22 @@ class QRBill:
                 dwg.add(dwg.text(
                     info, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
                 ))
-                y_pos += 5
+                y_pos += line_space
 
-        dwg.add(dwg.text(
-            "Debtor", (col_offset, '%smm' % y_pos), font_size=10.5, font_family='helvetica', font_weight='bold'
-        ))
-        y_pos += 5
+        add_header("Debtor")
         if self.debtor:
             for line_text in self.debtor.as_paragraph():
                 dwg.add(dwg.text(
                     line_text, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
                 ))
-                y_pos += 5
+                y_pos += line_space
 
         if self.due_date:
-            dwg.add(dwg.text(
-                "Due date", (col_offset, '%smm' % y_pos), font_size=10.5, font_family='helvetica', font_weight='bold'
-            ))
-            y_pos += 5
+            # TODO: print due date as Swiss format with dots
+            add_header("Due date")
             dwg.add(dwg.text(
                 self.due_date, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
             ))
-            y_pos += 5
+            y_pos += line_space
 
         dwg.save()
