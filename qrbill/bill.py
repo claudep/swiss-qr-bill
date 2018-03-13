@@ -164,8 +164,8 @@ class QRBill:
                 fill='none', stroke='white', stroke_width=1.4357,
             )
         )
-        x = 7 + (qr_width * 1.6)
-        y = 98 + (qr_width * 1.6)
+        x = 7 + (qr_width * 0.52)
+        y = 98 + (qr_width * 0.52)
         group.translate(tx=x, ty=y)
 
     def as_svg(self, file_name):
@@ -203,10 +203,12 @@ class QRBill:
             style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none",
         )
         path.translate(tx=10, ty=100)
-        path.scale(sx=3, sy=3)
+        # Limit scaling to some max dimensions
+        scale_factor = 3 - (max(im.width - 60, 0) * 0.05)
+        path.scale(sx=scale_factor, sy=scale_factor)
         dwg.add(path)
 
-        self.draw_swiss_cross(dwg, im.width)
+        self.draw_swiss_cross(dwg, im.width * scale_factor)
 
         dwg.add(dwg.text(
             "Currency", (left_margin, '90mm'), font_size=10.5, font_family='helvetica', font_weight='bold'
