@@ -1,4 +1,5 @@
 import re
+from datetime import date
 from io import BytesIO
 
 import qrcode
@@ -9,7 +10,7 @@ from iso3166 import countries
 
 IBAN_CH_LENGTH = 21
 AMOUNT_REGEX = r'\d{0,9}\.\d{2}'
-DATE_REGEX = r'\d{4}-\d{2}-\d{2}'
+DATE_REGEX = r'(\d{4})-(\d{2})-(\d{2})'
 
 
 class Address:
@@ -93,6 +94,7 @@ class QRBill:
             m = re.match(DATE_REGEX, due_date)
             if not m:
                 raise ValueError("The date must match the pattern 'YYYY-MM-DD'")
+            due_date = date(*[int(g)for g in m.groups()])
         self.due_date = due_date
         if not creditor:
             raise ValueError("Creditor information is mandatory")
@@ -236,9 +238,9 @@ class QRBill:
             y_pos += line_space
 
         add_header("Account")
-        # TODO: always display IBAN with spaces
         dwg.add(dwg.text(
-            self.account, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
+            format_iban(self.account), (col_offset, '%smm' % y_pos),
+            font_size=11, font_family='helvetica'
         ))
         y_pos += line_space
 
@@ -286,11 +288,24 @@ class QRBill:
                 y_pos += line_space
 
         if self.due_date:
-            # TODO: print due date as Swiss format with dots
             add_header("Due date")
             dwg.add(dwg.text(
-                self.due_date, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
+                format_date(self.due_date), (col_offset, '%smm' % y_pos),
+                font_size=11, font_family='helvetica'
             ))
             y_pos += line_space
 
         dwg.save()
+
+
+def format_iban(iban):
+    if not iban:
+        return ''
+    return '%s %s %s %s %s %s' % (
+        iban[:4], iban[4:8], iban[8:12], iban[12:16], iban[16:20], iban[20:]
+    )
+
+def format_date(date_):
+    if not date_:
+        return ''
+    return date_.strftime('%d.%m.%Y')

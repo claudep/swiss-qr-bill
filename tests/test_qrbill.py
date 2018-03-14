@@ -4,6 +4,7 @@ import tempfile
 import unittest
 
 from qrbill import QRBill
+from qrbill.bill import format_iban
 
 
 class QRBillTests(unittest.TestCase):
@@ -36,6 +37,7 @@ class QRBillTests(unittest.TestCase):
             },
         )
         self.assertEqual(bill.account, "CH4431999123000889012")
+        self.assertEqual(format_iban('CH4431999123000889012'), 'CH44 3199 9123 0008 8901 2')
 
     def test_minimal_data(self):
         bill = QRBill(
