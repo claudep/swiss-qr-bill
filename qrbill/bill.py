@@ -13,6 +13,38 @@ AMOUNT_REGEX = r'\d{0,9}\.\d{2}'
 DATE_REGEX = r'(\d{4})-(\d{2})-(\d{2})'
 MM_TO_UU = 3.543307
 
+# Annex D: Multilingual headings
+LABELS = {
+    'Payment part': {'de': 'Zahlteil', 'fr': 'Section paiement', 'it': 'Sezione pagamento'},
+    'Account / Payable to': {
+        'de': 'Konto / Zahlbar an',
+        'fr': 'Compte / Payable à',
+        'it': 'Conto / Pagabile a',
+    },
+    'Reference': {'de': 'Referenz', 'fr': 'Référence', 'it': 'Riferimento'},
+    'Additional information': {
+        'de': 'Zusätzliche Informationen',
+        'fr': 'Informations supplémentaires',
+        'it': 'Informazioni supplementari',
+    },
+    'Currency': {'de': 'Währung', 'fr': 'Monnaie', 'it': 'Valuta'},
+    'Amount': {'de': 'Betrag', 'fr': 'Montant', 'it': 'Importo'},
+    'Receipt': {'de': 'Empfangsschein', 'fr': 'Récépissé', 'it': 'Ricevuta'},
+    'Acceptance point': {'de': 'Annahmestelle', 'fr': 'Point de dépôt', 'it': 'Punto di accettazione'},
+    'Separate before paying in': {
+        'de': 'Vor der Einzahlung abzutrennen',
+        'fr': 'A détacher avant le versement',
+        'it': 'Da staccare prima del versamento',
+    },
+    'Payable by': {'de': 'Zahlbar durch', 'fr': 'Payable par', 'it': 'Pagabile da'},
+    'Payable by (name/address)': {
+        'de': 'Zahlbar durch (Name/Adresse)',
+        'fr': 'Payable par (nom/adresse)',
+        'it': 'Pagabile da (nome/indirizzo)',
+    },
+    'In favour of': {'de': 'Zugunsten', 'fr': 'En faveur de', 'it': 'A favore di'},
+}
+
 
 class Address:
     def __init__(self, *, name='', street='', house_num='', pcode=None, city=None, country=None):
@@ -73,7 +105,8 @@ class QRBill:
 
     def __init__(
             self, account=None, creditor=None, final_creditor=None, amount=None,
-            currency='CHF', due_date=None, debtor=None, ref_number=None, extra_infos=''):
+            currency='CHF', due_date=None, debtor=None, ref_number=None, extra_infos='',
+            language='en'):
         # Account (IBAN) validation
         if not account:
             raise ValueError("The account parameter is mandatory")
@@ -128,6 +161,9 @@ class QRBill:
         if len(extra_infos) > 140:
             raise ValueError("Additional information cannot contain more than 140 characters")
         self.extra_infos = extra_infos
+        if language not in ['en', 'de', 'fr', 'it']:
+            raise ValueError("Language should be 'en', 'de', 'fr', or 'it'")
+        self.language = language
 
     def qr_data(self):
         """Return data to be encoded in the QR code."""
@@ -168,8 +204,8 @@ class QRBill:
                 fill='none', stroke='white', stroke_width=1.4357,
             )
         )
-        x = 230 + (qr_width * 0.52)
-        y = 98 + (qr_width * 0.52)
+        x = 250 + (qr_width * 0.52)
+        y = 58 + (qr_width * 0.52)
         group.translate(tx=x, ty=y)
 
     def draw_blank_rect(self, dwg, x, y, width, height):
@@ -182,8 +218,17 @@ class QRBill:
         grp.add(dwg.line((x, add_mm(y, height)), (add_mm(x, '3mm'), add_mm(y, height)), **stroke_info))
         grp.add(dwg.line((add_mm(x, width, '-3mm'), y), (add_mm(x, width), y), **stroke_info))
         grp.add(dwg.line((add_mm(x, width), y), (add_mm(x, width), add_mm(y, '2mm')), **stroke_info))
-        grp.add(dwg.line((add_mm(x, width, '-3mm'), add_mm(y, height)), (add_mm(x, width), add_mm(y, height)), **stroke_info))
-        grp.add(dwg.line((add_mm(x, width), add_mm(y, height)), (add_mm(x, width), add_mm(y, height, '-2mm')), **stroke_info))
+        grp.add(dwg.line(
+            (add_mm(x, width, '-3mm'), add_mm(y, height)), (add_mm(x, width), add_mm(y, height)),
+            **stroke_info
+        ))
+        grp.add(dwg.line(
+            (add_mm(x, width), add_mm(y, height)), (add_mm(x, width), add_mm(y, height, '-2mm')),
+            **stroke_info
+        ))
+
+    def label(self, txt):
+        return txt if self.language == 'en' else LABELS[txt][self.language]
 
     def as_svg(self, file_name):
         bill_height = '105mm'
@@ -205,8 +250,8 @@ class QRBill:
         # Receipt
         y_pos = 15
         line_space = 3.5
-        dwg.add(dwg.text("Receipt", (margin, '10mm'), **title_font_info))
-        dwg.add(dwg.text("Account / Payable to", (margin, '%smm' % y_pos), **head_font_info))
+        dwg.add(dwg.text(self.label("Receipt"), (margin, '10mm'), **title_font_info))
+        dwg.add(dwg.text(self.label("Account / Payable to"), (margin, '%smm' % y_pos), **head_font_info))
         y_pos += line_space
         dwg.add(dwg.text(
             format_iban(self.account), (margin, '%smm' % y_pos), **font_info
@@ -218,14 +263,14 @@ class QRBill:
 
         if self.ref_number:
             y_pos += 1
-            dwg.add(dwg.text("Reference", (margin, '%smm' % y_pos), **head_font_info))
+            dwg.add(dwg.text(self.label("Reference"), (margin, '%smm' % y_pos), **head_font_info))
             y_pos += line_space
             dwg.add(dwg.text(self.ref_number, (margin, '%smm' % y_pos), **font_info))
             y_pos += line_space
 
         y_pos += 1
         dwg.add(dwg.text(
-            "Payable by" if self.debtor else "Payable by (name/address)",
+            self.label("Payable by") if self.debtor else self.label("Payable by (name/address)"),
             (margin, '%smm' % y_pos), **head_font_info
         ))
         y_pos += line_space
@@ -240,8 +285,8 @@ class QRBill:
             )
             y_pos += 28
 
-        dwg.add(dwg.text("Currency", (margin, '80mm'), **head_font_info))
-        dwg.add(dwg.text("Amount", (add_mm(margin, '12mm'), '80mm'), **head_font_info))
+        dwg.add(dwg.text(self.label("Currency"), (margin, '80mm'), **head_font_info))
+        dwg.add(dwg.text(self.label("Amount"), (add_mm(margin, '12mm'), '80mm'), **head_font_info))
         dwg.add(dwg.text(self.currency, (margin, '85mm'), **font_info))
         if self.amount:
             dwg.add(dwg.text(self.amount, (add_mm(margin, '12mm'), '85mm'), **font_info))
@@ -253,7 +298,7 @@ class QRBill:
 
         # Right-aligned
         dwg.add(dwg.text(
-            "Acceptance point", (add_mm(receipt_width, '-' + margin), '91mm'),
+            self.label("Acceptance point"), (add_mm(receipt_width, '-' + margin), '91mm'),
             text_anchor='end', **head_font_info
         ))
         # Separation line between receipt and payment parts
@@ -267,9 +312,7 @@ class QRBill:
         ))
 
         # Payment part
-        dwg.add(dwg.text("Payment part", (payment_left, '10mm'), **title_font_info))
-        dwg.add(dwg.text("Supports", (payment_left, '16mm'), **head_font_info))
-        dwg.add(dwg.text("Credit transfer", (payment_left, '21mm'), **font_info))
+        dwg.add(dwg.text(self.label("Payment part"), (payment_left, '10mm'), **title_font_info))
 
         # Get QR code SVG from qrcode lib, read it and redraw path in svgwrite drawing.
         buff = BytesIO()
@@ -286,7 +329,7 @@ class QRBill:
             d=path_data,
             style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none",
         )
-        path.translate(tx=230, ty=100)
+        path.translate(tx=250, ty=60)
         # Limit scaling to some max dimensions
         scale_factor = 3 - (max(im.width - 60, 0) * 0.05)
         path.scale(sx=scale_factor, sy=scale_factor)
@@ -294,8 +337,8 @@ class QRBill:
 
         self.draw_swiss_cross(dwg, im.width * scale_factor)
 
-        dwg.add(dwg.text("Currency", (payment_left, '80mm'), **head_font_info))
-        dwg.add(dwg.text("Amount", (add_mm(payment_left, '12mm'), '80mm'), **head_font_info))
+        dwg.add(dwg.text(self.label("Currency"), (payment_left, '80mm'), **head_font_info))
+        dwg.add(dwg.text(self.label("Amount"), (add_mm(payment_left, '12mm'), '80mm'), **head_font_info))
         dwg.add(dwg.text(self.currency, (payment_left, '85mm'), **font_info))
         if self.amount:
             dwg.add(dwg.text(self.amount, (add_mm(payment_left, '12mm'), '85mm'), **font_info))
@@ -315,7 +358,7 @@ class QRBill:
             dwg.add(dwg.text(text, (payment_detail_left, '%smm' % y_pos), **head_font_info))
             y_pos += line_space
 
-        add_header("Account / Payable to")
+        add_header(self.label("Account / Payable to"))
         dwg.add(dwg.text(
             format_iban(self.account), (payment_detail_left, '%smm' % y_pos), **font_info
         ))
@@ -326,12 +369,12 @@ class QRBill:
             y_pos += line_space
 
         if self.ref_number:
-            add_header("Reference")
+            add_header(self.label("Reference"))
             dwg.add(dwg.text(self.ref_number, (payment_detail_left, '%smm' % y_pos), **font_info))
             y_pos += line_space
 
         if self.extra_infos:
-            add_header("Additional information")
+            add_header(self.label("Additional information"))
             if '##' in self.extra_infos:
                 extra_infos = self.extra_infos.split('##')
                 extra_infos[1] = '##' + extra_infos[1]
@@ -343,12 +386,12 @@ class QRBill:
                 y_pos += line_space
 
         if self.debtor:
-            add_header("Payable by")
+            add_header(self.label("Payable by"))
             for line_text in self.debtor.as_paragraph():
                 dwg.add(dwg.text(line_text, (payment_detail_left, '%smm' % y_pos), **font_info))
                 y_pos += line_space
         else:
-            add_header("Payable by (name/address)")
+            add_header(self.label("Payable by (name/address)"))
             # The specs recomment at least 2.5 x 6.5 cm
             self.draw_blank_rect(
                 dwg, x=payment_detail_left, y='%smm' % y_pos,
@@ -357,13 +400,13 @@ class QRBill:
             y_pos += 28
 
         if self.final_creditor:
-            add_header("In favor of")
+            add_header(self.label("In favor of"))
             for line_text in self.final_creditor.as_paragraph():
                 dwg.add(dwg.text(line_text, (payment_detail_left, '%smm' % y_pos), **font_info))
                 y_pos += line_space
 
         if self.due_date:
-            add_header("Due date")
+            add_header(self.label("Payable by"))
             dwg.add(dwg.text(
                 format_date(self.due_date), (payment_detail_left, '%smm' % y_pos), **font_info
             ))

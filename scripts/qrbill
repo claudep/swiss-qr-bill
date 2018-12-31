@@ -33,6 +33,7 @@ if __name__ == '__main__':
     parser.add_argument('--debtor-country', default='CH')
     parser.add_argument('--reference-number')
     parser.add_argument('--extra-infos')
+    parser.add_argument('--language', default='en')
 
     args = parser.parse_args()
     creditor = {
@@ -63,6 +64,7 @@ if __name__ == '__main__':
             currency=args.currency,
             due_date=args.due_date,
             debtor=debtor,
+            language=args.language,
         )
     except ValueError as err:
         sys.exit("Error: %s" % err)
