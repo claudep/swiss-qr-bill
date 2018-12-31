@@ -175,14 +175,14 @@ class QRBill:
         """Draw a empty blank rect with corners (e.g. amount, debtor)"""
         stroke_info = {'stroke': 'black', 'stroke_width': '0.7mm', 'stroke_linecap': 'square'}
         grp = dwg.add(dwg.g())
-        grp.add(dwg.line((0, 0), (0, 8.5), **stroke_info))
+        grp.add(dwg.line((0, 0), (0, 5), **stroke_info))
         grp.add(dwg.line((0, 0), (8.5, 0), **stroke_info))
-        grp.add(dwg.line((0, height), (0, add_mm(height, '-3mm')), **stroke_info))
+        grp.add(dwg.line((0, height), (0, add_mm(height, '-2mm')), **stroke_info))
         grp.add(dwg.line((0, height), ('3mm', height), **stroke_info))
         grp.add(dwg.line((add_mm(width, '-3mm'), 0), (width, 0), **stroke_info))
-        grp.add(dwg.line((width, 0), (width, 8.5), **stroke_info))
+        grp.add(dwg.line((width, 0), (width, 5), **stroke_info))
         grp.add(dwg.line((add_mm(width, '-3mm'), height), (width, height), **stroke_info))
-        grp.add(dwg.line((width, height), (width, add_mm(height, '-3mm')), **stroke_info))
+        grp.add(dwg.line((width, height), (width, add_mm(height, '-2mm')), **stroke_info))
         grp.translate(tx=float(x[:-2]) * MM_TO_UU, ty=float(y[:-2]) * MM_TO_UU)
 
     def as_svg(self, file_name):
@@ -217,25 +217,43 @@ class QRBill:
             y_pos += line_space
 
         if self.ref_number:
+            y_pos += 1
             dwg.add(dwg.text("Reference", (margin, '%smm' % y_pos), **head_font_info))
             y_pos += line_space
             dwg.add(dwg.text(self.ref_number, (margin, '%smm' % y_pos), **font_info))
             y_pos += line_space
 
-        dwg.add(dwg.text("Payable by", (margin, '%smm' % y_pos), **head_font_info))
+        y_pos += 1
+        dwg.add(dwg.text(
+            "Payable by" if self.debtor else "Payable by (name/address)",
+            (margin, '%smm' % y_pos), **head_font_info
+        ))
         y_pos += line_space
         if self.debtor:
             for line_text in self.debtor.as_paragraph():
                 dwg.add(dwg.text(line_text, (margin, '%smm' % y_pos), **font_info))
                 y_pos += line_space
+        else:
+            self.draw_blank_rect(
+                dwg, x=margin, y='%smm' % y_pos,
+                width='52mm', height='25mm'
+            )
+            y_pos += 28
 
         dwg.add(dwg.text("Currency", (margin, '80mm'), **head_font_info))
         dwg.add(dwg.text("Amount", (add_mm(margin, '12mm'), '80mm'), **head_font_info))
         dwg.add(dwg.text(self.currency, (margin, '85mm'), **font_info))
-        dwg.add(dwg.text(self.amount or '', (add_mm(margin, '12mm'), '85mm'), **font_info))
+        if self.amount:
+            dwg.add(dwg.text(self.amount, (add_mm(margin, '12mm'), '85mm'), **font_info))
+        else:
+            self.draw_blank_rect(
+                dwg, x=add_mm(margin, '25mm'), y='77mm',
+                width='27mm', height='11mm'
+            )
+
         # Right-aligned
         dwg.add(dwg.text(
-            "Acceptance point", (add_mm(receipt_width, '-' + margin), '90mm'),
+            "Acceptance point", (add_mm(receipt_width, '-' + margin), '91mm'),
             text_anchor='end', **head_font_info
         ))
         # Separation line between receipt and payment parts
@@ -320,12 +338,13 @@ class QRBill:
                 dwg.add(dwg.text(info, (payment_detail_left, '%smm' % y_pos), **font_info))
                 y_pos += line_space
 
-        add_header("Payable by")
         if self.debtor:
+            add_header("Payable by")
             for line_text in self.debtor.as_paragraph():
                 dwg.add(dwg.text(line_text, (payment_detail_left, '%smm' % y_pos), **font_info))
                 y_pos += line_space
         else:
+            add_header("Payable by (name/address)")
             # The specs recomment at least 2.5 x 6.5 cm
             self.draw_blank_rect(
                 dwg, x=payment_detail_left, y='%smm' % y_pos,
