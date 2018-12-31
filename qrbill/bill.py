@@ -188,7 +188,7 @@ class QRBill:
     def as_svg(self, file_name):
         bill_height = '105mm'
         receipt_width = '62mm'
-        payment_width= '148mm'
+        payment_width = '148mm'
         margin = '5mm'
         payment_left = add_mm(receipt_width, margin)
         payment_detail_left = add_mm(payment_left, '70mm')
