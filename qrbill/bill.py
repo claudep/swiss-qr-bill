@@ -11,6 +11,7 @@ from iso3166 import countries
 IBAN_CH_LENGTH = 21
 AMOUNT_REGEX = r'\d{0,9}\.\d{2}'
 DATE_REGEX = r'(\d{4})-(\d{2})-(\d{2})'
+MM_TO_UU = 3.543307
 
 
 class Address:
@@ -170,6 +171,20 @@ class QRBill:
         y = 98 + (qr_width * 0.52)
         group.translate(tx=x, ty=y)
 
+    def draw_blank_rect(self, dwg, x, y, width, height):
+        """Draw a empty blank rect with corners (e.g. amount, debtor)"""
+        stroke_info = {'stroke': 'black', 'stroke_width': '0.7mm', 'stroke_linecap': 'square'}
+        grp = dwg.add(dwg.g())
+        grp.add(dwg.line((0, 0), (0, 8.5), **stroke_info))
+        grp.add(dwg.line((0, 0), (8.5, 0), **stroke_info))
+        grp.add(dwg.line((0, height), (0, add_mm(height, '-3mm')), **stroke_info))
+        grp.add(dwg.line((0, height), ('3mm', height), **stroke_info))
+        grp.add(dwg.line((add_mm(width, '-3mm'), 0), (width, 0), **stroke_info))
+        grp.add(dwg.line((width, 0), (width, 8.5), **stroke_info))
+        grp.add(dwg.line((add_mm(width, '-3mm'), height), (width, height), **stroke_info))
+        grp.add(dwg.line((width, height), (width, add_mm(height, '-3mm')), **stroke_info))
+        grp.translate(tx=float(x[:-2]) * MM_TO_UU, ty=float(y[:-2]) * MM_TO_UU)
+
     def as_svg(self, file_name):
         bill_height = '105mm'
         receipt_width = '62mm'
@@ -260,7 +275,13 @@ class QRBill:
         dwg.add(dwg.text("Currency", (payment_left, '80mm'), **head_font_info))
         dwg.add(dwg.text("Amount", (add_mm(payment_left, '12mm'), '80mm'), **head_font_info))
         dwg.add(dwg.text(self.currency, (payment_left, '85mm'), **font_info))
-        dwg.add(dwg.text(self.amount or '', (add_mm(payment_left, '12mm'), '85mm'), **font_info))
+        if self.amount:
+            dwg.add(dwg.text(self.amount, (add_mm(payment_left, '12mm'), '85mm'), **font_info))
+        else:
+            self.draw_blank_rect(
+                dwg, x=add_mm(receipt_width, margin, '12mm'), y='83mm',
+                width='40mm', height='15mm'
+            )
 
         # Right side of the bill
         y_pos = 10
@@ -282,12 +303,6 @@ class QRBill:
             dwg.add(dwg.text(line_text, (payment_detail_left, '%smm' % y_pos), **font_info))
             y_pos += line_space
 
-        if self.final_creditor:
-            add_header("Ultimate creditor")
-            for line_text in self.final_creditor.as_paragraph():
-                dwg.add(dwg.text(line_text, (payment_detail_left, '%smm' % y_pos), **font_info))
-                y_pos += line_space
-
         if self.ref_number:
             add_header("Reference")
             dwg.add(dwg.text(self.ref_number, (payment_detail_left, '%smm' % y_pos), **font_info))
@@ -308,6 +323,19 @@ class QRBill:
         add_header("Payable by")
         if self.debtor:
             for line_text in self.debtor.as_paragraph():
+                dwg.add(dwg.text(line_text, (payment_detail_left, '%smm' % y_pos), **font_info))
+                y_pos += line_space
+        else:
+            # The specs recomment at least 2.5 x 6.5 cm
+            self.draw_blank_rect(
+                dwg, x=payment_detail_left, y='%smm' % y_pos,
+                width='65mm', height='25mm'
+            )
+            y_pos += 28
+
+        if self.final_creditor:
+            add_header("In favor of")
+            for line_text in self.final_creditor.as_paragraph():
                 dwg.add(dwg.text(line_text, (payment_detail_left, '%smm' % y_pos), **font_info))
                 y_pos += line_space
 

@@ -52,6 +52,10 @@ class QRBillTests(unittest.TestCase):
             '1000\r\nLausanne\r\nCH\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\nCHF\r\n'
             '\r\n\r\n\r\n\r\n\r\n\r\n\r\nNON\r\n\r\n'
         )
+        with tempfile.NamedTemporaryFile(suffix='.svg') as fh:
+            bill.as_svg(fh.name)
+            content = fh.read().decode()
+        self.assertTrue(content.startswith('<?xml version="1.0" encoding="utf-8" ?>'))
 
     def test_spec_example1(self):
         bill = QRBill(
