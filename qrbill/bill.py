@@ -260,6 +260,10 @@ class QRBill:
             start=(receipt_width, 0), end=(receipt_width, bill_height),
             stroke='black', stroke_dasharray='2 2'
         ))
+        dwg.add(dwg.text(
+            "✂", insert=(add_mm(receipt_width, '-1.5mm'), 40),
+            font_size=16, font_family='helvetica', rotate=[90]
+        ))
 
         # Payment part
         dwg.add(dwg.text("Payment part", (payment_left, '10mm'), **title_font_info))
@@ -369,7 +373,7 @@ class QRBill:
 
 def add_mm(*mms):
     """Utility to allow additions of '23mm'-type strings."""
-    return '%smm' % str(sum(int(mm[:-2]) for mm in mms))
+    return '%smm' % str(sum(float(mm[:-2]) for mm in mms))
 
 
 def format_iban(iban):
