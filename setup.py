@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name='qrbill',
-    version='0.1',
+    version='0.2',
     description='A library to generate Swiss QR-bill payment slips',
     license='GPLv3',
     author='Claude Paroz',
