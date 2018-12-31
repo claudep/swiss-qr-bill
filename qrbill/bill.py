@@ -173,6 +173,8 @@ class QRBill:
     def as_svg(self, file_name):
         left_margin = '5mm'
         col_offset = '70mm'
+        font_info = {'font_size': 10, 'font_family': 'helvetica'}
+        head_font_info = {'font_size': 8, 'font_family': 'helvetica', 'font_weight': 'bold'}
 
         dwg = svgwrite.Drawing(
             size=('148mm', '105mm'),  # A6 horiz.
@@ -180,14 +182,10 @@ class QRBill:
         )
         dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), fill='white'))  # Force white background
         dwg.add(dwg.text(
-            "QR-bill payment part", (left_margin, '10mm'), font_size=11, font_family='helvetica', font_weight='bold'
+            "Payment part", (left_margin, '10mm'), font_size=11, font_family='helvetica', font_weight='bold'
         ))
-        dwg.add(dwg.text(
-            "Supports", (left_margin, '16mm'), font_size=10.5, font_family='helvetica', font_weight='bold'
-        ))
-        dwg.add(dwg.text(
-            "Credit transfer", (left_margin, '21mm'), font_size=11, font_family='helvetica'
-        ))
+        dwg.add(dwg.text("Supports", (left_margin, '16mm'), **head_font_info))
+        dwg.add(dwg.text("Credit transfer", (left_margin, '21mm'), **font_info))
 
         # Get QR code SVG from qrcode lib, read it and redraw path in svgwrite drawing.
         buff = BytesIO()
@@ -212,18 +210,10 @@ class QRBill:
 
         self.draw_swiss_cross(dwg, im.width * scale_factor)
 
-        dwg.add(dwg.text(
-            "Currency", (left_margin, '90mm'), font_size=10.5, font_family='helvetica', font_weight='bold'
-        ))
-        dwg.add(dwg.text(
-            "Amount", ('25mm', '90mm'), font_size=10.5, font_family='helvetica', font_weight='bold'
-        ))
-        dwg.add(dwg.text(
-            self.currency, (left_margin, '95mm'), font_size=11, font_family='helvetica'
-        ))
-        dwg.add(dwg.text(
-            self.amount or '', ('25mm', '95mm'), font_size=11, font_family='helvetica'
-        ))
+        dwg.add(dwg.text("Currency", (left_margin, '90mm'), **head_font_info))
+        dwg.add(dwg.text("Amount", ('25mm', '90mm'), **head_font_info))
+        dwg.add(dwg.text(self.currency, (left_margin, '95mm'), **font_info))
+        dwg.add(dwg.text(self.amount or '', ('25mm', '95mm'), **font_info))
 
         # Right side of the bill
         y_pos = 10
@@ -232,38 +222,29 @@ class QRBill:
         def add_header(text):
             nonlocal dwg, col_offset, y_pos
             y_pos += 1
-            dwg.add(dwg.text(
-                text, (col_offset, '%smm' % y_pos), font_size=10.5, font_family='helvetica', font_weight='bold'
-            ))
+            dwg.add(dwg.text(text, (col_offset, '%smm' % y_pos), **head_font_info))
             y_pos += line_space
 
         add_header("Account")
         dwg.add(dwg.text(
-            format_iban(self.account), (col_offset, '%smm' % y_pos),
-            font_size=11, font_family='helvetica'
+            format_iban(self.account), (col_offset, '%smm' % y_pos), **font_info
         ))
         y_pos += line_space
 
         add_header("Creditor")
         for line_text in self.creditor.as_paragraph():
-            dwg.add(dwg.text(
-                line_text, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
-            ))
+            dwg.add(dwg.text(line_text, (col_offset, '%smm' % y_pos), **font_info))
             y_pos += line_space
 
         if self.final_creditor:
             add_header("Ultimate creditor")
             for line_text in self.final_creditor.as_paragraph():
-                dwg.add(dwg.text(
-                    line_text, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
-                ))
+                dwg.add(dwg.text(line_text, (col_offset, '%smm' % y_pos), **font_info))
                 y_pos += line_space
 
         if self.ref_number:
             add_header("Reference number")
-            dwg.add(dwg.text(
-                self.ref_number, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
-            ))
+            dwg.add(dwg.text(self.ref_number, (col_offset, '%smm' % y_pos), **font_info))
             y_pos += line_space
 
         if self.extra_infos:
@@ -274,24 +255,19 @@ class QRBill:
             else:
                 extra_infos = [self.extra_infos]
             for info in extra_infos:
-                dwg.add(dwg.text(
-                    info, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
-                ))
+                dwg.add(dwg.text(info, (col_offset, '%smm' % y_pos), **font_info))
                 y_pos += line_space
 
         add_header("Debtor")
         if self.debtor:
             for line_text in self.debtor.as_paragraph():
-                dwg.add(dwg.text(
-                    line_text, (col_offset, '%smm' % y_pos), font_size=11, font_family='helvetica'
-                ))
+                dwg.add(dwg.text(line_text, (col_offset, '%smm' % y_pos), **font_info))
                 y_pos += line_space
 
         if self.due_date:
             add_header("Due date")
             dwg.add(dwg.text(
-                format_date(self.due_date), (col_offset, '%smm' % y_pos),
-                font_size=11, font_family='helvetica'
+                format_date(self.due_date), (col_offset, '%smm' % y_pos), **font_info
             ))
             y_pos += line_space
 
