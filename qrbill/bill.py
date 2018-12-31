@@ -175,15 +175,14 @@ class QRBill:
         """Draw a empty blank rect with corners (e.g. amount, debtor)"""
         stroke_info = {'stroke': 'black', 'stroke_width': '0.7mm', 'stroke_linecap': 'square'}
         grp = dwg.add(dwg.g())
-        grp.add(dwg.line((0, 0), (0, 5), **stroke_info))
-        grp.add(dwg.line((0, 0), (8.5, 0), **stroke_info))
-        grp.add(dwg.line((0, height), (0, add_mm(height, '-2mm')), **stroke_info))
-        grp.add(dwg.line((0, height), ('3mm', height), **stroke_info))
-        grp.add(dwg.line((add_mm(width, '-3mm'), 0), (width, 0), **stroke_info))
-        grp.add(dwg.line((width, 0), (width, 5), **stroke_info))
-        grp.add(dwg.line((add_mm(width, '-3mm'), height), (width, height), **stroke_info))
-        grp.add(dwg.line((width, height), (width, add_mm(height, '-2mm')), **stroke_info))
-        grp.translate(tx=float(x[:-2]) * MM_TO_UU, ty=float(y[:-2]) * MM_TO_UU)
+        grp.add(dwg.line((x, y), (x, add_mm(y, '2mm')), **stroke_info))
+        grp.add(dwg.line((x, y), (add_mm(x, '3mm'), y), **stroke_info))
+        grp.add(dwg.line((x, add_mm(y, height)), (x, add_mm(y, height, '-2mm')), **stroke_info))
+        grp.add(dwg.line((x, add_mm(y, height)), (add_mm(x, '3mm'), add_mm(y, height)), **stroke_info))
+        grp.add(dwg.line((add_mm(x, width, '-3mm'), y), (add_mm(x, width), y), **stroke_info))
+        grp.add(dwg.line((add_mm(x, width), y), (add_mm(x, width), add_mm(y, '2mm')), **stroke_info))
+        grp.add(dwg.line((add_mm(x, width, '-3mm'), add_mm(y, height)), (add_mm(x, width), add_mm(y, height)), **stroke_info))
+        grp.add(dwg.line((add_mm(x, width), add_mm(y, height)), (add_mm(x, width), add_mm(y, height, '-2mm')), **stroke_info))
 
     def as_svg(self, file_name):
         bill_height = '105mm'
