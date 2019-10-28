@@ -42,6 +42,7 @@ LABELS = {
         'fr': 'Payable par (nom/adresse)',
         'it': 'Pagabile da (nome/indirizzo)',
     },
+    'Payable by ': {'de': 'Zahlbar bis', 'fr': 'Payable jusque au', 'it': 'Pagabile fino al'},
     'In favour of': {'de': 'Zugunsten', 'fr': 'En faveur de', 'it': 'A favore di'},
 }
 
@@ -265,7 +266,8 @@ class QRBill:
             y_pos += 1
             dwg.add(dwg.text(self.label("Reference"), (margin, '%smm' % y_pos), **head_font_info))
             y_pos += line_space
-            dwg.add(dwg.text(self.ref_number, (margin, '%smm' % y_pos), **font_info))
+            dwg.add(dwg.text(
+                format_ref_number(self.ref_type, self.ref_number), (margin, '%smm' % y_pos), **font_info))
             y_pos += line_space
 
         y_pos += 1
@@ -370,7 +372,8 @@ class QRBill:
 
         if self.ref_number:
             add_header(self.label("Reference"))
-            dwg.add(dwg.text(self.ref_number, (payment_detail_left, '%smm' % y_pos), **font_info))
+            dwg.add(dwg.text(
+                format_ref_number(self.ref_type, self.ref_number), (payment_detail_left, '%smm' % y_pos), **font_info))
             y_pos += line_space
 
         if self.extra_infos:
@@ -406,7 +409,7 @@ class QRBill:
                 y_pos += line_space
 
         if self.due_date:
-            add_header(self.label("Payable by"))
+            add_header(self.label("Payable by "))
             dwg.add(dwg.text(
                 format_date(self.due_date), (payment_detail_left, '%smm' % y_pos), **font_info
             ))
@@ -426,6 +429,24 @@ def format_iban(iban):
     return '%s %s %s %s %s %s' % (
         iban[:4], iban[4:8], iban[8:12], iban[12:16], iban[16:20], iban[20:]
     )
+
+
+def format_ref_number(ref_type, ref_number):
+    if not ref_number:
+        return ''
+    if ref_type == "QRR":
+        return '%s %s %s %s %s %s' % (
+            ref_number[:2], ref_number[2:7], ref_number[7:12], ref_number[12:17], ref_number[17:22], ref_number[22:]
+        )
+    elif ref_type == "SCOR":
+        print_ref_number = ""
+        while ref_number:
+            print_ref_number = print_ref_number + " " + ref_number[0:4]
+            ref_number = ref_number[4:]
+        return print_ref_number.strip()
+    else:
+        return ref_number
+
 
 
 def format_date(date_):

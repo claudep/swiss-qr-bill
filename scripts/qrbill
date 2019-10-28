@@ -64,6 +64,8 @@ if __name__ == '__main__':
             currency=args.currency,
             due_date=args.due_date,
             debtor=debtor,
+            ref_number=args.reference_number,
+            extra_infos=args.extra_infos,
             language=args.language,
         )
     except ValueError as err:
