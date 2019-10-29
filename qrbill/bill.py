@@ -42,6 +42,8 @@ LABELS = {
         'fr': 'Payable par (nom/adresse)',
         'it': 'Pagabile da (nome/indirizzo)',
     },
+    # The extra ending space allows to differentiate from the other 'Payable by' above.
+    'Payable by ': {'de': 'Zahlbar bis', 'fr': 'Payable jusqu’au', 'it': 'Pagabile fino al'},
     'In favour of': {'de': 'Zugunsten', 'fr': 'En faveur de', 'it': 'A favore di'},
 }
 
@@ -408,7 +410,7 @@ class QRBill:
                 y_pos += line_space
 
         if self.due_date:
-            add_header(self.label("Payable by"))
+            add_header(self.label("Payable by "))
             dwg.add(dwg.text(
                 format_date(self.due_date), (payment_detail_left, '%smm' % y_pos), **font_info
             ))

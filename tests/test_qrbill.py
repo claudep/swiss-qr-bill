@@ -106,6 +106,20 @@ class QRBillTests(unittest.TestCase):
             bill.as_svg(fh.name)
             content = fh.read().decode()
         self.assertTrue(content.startswith('<?xml version="1.0" encoding="utf-8" ?>'))
+        # Test the Payable by section:
+        self.assertIn(
+            '<text {font8} {x} y="52.5mm">Payable by</text>'
+            '<text {font10} {x} y="56.0mm">Pia-Maria Rutschmann-Schnyder</text>'
+            '<text {font10} {x} y="59.5mm">Grosse Marktgasse 28</text>'
+            '<text {font10} {x} y="63.0mm">CH-9400 Rorschach</text>'
+            '<text {font8} {x} y="67.5mm">Payable by </text>'
+            '<text {font10} {x} y="71.0mm">31.10.2019</text>'.format(
+                font8='font-family="helvetica" font-size="8" font-weight="bold"',
+                font10='font-family="helvetica" font-size="10"',
+                x='x="137.0mm"'
+            ),
+            content
+        )
 
     def test_format_reference(self):
         bill = QRBill(
