@@ -136,6 +136,20 @@ class CommandLineTests(unittest.TestCase):
             '--creditor-postalcode, --creditor-city' in err.decode()
         )
 
+    def test_svg_result(self):
+        with tempfile.NamedTemporaryFile(suffix='.svg') as tmp:
+            out, err = subprocess.Popen(
+                [sys.executable, 'scripts/qrbill', '--account', 'CH 44 3199 9123 0008 89012',
+                 '--creditor-name',  'Jane', '--creditor-postalcode', '1000',
+                 '--creditor-city', 'Lausanne', '--reference-number', '210000000003139471430009017',
+                 '--extra-infos', 'Order of 15.09.2019', '--output', tmp.name
+                ],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            ).communicate()
+            svg_content = tmp.read().decode('utf-8')
+            self.assertIn('Reference', svg_content)
+            self.assertIn('Order of 15.09.2019', svg_content)
+
 
 if __name__ == '__main__':
     unittest.main()
