@@ -443,7 +443,7 @@ def format_ref_number(bill):
     elif bill.ref_type == "SCOR":
         return ' '.join([num[i:i+4] for i in range(0, len(num), 4)])
     else:
-        return ref_number
+        return num
 
 
 def format_date(date_):

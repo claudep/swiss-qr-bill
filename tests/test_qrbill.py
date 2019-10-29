@@ -130,6 +130,9 @@ class QRBillTests(unittest.TestCase):
         )
         self.assertEqual(format_ref_number(bill), '')
 
+        bill.ref_number = '210000000003139471430009017'
+        self.assertEqual(format_ref_number(bill), '210000000003139471430009017')
+
         bill.ref_type = 'QRR'
         bill.ref_number = '210000000003139471430009017'
         self.assertEqual(format_ref_number(bill), '21 00000 00003 13947 14300 09017')
@@ -152,13 +155,14 @@ class CommandLineTests(unittest.TestCase):
 
     def test_svg_result(self):
         with tempfile.NamedTemporaryFile(suffix='.svg') as tmp:
+            cmd = [
+                sys.executable, 'scripts/qrbill', '--account', 'CH 44 3199 9123 0008 89012',
+                '--creditor-name',  'Jane', '--creditor-postalcode', '1000',
+                '--creditor-city', 'Lausanne', '--reference-number', '210000000003139471430009017',
+                '--extra-infos', 'Order of 15.09.2019', '--output', tmp.name,
+            ]
             out, err = subprocess.Popen(
-                [sys.executable, 'scripts/qrbill', '--account', 'CH 44 3199 9123 0008 89012',
-                 '--creditor-name',  'Jane', '--creditor-postalcode', '1000',
-                 '--creditor-city', 'Lausanne', '--reference-number', '210000000003139471430009017',
-                 '--extra-infos', 'Order of 15.09.2019', '--output', tmp.name
-                ],
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             ).communicate()
             svg_content = tmp.read().decode('utf-8')
             self.assertIn('Reference', svg_content)
