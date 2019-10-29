@@ -265,7 +265,7 @@ class QRBill:
             y_pos += 1
             dwg.add(dwg.text(self.label("Reference"), (margin, '%smm' % y_pos), **head_font_info))
             y_pos += line_space
-            dwg.add(dwg.text(self.ref_number, (margin, '%smm' % y_pos), **font_info))
+            dwg.add(dwg.text(format_ref_number(self), (margin, '%smm' % y_pos), **font_info))
             y_pos += line_space
 
         y_pos += 1
@@ -370,7 +370,9 @@ class QRBill:
 
         if self.ref_number:
             add_header(self.label("Reference"))
-            dwg.add(dwg.text(self.ref_number, (payment_detail_left, '%smm' % y_pos), **font_info))
+            dwg.add(dwg.text(
+                format_ref_number(self), (payment_detail_left, '%smm' % y_pos), **font_info
+            ))
             y_pos += line_space
 
         if self.extra_infos:
@@ -426,6 +428,20 @@ def format_iban(iban):
     return '%s %s %s %s %s %s' % (
         iban[:4], iban[4:8], iban[8:12], iban[12:16], iban[16:20], iban[20:]
     )
+
+
+def format_ref_number(bill):
+    if not bill.ref_number:
+        return ''
+    num = bill.ref_number
+    if bill.ref_type == "QRR":
+        return ' '.join([
+            num[:2], num[2:7], num[7:12], num[12:17], num[17:22], num[22:]
+        ])
+    elif bill.ref_type == "SCOR":
+        return ' '.join([num[i:i+4] for i in range(0, len(num), 4)])
+    else:
+        return ref_number
 
 
 def format_date(date_):

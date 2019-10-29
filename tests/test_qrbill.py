@@ -4,7 +4,7 @@ import tempfile
 import unittest
 
 from qrbill import QRBill
-from qrbill.bill import format_iban
+from qrbill.bill import format_iban, format_ref_number
 
 
 class QRBillTests(unittest.TestCase):
@@ -106,6 +106,23 @@ class QRBillTests(unittest.TestCase):
             bill.as_svg(fh.name)
             content = fh.read().decode()
         self.assertTrue(content.startswith('<?xml version="1.0" encoding="utf-8" ?>'))
+
+    def test_format_reference(self):
+        bill = QRBill(
+            account="CH 44 3199 9123 0008 89012",
+            creditor={
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+            },
+        )
+        self.assertEqual(format_ref_number(bill), '')
+
+        bill.ref_type = 'QRR'
+        bill.ref_number = '210000000003139471430009017'
+        self.assertEqual(format_ref_number(bill), '21 00000 00003 13947 14300 09017')
+
+        bill.ref_type = 'SCOR'
+        bill.ref_number = 'RF18539007547034'
+        self.assertEqual(format_ref_number(bill), 'RF18 5390 0754 7034')
 
 
 class CommandLineTests(unittest.TestCase):
