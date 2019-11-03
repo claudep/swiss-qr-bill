@@ -23,7 +23,7 @@ if __name__ == '__main__':
     parser.add_argument('--creditor-city', required=True,
                         help='creditor city')
     parser.add_argument('--creditor-country', default='CH',
-                        help='creditor country')
+                        help='creditor country (in English or 2-letter code)')
     parser.add_argument('--ucreditor-name',
                         help='ulitmate creditor name')
     parser.add_argument('--ucreditor-street',
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     parser.add_argument('--ucreditor-city',
                         help='ultimate creditor city')
     parser.add_argument('--ucreditor-country', default='CH',
-                        help='ultimate creditor country')
+                        help='ultimate creditor country (in English or 2-letter code)')
     parser.add_argument('--amount',
                         help='amount of payment')
     parser.add_argument('--currency', default='CHF', choices=['CHF', 'EUR'],
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     parser.add_argument('--debtor-city',
                         help='debtor city')
     parser.add_argument('--debtor-country', default='CH',
-                        help='debtor country')
+                        help='debtor country (in English or 2-letter code)')
     parser.add_argument('--reference-number',
                         help='reference number')
     parser.add_argument('--extra-infos',
