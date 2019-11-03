@@ -29,6 +29,13 @@ class QRBillTests(unittest.TestCase):
                     'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
                 },
             )
+        with self.assertRaisesRegex(ValueError, "IBAN must start with: CH, LI"):
+            bill = QRBill(
+                account="DE 44 3199 9123 0008 89012",
+                creditor={
+                    'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
+                },
+            )
         # Spaces are auto-stripped
         bill = QRBill(
             account="CH 44 3199 9123 0008 89012",
