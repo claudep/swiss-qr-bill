@@ -9,6 +9,7 @@ import validators
 from iso3166 import countries
 
 IBAN_CH_LENGTH = 21
+IBAN_ALLOWED_COUNTRIES = ['CH', 'LI']
 AMOUNT_REGEX = r'\d{0,9}\.\d{2}'
 DATE_REGEX = r'(\d{4})-(\d{2})-(\d{2})'
 MM_TO_UU = 3.543307
@@ -113,8 +114,10 @@ class QRBill:
         if not account:
             raise ValueError("The account parameter is mandatory")
         account = account.replace(' ', '')
+        if account[:2] not in IBAN_ALLOWED_COUNTRIES:
+            raise ValueError("IBAN must start with: %s" % ", ".join(IBAN_ALLOWED_COUNTRIES))
         if account and len(account) != IBAN_CH_LENGTH:
-            raise ValueError("IBAN must have exactly 21 characters")
+            raise ValueError("IBAN must have exactly %s characters" % (IBAN_CH_LENGTH,))
         elif account and not validators.iban(account):
             raise ValueError("Sorry, the IBAN is not valid")
         self.account = account
