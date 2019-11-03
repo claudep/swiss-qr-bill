@@ -72,6 +72,43 @@ class QRBillTests(unittest.TestCase):
         )
         self.assertEqual(bill.currency, "EUR")
 
+    def test_amount(self):
+        with self.assertRaisesRegex(ValueError, "If provided, the amount must match the pattern '###.##'" +
+                                    " and can not be larger than 999'999'999.99"):
+            bill = QRBill(
+                account="CH 44 3199 9123 0008 89012",
+                amount="1234567890.00",
+                creditor={
+                    'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
+                },
+            )
+        with self.assertRaisesRegex(ValueError, "If provided, the amount must match the pattern '###.##'" +
+                                    " and can not be larger than 999'999'999.99"):
+            bill = QRBill(
+                account="CH 44 3199 9123 0008 89012",
+                amount="1.001",
+                creditor={
+                    'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
+                },
+            )
+        with self.assertRaisesRegex(ValueError, "If provided, the amount must match the pattern '###.##'" +
+                                    " and can not be larger than 999'999'999.99"):
+            bill = QRBill(
+                account="CH 44 3199 9123 0008 89012",
+                amount="CHF800",
+                creditor={
+                    'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
+                },
+            )
+        bill = QRBill(
+                account="CH 44 3199 9123 0008 89012",
+                amount="0,001'800",
+                creditor={
+                    'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
+                },
+            )
+        self.assertEqual(bill.amount, "1800.00")
+
     def test_minimal_data(self):
         bill = QRBill(
             account="CH 44 3199 9123 0008 89012",
