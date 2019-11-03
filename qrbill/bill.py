@@ -163,7 +163,7 @@ class QRBill:
         else:
             self.ref_type = 'SCOR'
         self.ref_number = ref_number
-        if len(extra_infos) > 140:
+        if extra_infos and len(extra_infos) > 140:
             raise ValueError("Additional information cannot contain more than 140 characters")
         self.extra_infos = extra_infos
         if language not in ['en', 'de', 'fr', 'it']:
