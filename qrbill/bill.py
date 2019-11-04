@@ -125,7 +125,7 @@ class QRBill:
                 raise ValueError("If provided, the amount must match the pattern '###.##'")
         self.amount = amount
         if currency not in self.allowed_currencies:
-            raise ValueError("Currency can only contains: %s" % ", ".join(self.allowed_currencies))
+            raise ValueError("Currency can only contain: %s" % ", ".join(self.allowed_currencies))
         self.currency = currency
         if due_date:
             m = re.match(DATE_REGEX, due_date)
