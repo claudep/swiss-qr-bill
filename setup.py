@@ -10,7 +10,7 @@ with readme.open() as f:
 
 setup(
     name='qrbill',
-    version='0.3',
+    version='0.4.dev1',
     description='A library to generate Swiss QR-bill payment slips',
     long_description=long_description,
     license='GPLv3',
