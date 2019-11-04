@@ -39,6 +39,32 @@ class QRBillTests(unittest.TestCase):
         self.assertEqual(bill.account, "CH4431999123000889012")
         self.assertEqual(format_iban('CH4431999123000889012'), 'CH44 3199 9123 0008 8901 2')
 
+    def test_currency(self):
+        with self.assertRaisesRegex(ValueError, "Currency can only contain: CHF, EUR"):
+            bill = QRBill(
+                account="CH 44 3199 9123 0008 89012",
+                currency="USD",
+                creditor={
+                    'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
+                },
+            )
+        bill = QRBill(
+                account="CH 44 3199 9123 0008 89012",
+                currency="CHF",
+                creditor={
+                    'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
+                },
+            )
+        self.assertEqual(bill.currency, "CHF")
+        bill = QRBill(
+            account="CH 44 3199 9123 0008 89012",
+            currency="EUR",
+            creditor={
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
+            },
+        )
+        self.assertEqual(bill.currency, "EUR")
+
     def test_minimal_data(self):
         bill = QRBill(
             account="CH 44 3199 9123 0008 89012",

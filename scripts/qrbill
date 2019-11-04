@@ -8,32 +8,58 @@ from qrbill import QRBill
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output')
-    parser.add_argument('--account', required=True)
-    parser.add_argument('--creditor-name', required=True)
-    parser.add_argument('--creditor-street')
-    parser.add_argument('--creditor-housenumber')
-    parser.add_argument('--creditor-postalcode', required=True)
-    parser.add_argument('--creditor-city', required=True)
-    parser.add_argument('--creditor-country', default='CH')
-    parser.add_argument('--ucreditor-name')
-    parser.add_argument('--ucreditor-street')
-    parser.add_argument('--ucreditor-housenumber')
-    parser.add_argument('--ucreditor-postalcode')
-    parser.add_argument('--ucreditor-city')
-    parser.add_argument('--ucreditor-country', default='CH')
-    parser.add_argument('--amount')
-    parser.add_argument('--currency', default='CHF')
-    parser.add_argument('--due-date')
-    parser.add_argument('--debtor-name')
-    parser.add_argument('--debtor-street')
-    parser.add_argument('--debtor-housenumber')
-    parser.add_argument('--debtor-postalcode')
-    parser.add_argument('--debtor-city')
-    parser.add_argument('--debtor-country', default='CH')
-    parser.add_argument('--reference-number')
-    parser.add_argument('--extra-infos')
-    parser.add_argument('--language', default='en')
+    parser.add_argument('--output',
+                        help='output file')
+    parser.add_argument('--account', required=True,
+                        help='creditor IBAN account number')
+    parser.add_argument('--creditor-name', required=True,
+                        help='creditor name')
+    parser.add_argument('--creditor-street',
+                        help='creditor street')
+    parser.add_argument('--creditor-housenumber',
+                        help='creditor house number')
+    parser.add_argument('--creditor-postalcode', required=True,
+                        help='creditor postal code')
+    parser.add_argument('--creditor-city', required=True,
+                        help='creditor city')
+    parser.add_argument('--creditor-country', default='CH',
+                        help='creditor country')
+    parser.add_argument('--ucreditor-name',
+                        help='ulitmate creditor name')
+    parser.add_argument('--ucreditor-street',
+                        help='ultimate creditor street')
+    parser.add_argument('--ucreditor-housenumber',
+                        help='ultimate creditor house number')
+    parser.add_argument('--ucreditor-postalcode',
+                        help='ultimate creditor postal code')
+    parser.add_argument('--ucreditor-city',
+                        help='ultimate creditor city')
+    parser.add_argument('--ucreditor-country', default='CH',
+                        help='ultimate creditor country')
+    parser.add_argument('--amount',
+                        help='amount of payment')
+    parser.add_argument('--currency', default='CHF', choices=['CHF', 'EUR'],
+                        help='currency of payment')
+    parser.add_argument('--due-date',
+                        help='due date of payment in the form YYYY-MM-DD')
+    parser.add_argument('--debtor-name',
+                        help='debtor name')
+    parser.add_argument('--debtor-street',
+                        help='debtor street')
+    parser.add_argument('--debtor-housenumber',
+                        help='debtor house number')
+    parser.add_argument('--debtor-postalcode',
+                        help='debtor postal code')
+    parser.add_argument('--debtor-city',
+                        help='debtor city')
+    parser.add_argument('--debtor-country', default='CH',
+                        help='debtor country')
+    parser.add_argument('--reference-number',
+                        help='reference number')
+    parser.add_argument('--extra-infos',
+                        help='payment purpose')
+    parser.add_argument('--language', default='en', choices=['en', 'de', 'fr', 'it'],
+                        help='language')
 
     args = parser.parse_args()
     creditor = {
