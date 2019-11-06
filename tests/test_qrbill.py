@@ -194,6 +194,51 @@ class CommandLineTests(unittest.TestCase):
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
         self.assertEqual(err, b'')
 
+    def test_country_args(self):
+        with tempfile.NamedTemporaryFile(suffix='.svg') as tmp:
+            # Switzerland - German
+            out, err = subprocess.Popen([
+                sys.executable, 'scripts/qrbill', '--account', 'CH 44 3199 9123 0008 89012',
+                '--creditor-name',  'Jane', '--creditor-postalcode', '1000',
+                '--creditor-city', 'Lausanne', '--creditor-country', 'Schweiz',
+                '--output', tmp.name,
+            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            self.assertEqual(err, b'')
+            # Switzerland - French
+            out, err = subprocess.Popen([
+                sys.executable, 'scripts/qrbill', '--account', 'CH 44 3199 9123 0008 89012',
+                '--creditor-name',  'Jane', '--creditor-postalcode', '1000',
+                '--creditor-city', 'Lausanne', '--creditor-country', 'Suisse',
+                '--output', tmp.name,
+            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            self.assertEqual(err, b'')
+            # Switzerland - Italian
+            out, err = subprocess.Popen([
+                sys.executable, 'scripts/qrbill', '--account', 'CH 44 3199 9123 0008 89012',
+                '--creditor-name',  'Jane', '--creditor-postalcode', '1000',
+                '--creditor-city', 'Lausanne', '--creditor-country', 'Svizzera',
+                '--output', tmp.name,
+            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            self.assertEqual(err, b'')
+            # Switzerland - Romansh
+            out, err = subprocess.Popen([
+                sys.executable, 'scripts/qrbill', '--account', 'CH 44 3199 9123 0008 89012',
+                '--creditor-name',  'Jane', '--creditor-postalcode', '1000',
+                '--creditor-city', 'Lausanne', '--creditor-country', 'Svizra',
+                '--output', tmp.name,
+            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            self.assertEqual(err, b'')
+            # Liechtenstein - German
+            out, err = subprocess.Popen([
+                sys.executable, 'scripts/qrbill', '--account', 'LI 21 08810 0002324013AA',
+                '--creditor-name',  'Jane', '--creditor-postalcode', '9490',
+                '--creditor-city', 'Vaduz', '--creditor-country', 'Fürstentum Liechtenstein',
+                '--output', tmp.name,
+            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            self.assertEqual(err, b'')
+
+
+
     def test_svg_result(self):
         with tempfile.NamedTemporaryFile(suffix='.svg') as tmp:
             cmd = [
