@@ -72,6 +72,11 @@ class Address:
         self.city = city
         if not country:
             country = 'CH'
+        # allow users to write the country as if used in an address in the local language
+        if str.lower(country) in ['schweiz', 'suisse', 'svizzera', 'svizra']:
+            country = 'CH'
+        if str.lower(country) in ['fürstentum liechtenstein']:
+            country = 'LI'
         try:
             countries.get(country)
         except KeyError:
