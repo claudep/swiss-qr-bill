@@ -186,6 +186,14 @@ class CommandLineTests(unittest.TestCase):
             '--creditor-postalcode, --creditor-city' in err.decode()
         )
 
+    def test_minimal_args(self):
+        out, err = subprocess.Popen([
+            sys.executable, 'scripts/qrbill', '--account', 'CH 44 3199 9123 0008 89012',
+            '--creditor-name',  'Jane', '--creditor-postalcode', '1000',
+            '--creditor-city', 'Lausanne',
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        self.assertEqual(err, b'')
+
     def test_svg_result(self):
         with tempfile.NamedTemporaryFile(suffix='.svg') as tmp:
             cmd = [
