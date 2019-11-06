@@ -10,7 +10,7 @@ from iso3166 import countries
 
 IBAN_CH_LENGTH = 21
 IBAN_ALLOWED_COUNTRIES = ['CH', 'LI']
-AMOUNT_REGEX = r'\d{0,9}\.\d{2}'
+AMOUNT_REGEX = r'^\d{1,9}\.\d{2}$'
 DATE_REGEX = r'(\d{4})-(\d{2})-(\d{2})'
 MM_TO_UU = 3.543307
 
@@ -123,9 +123,25 @@ class QRBill:
         self.account = account
 
         if amount is not None:
+            # remove commonly used thousands separators
+            amount = amount.replace("'","")
+            # people often don't add .00 for amounts without cents/rappen
+            if not "." in amount:
+                amount = amount + ".00"
+            # support lazy people who write 12.1 instead of 12.10
+            if amount[-2] == '.':
+                amount = amount + '0'
+            # strip leading zeros
+            amount = amount.lstrip("0")
+            # some people tend to strip the leading zero on amounts below 1 CHF/EUR
+            # and with removing leading zeros, we would have removed the zero before
+            # the decimal delimiter anyway
+            if amount[0] == ".":
+                amount = "0" + amount
             m = re.match(AMOUNT_REGEX, amount)
             if not m:
-                raise ValueError("If provided, the amount must match the pattern '###.##'")
+                raise ValueError("If provided, the amount must match the pattern '###.##'" +
+                                 " and can not be larger than 999'999'999.99")
         self.amount = amount
         if currency not in self.allowed_currencies:
             raise ValueError("Currency can only contain: %s" % ", ".join(self.allowed_currencies))
