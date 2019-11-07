@@ -2,6 +2,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from decimal import Decimal
 
 from qrbill import QRBill
 from qrbill.bill import format_iban, format_ref_number
@@ -96,16 +97,19 @@ class QRBillTests(unittest.TestCase):
         self.assertEqual(bill.currency, "EUR")
 
     def test_amount(self):
-        err = (
+        amount_err = (
             "If provided, the amount must match the pattern '###.##' and cannot "
             "be larger than 999'999'999.99"
         )
+        type_err = "Amount can only be specified as str or Decimal."
         unvalid_inputs = [
-            "1234567890.00",  # Too high value
-            "1.001",  # More than 2 decimals
-            "CHF800",  # Currency included
+            ("1234567890.00", amount_err),  # Too high value
+            ("1.001", amount_err),  # More than 2 decimals
+            (Decimal("1.001"), amount_err),  # Same but with Decimal type
+            ("CHF800", amount_err),  # Currency included
+            (1.35, type_err),  # Float are not accepted (rounding issues)
         ]
-        for value in unvalid_inputs:
+        for value, err in unvalid_inputs:
             with self.assertRaisesRegex(ValueError, err):
                 bill = QRBill(
                     account="CH 44 3199 9123 0008 89012",
@@ -120,6 +124,7 @@ class QRBillTests(unittest.TestCase):
             ("42", "42.00"),
             ("001'800", "1800.00"),
             (" 3.45 ", "3.45"),
+            (Decimal("35.9"), "35.90"),
         ]
         for value, expected in valid_inputs:
             bill = QRBill(
