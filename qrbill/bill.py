@@ -1,5 +1,6 @@
 import re
 from datetime import date
+from decimal import Decimal
 from io import BytesIO
 
 import qrcode
@@ -128,6 +129,10 @@ class QRBill:
         self.account = account
 
         if amount is not None:
+            if isinstance(amount, Decimal):
+                amount = str(amount)
+            elif not isinstance(amount, str):
+                raise ValueError("Amount can only be specified as str or Decimal.")
             # remove commonly used thousands separators
             amount = amount.replace("'", "").strip()
             # people often don't add .00 for amounts without cents/rappen
