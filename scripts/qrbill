@@ -107,6 +107,6 @@ if __name__ == '__main__':
     else:
         out_path = "{}-{}.svg".format(
             args.account.replace(' ', ''),
-            datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+            datetime.now().strftime("%Y-%m-%d_%H%M%S")
         )
     bill.as_svg(out_path)
