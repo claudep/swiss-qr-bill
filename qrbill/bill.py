@@ -106,7 +106,7 @@ class QRBill:
     """This class represents a Swiss QR Bill."""
     # Header fields
     qr_type = 'SPC'  # Swiss Payments Code
-    version = '0100'
+    version = '0200'
     coding = 1  # Latin character set
     allowed_currencies = ('CHF', 'EUR')
     # QR reference, Creditor Reference (ISO 11649), without reference
@@ -202,9 +202,9 @@ class QRBill:
         """Return data to be encoded in the QR code."""
         values = [self.qr_type, self.version, self.coding, self.account]
         values.extend(self.creditor.data_list())
-        values.extend(self.final_creditor.data_list() if self.final_creditor else [''] * 6)
+        values.extend(self.final_creditor.data_list() if self.final_creditor else [''] * 7)
         values.extend([self.amount or '', self.currency])
-        values.extend(self.debtor.data_list() if self.debtor else [''] * 6)
+        values.extend(self.debtor.data_list() if self.debtor else [''] * 7)
         values.extend([self.ref_type, self.ref_number or '', self.extra_infos, 'EPD'])
         return "\r\n".join([str(v) for v in values])
 
