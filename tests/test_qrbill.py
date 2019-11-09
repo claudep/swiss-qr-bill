@@ -154,6 +154,19 @@ class QRBillTests(unittest.TestCase):
             content = fh.read().decode()
         self.assertTrue(content.startswith('<?xml version="1.0" encoding="utf-8" ?>'))
 
+    def test_ultimate_creditor(self):
+        bill_data = {
+            'account': "CH 44 3199 9123 0008 89012",
+            'creditor': {
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+            },
+            'final_creditor': {
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+            },
+        }
+        with self.assertRaisesRegex(ValueError, "final creditor is reserved for future use, must not be used"):
+            QRBill(**bill_data)
+
     def test_spec_example1(self):
         bill = QRBill(
             account='CH4431999123000889012',
