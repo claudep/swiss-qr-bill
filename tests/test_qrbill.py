@@ -5,7 +5,7 @@ import unittest
 from decimal import Decimal
 
 from qrbill import QRBill
-from qrbill.bill import format_iban, format_ref_number
+from qrbill.bill import format_ref_number
 
 
 class QRBillTests(unittest.TestCase):
@@ -16,7 +16,7 @@ class QRBillTests(unittest.TestCase):
             QRBill(account="CH4431999123000889012")
 
     def test_account(self):
-        with self.assertRaisesRegex(ValueError, "IBAN must have exactly 21 characters"):
+        with self.assertRaisesRegex(ValueError, "Sorry, the IBAN is not valid"):
             bill = QRBill(
                 account="CH44319991230008890",
                 creditor={
@@ -32,7 +32,7 @@ class QRBillTests(unittest.TestCase):
             )
         with self.assertRaisesRegex(ValueError, "IBAN must start with: CH, LI"):
             bill = QRBill(
-                account="DE 44 3199 9123 0008 89012",
+                account="DE 89 37040044 0532013000",
                 creditor={
                     'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
                 },
@@ -45,7 +45,6 @@ class QRBillTests(unittest.TestCase):
             },
         )
         self.assertEqual(bill.account, "CH4431999123000889012")
-        self.assertEqual(format_iban('CH4431999123000889012'), 'CH44 3199 9123 0008 8901 2')
 
     def test_country(self):
         bill_data = {
