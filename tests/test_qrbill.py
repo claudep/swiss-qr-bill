@@ -146,8 +146,8 @@ class QRBillTests(unittest.TestCase):
         self.assertEqual(
             bill.qr_data(),
             'SPC\r\n0200\r\n1\r\nCH4431999123000889012\r\nS\r\nJane\r\n\r\n\r\n'
-            '1000\r\nLausanne\r\nCH\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\nCHF\r\n'
-            '\r\n\r\n\r\n\r\n\r\n\r\nNON\r\n\r\n\r\nEPD'
+            '1000\r\nLausanne\r\nCH\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\nCHF\r\n'
+            '\r\n\r\n\r\n\r\n\r\n\r\n\r\nNON\r\n\r\n\r\nEPD'
         )
         with tempfile.NamedTemporaryFile(suffix='.svg') as fh:
             bill.as_svg(fh.name)
@@ -193,7 +193,7 @@ class QRBillTests(unittest.TestCase):
         self.assertEqual(
             bill.qr_data(),
             'SPC\r\n0200\r\n1\r\nCH4431999123000889012\r\nS\r\nRobert Schneider AG\r\n'
-            'Rue du Lac\r\n1268\r\n2501\r\nBiel\r\nCH\r\n\r\n\r\n\r\n\r\n\r\n\r\n'
+            'Rue du Lac\r\n1268\r\n2501\r\nBiel\r\nCH\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n'
             '1949.75\r\nCHF\r\nS\r\nPia-Maria Rutschmann-Schnyder\r\nGrosse Marktgasse\r\n'
             '28\r\n9400\r\nRorschach\r\nCH\r\nQRR\r\n210000000003139471430009017\r\n'
             'Order of 15.09.2019##S1/01/20170309/11/10201409/20/14000000/22/36958/30/CH106017086'
