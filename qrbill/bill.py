@@ -6,10 +6,9 @@ from io import BytesIO
 import qrcode
 import qrcode.image.svg
 import svgwrite
-import validators
 from iso3166 import countries
+from stdnum import iban
 
-IBAN_CH_LENGTH = 21
 IBAN_ALLOWED_COUNTRIES = ['CH', 'LI']
 AMOUNT_REGEX = r'^\d{1,9}\.\d{2}$'
 DATE_REGEX = r'(\d{4})-(\d{2})-(\d{2})'
@@ -118,14 +117,11 @@ class QRBill:
         # Account (IBAN) validation
         if not account:
             raise ValueError("The account parameter is mandatory")
-        account = account.replace(' ', '')
-        if account[:2] not in IBAN_ALLOWED_COUNTRIES:
-            raise ValueError("IBAN must start with: %s" % ", ".join(IBAN_ALLOWED_COUNTRIES))
-        if account and len(account) != IBAN_CH_LENGTH:
-            raise ValueError("IBAN must have exactly %s characters" % (IBAN_CH_LENGTH,))
-        elif account and not validators.iban(account):
+        if not iban.is_valid(account):
             raise ValueError("Sorry, the IBAN is not valid")
-        self.account = account
+        self.account = iban.validate(account)
+        if self.account[:2] not in IBAN_ALLOWED_COUNTRIES:
+            raise ValueError("IBAN must start with: %s" % ", ".join(IBAN_ALLOWED_COUNTRIES))
 
         if amount is not None:
             if isinstance(amount, Decimal):
@@ -288,7 +284,7 @@ class QRBill:
         dwg.add(dwg.text(self.label("Account / Payable to"), (margin, '%smm' % y_pos), **head_font_info))
         y_pos += line_space
         dwg.add(dwg.text(
-            format_iban(self.account), (margin, '%smm' % y_pos), **font_info
+            iban.format(self.account), (margin, '%smm' % y_pos), **font_info
         ))
         y_pos += line_space
         for line_text in self.creditor.as_paragraph():
@@ -394,7 +390,7 @@ class QRBill:
 
         add_header(self.label("Account / Payable to"))
         dwg.add(dwg.text(
-            format_iban(self.account), (payment_detail_left, '%smm' % y_pos), **font_info
+            iban.format(self.account), (payment_detail_left, '%smm' % y_pos), **font_info
         ))
         y_pos += line_space
 
@@ -454,14 +450,6 @@ class QRBill:
 def add_mm(*mms):
     """Utility to allow additions of '23mm'-type strings."""
     return '%smm' % str(sum(float(mm[:-2]) for mm in mms))
-
-
-def format_iban(iban):
-    if not iban:
-        return ''
-    return '%s %s %s %s %s %s' % (
-        iban[:4], iban[4:8], iban[8:12], iban[12:16], iban[16:20], iban[20:]
-    )
 
 
 def format_ref_number(bill):
