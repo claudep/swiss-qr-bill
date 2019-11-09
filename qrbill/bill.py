@@ -183,13 +183,20 @@ class QRBill:
                 raise ValueError("The debtor address is invalid: %s" % err)
         else:
             self.debtor = debtor
-        if ref_number is None:
+        if ref_number in (None, ''):
             self.ref_type = 'NON'
-        elif len(ref_number) == 27:
+            self.ref_number = None
+        elif ref_number.strip()[:2].upper() == "RF":
+            if stdnum.iso11649.is_valid(ref_number):
+                self.ref_type = 'SCOR'
+                self.ref_number = stdnum.iso11649.validate(ref_number)
+            else:
+                raise ValueError("The reference-number is invalid")
+        elif stdnum.ch.esr.is_valid(ref_number):
             self.ref_type = 'QRR'
+            self.ref_number = stdnum.ch.esr.format(ref_number).replace(" ", "")
         else:
-            self.ref_type = 'SCOR'
-        self.ref_number = ref_number
+            raise ValueError("The reference-number is invalid")
         if extra_infos and len(extra_infos) > 140:
             raise ValueError("Additional information cannot contain more than 140 characters")
         self.extra_infos = extra_infos
@@ -459,11 +466,9 @@ def format_ref_number(bill):
         return ''
     num = bill.ref_number
     if bill.ref_type == "QRR":
-        return ' '.join([
-            num[:2], num[2:7], num[7:12], num[12:17], num[17:22], num[22:]
-        ])
+        return stdnum.ch.esr.format(num)
     elif bill.ref_type == "SCOR":
-        return ' '.join([num[i:i+4] for i in range(0, len(num), 4)])
+        return stdnum.iso11649.format(num)
     else:
         return num
 

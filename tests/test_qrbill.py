@@ -217,25 +217,53 @@ class QRBillTests(unittest.TestCase):
             content
         )
 
-    def test_format_reference(self):
+    def test_reference(self):
         bill = QRBill(
             account="CH 44 3199 9123 0008 89012",
             creditor={
                 'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
             },
         )
+        self.assertEqual(bill.ref_type, 'NON')
         self.assertEqual(format_ref_number(bill), '')
 
-        bill.ref_number = '210000000003139471430009017'
-        self.assertEqual(format_ref_number(bill), '210000000003139471430009017')
+        bill = QRBill(
+            account = "CH 44 3199 9123 0008 89012",
+            creditor = {
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+            },
+            ref_number = "18 78583",
+        )
+        self.assertEqual(bill.ref_type, 'QRR')
+        self.assertEqual(format_ref_number(bill), '00 00000 00000 00000 00018 78583')
 
-        bill.ref_type = 'QRR'
-        bill.ref_number = '210000000003139471430009017'
-        self.assertEqual(format_ref_number(bill), '21 00000 00003 13947 14300 09017')
-
-        bill.ref_type = 'SCOR'
-        bill.ref_number = 'RF18539007547034'
+        bill = QRBill(
+            account = "CH 44 3199 9123 0008 89012",
+            creditor = {
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+            },
+            ref_number = "RF18539007547034",
+        )
+        self.assertEqual(bill.ref_type, 'SCOR')
         self.assertEqual(format_ref_number(bill), 'RF18 5390 0754 7034')
+
+        with self.assertRaisesRegex(ValueError, "The reference-number is invalid"):
+            bill = QRBill(
+                account = "CH 44 3199 9123 0008 89012",
+                creditor = {
+                    'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+                },
+                ref_number = "18539007547034",
+            )
+
+        with self.assertRaisesRegex(ValueError, "The reference-number is invalid"):
+            bill = QRBill(
+                account = "CH 44 3199 9123 0008 89012",
+                creditor = {
+                    'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+                },
+                ref_number = "RF19539007547034",
+            )
 
 
 class CommandLineTests(unittest.TestCase):
