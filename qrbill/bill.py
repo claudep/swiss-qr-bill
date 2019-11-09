@@ -106,7 +106,7 @@ class QRBill:
     """This class represents a Swiss QR Bill."""
     # Header fields
     qr_type = 'SPC'  # Swiss Payments Code
-    version = '0100'
+    version = '0200'
     coding = 1  # Latin character set
     allowed_currencies = ('CHF', 'EUR')
     # QR reference, Creditor Reference (ISO 11649), without reference

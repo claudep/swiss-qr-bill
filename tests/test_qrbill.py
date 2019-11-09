@@ -145,7 +145,7 @@ class QRBillTests(unittest.TestCase):
         )
         self.assertEqual(
             bill.qr_data(),
-            'SPC\r\n0100\r\n1\r\nCH4431999123000889012\r\nS\r\nJane\r\n\r\n\r\n'
+            'SPC\r\n0200\r\n1\r\nCH4431999123000889012\r\nS\r\nJane\r\n\r\n\r\n'
             '1000\r\nLausanne\r\nCH\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\nCHF\r\n'
             '\r\n\r\n\r\n\r\n\r\n\r\nNON\r\n\r\n\r\nEPD'
         )
@@ -192,7 +192,7 @@ class QRBillTests(unittest.TestCase):
         '''
         self.assertEqual(
             bill.qr_data(),
-            'SPC\r\n0100\r\n1\r\nCH4431999123000889012\r\nS\r\nRobert Schneider AG\r\n'
+            'SPC\r\n0200\r\n1\r\nCH4431999123000889012\r\nS\r\nRobert Schneider AG\r\n'
             'Rue du Lac\r\n1268\r\n2501\r\nBiel\r\nCH\r\n\r\n\r\n\r\n\r\n\r\n\r\n'
             '1949.75\r\nCHF\r\nS\r\nPia-Maria Rutschmann-Schnyder\r\nGrosse Marktgasse\r\n'
             '28\r\n9400\r\nRorschach\r\nCH\r\nQRR\r\n210000000003139471430009017\r\n'
