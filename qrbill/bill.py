@@ -52,9 +52,9 @@ LABELS = {
 
 class Address:
     def __init__(self, *, name='', street='', house_num='', pcode=None, city=None, country=None):
-        if not (1 < len(name or '') < 70):
+        self.name = name.strip()
+        if not (1 <= len(self.name or '') <= 70):
             raise ValueError("An address name should have between 1 and 70 characters.")
-        self.name = name
         if street and len(street) > 70:
             raise ValueError("A street cannot have more than 70 characters.")
         self.street = street

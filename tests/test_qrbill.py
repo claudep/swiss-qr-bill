@@ -5,7 +5,21 @@ import unittest
 from decimal import Decimal
 
 from qrbill import QRBill
-from qrbill.bill import format_iban, format_ref_number
+from qrbill.bill import Address, format_iban, format_ref_number
+
+
+class AddressTests(unittest.TestCase):
+    def test_name_limit(self):
+        err_msg = "An address name should have between 1 and 70 characters."
+        defaults = {'pcode': '1234', 'city': 'Somewhere'}
+        with self.assertRaisesRegex(ValueError, err_msg):
+            Address(name='', **defaults)
+        with self.assertRaisesRegex(ValueError, err_msg):
+            Address(name='a' * 71, **defaults)
+        Address(name='a', **defaults)
+        # Spaces are stripped
+        addr = Address(name='  {}  '.format('a' * 70), **defaults)
+        self.assertEqual(addr.name, 'a' * 70)
 
 
 class QRBillTests(unittest.TestCase):
