@@ -171,10 +171,12 @@ class QRBill:
         except ValueError as err:
             raise ValueError("The creditor address is invalid: %s" % err)
         if final_creditor is not None:
-            try:
-                self.final_creditor = Address(**final_creditor)
-            except ValueError as err:
-                raise ValueError("The final creditor address is invalid: %s" % err)
+            # The standard says ultimate creditor is reserved for future use.
+            # The online validator does not properly validate QR-codes where
+            # this is set, saying it must not (yet) be used.
+            # All the code is there and ready to be used; so simply prevent
+            # users from accessing it.
+            raise ValueError("final creditor is reserved for future use, must not be used")
         else:
             self.final_creditor = final_creditor
         if debtor is not None:
