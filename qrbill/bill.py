@@ -177,10 +177,6 @@ class QRBill:
             # All the code is there and ready to be used; so simply prevent
             # users from accessing it.
             raise ValueError("final creditor is reserved for future use, must not be used")
-#            try:
-#                self.final_creditor = Address(**final_creditor)
-#            except ValueError as err:
-#                raise ValueError("The final creditor address is invalid: %s" % err)
         else:
             self.final_creditor = final_creditor
         if debtor is not None:
