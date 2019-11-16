@@ -9,6 +9,9 @@ import svgwrite
 from iso3166 import countries
 from stdnum import iban, iso11649
 
+# Will be replaced with stdnum.ch.esr as soon as pyton-stdnum 1.13 is released.
+from . import esr
+
 IBAN_ALLOWED_COUNTRIES = ['CH', 'LI']
 AMOUNT_REGEX = r'^\d{1,9}\.\d{2}$'
 DATE_REGEX = r'(\d{4})-(\d{2})-(\d{2})'
@@ -191,9 +194,9 @@ class QRBill:
                 self.ref_number = iso11649.validate(ref_number)
             else:
                 raise ValueError("The reference number is invalid")
-        elif len(ref_number) == 27:
+        elif esr.is_valid(ref_number):
             self.ref_type = 'QRR'
-            self.ref_number = ref_number
+            self.ref_number = esr.format(ref_number).replace(" ", "")
         else:
             raise ValueError("The reference number is invalid")
 
@@ -466,9 +469,7 @@ def format_ref_number(bill):
         return ''
     num = bill.ref_number
     if bill.ref_type == "QRR":
-        return ' '.join([
-            num[:2], num[2:7], num[7:12], num[12:17], num[17:22], num[22:]
-        ])
+        return esr.format(num)
     elif bill.ref_type == "SCOR":
         # In python-stdnum 1.13: return iso11649.format(num)
         return ' '.join([num[i:i+4] for i in range(0, len(num), 4)])

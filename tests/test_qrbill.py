@@ -272,6 +272,12 @@ class QRBillTests(unittest.TestCase):
         self.assertEqual(bill.ref_type, 'QRR')
         self.assertEqual(format_ref_number(bill), '21 00000 00003 13947 14300 09017')
 
+        bill = QRBill(**min_data, ref_number='18 78583')
+        self.assertEqual(bill.ref_type, 'QRR')
+        self.assertEqual(format_ref_number(bill), '00 00000 00000 00000 00018 78583')
+        with self.assertRaisesRegex(ValueError, "The reference number is invalid"):
+            bill = QRBill(**min_data, ref_number='18539007547034')
+
 
 class CommandLineTests(unittest.TestCase):
     def test_no_args(self):
