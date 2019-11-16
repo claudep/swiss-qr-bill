@@ -7,7 +7,7 @@ import qrcode
 import qrcode.image.svg
 import svgwrite
 from iso3166 import countries
-from stdnum import iban
+from stdnum import iban, iso11649
 
 IBAN_ALLOWED_COUNTRIES = ['CH', 'LI']
 AMOUNT_REGEX = r'^\d{1,9}\.\d{2}$'
@@ -181,13 +181,22 @@ class QRBill:
                 raise ValueError("The debtor address is invalid: %s" % err)
         else:
             self.debtor = debtor
-        if ref_number is None:
+
+        if not ref_number:
             self.ref_type = 'NON'
+            self.ref_number = None
+        elif ref_number.strip()[:2].upper() == "RF":
+            if iso11649.is_valid(ref_number):
+                self.ref_type = 'SCOR'
+                self.ref_number = iso11649.validate(ref_number)
+            else:
+                raise ValueError("The reference number is invalid")
         elif len(ref_number) == 27:
             self.ref_type = 'QRR'
+            self.ref_number = ref_number
         else:
-            self.ref_type = 'SCOR'
-        self.ref_number = ref_number
+            raise ValueError("The reference number is invalid")
+
         if extra_infos and len(extra_infos) > 140:
             raise ValueError("Additional information cannot contain more than 140 characters")
         self.extra_infos = extra_infos
@@ -461,6 +470,7 @@ def format_ref_number(bill):
             num[:2], num[2:7], num[7:12], num[12:17], num[17:22], num[22:]
         ])
     elif bill.ref_type == "SCOR":
+        # In python-stdnum 1.13: return iso11649.format(num)
         return ' '.join([num[i:i+4] for i in range(0, len(num), 4)])
     else:
         return num
