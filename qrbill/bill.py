@@ -470,8 +470,7 @@ def format_ref_number(bill):
             num[:2], num[2:7], num[7:12], num[12:17], num[17:22], num[22:]
         ])
     elif bill.ref_type == "SCOR":
-        # In python-stdnum 1.13: return iso11649.format(num)
-        return ' '.join([num[i:i+4] for i in range(0, len(num), 4)])
+        return iso11649.format(num)
     else:
         return num
 
