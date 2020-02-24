@@ -342,7 +342,7 @@ class QRBill:
         dwg.add(dwg.text(self.label("Amount"), (add_mm(margin, '12mm'), '80mm'), **head_font_info))
         dwg.add(dwg.text(self.currency, (margin, '85mm'), **font_info))
         if self.amount:
-            dwg.add(dwg.text(self.amount, (add_mm(margin, '12mm'), '85mm'), **font_info))
+            dwg.add(dwg.text(format_amount(self.amount), (add_mm(margin, '12mm'), '85mm'), **font_info))
         else:
             self.draw_blank_rect(
                 dwg, x=add_mm(margin, '25mm'), y='77mm',
@@ -394,7 +394,7 @@ class QRBill:
         dwg.add(dwg.text(self.label("Amount"), (add_mm(payment_left, '12mm'), '80mm'), **head_font_info))
         dwg.add(dwg.text(self.currency, (payment_left, '85mm'), **font_info))
         if self.amount:
-            dwg.add(dwg.text(self.amount, (add_mm(payment_left, '12mm'), '85mm'), **font_info))
+            dwg.add(dwg.text(format_amount(self.amount), (add_mm(payment_left, '12mm'), '85mm'), **font_info))
         else:
             self.draw_blank_rect(
                 dwg, x=add_mm(receipt_width, margin, '12mm'), y='83mm',
@@ -491,6 +491,10 @@ def format_date(date_):
     if not date_:
         return ''
     return date_.strftime('%d.%m.%Y')
+
+
+def format_amount(amount_):
+    return '{:,.2f}'.format(float(amount_)).replace(",", " ")
 
 
 def wrap_infos(infos):

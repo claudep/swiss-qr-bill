@@ -5,7 +5,7 @@ import unittest
 from decimal import Decimal
 
 from qrbill import QRBill
-from qrbill.bill import Address, format_ref_number
+from qrbill.bill import Address, format_ref_number, format_amount
 
 
 class AddressTests(unittest.TestCase):
@@ -133,13 +133,14 @@ class QRBillTests(unittest.TestCase):
                 )
 
         valid_inputs = [
-            (".5", "0.50"),
-            ("42", "42.00"),
-            ("001'800", "1800.00"),
-            (" 3.45 ", "3.45"),
-            (Decimal("35.9"), "35.90"),
+            (".5", "0.50", "0.50"),
+            ("42", "42.00", "42.00"),
+            ("001'800", "1800.00", "1 800.00"),
+            (" 3.45 ", "3.45", "3.45"),
+            ("9'999'999.4 ", "9999999.40", "9 999 999.40"),
+            (Decimal("35.9"), "35.90", "35.90"),
         ]
-        for value, expected in valid_inputs:
+        for value, expected, printed in valid_inputs:
             bill = QRBill(
                     account="CH 53 8000 5000 0102 83664",
                     amount=value,
@@ -148,6 +149,7 @@ class QRBillTests(unittest.TestCase):
                     },
                 )
             self.assertEqual(bill.amount, expected)
+            self.assertEqual(format_amount(bill.amount), printed)
 
     def test_minimal_data(self):
         bill = QRBill(
@@ -191,7 +193,7 @@ class QRBillTests(unittest.TestCase):
                 'city': 'Biel',
                 'country': 'CH',
             },
-            amount='1949.75',
+            amount='1949.7',
             currency='CHF',
             due_date='2019-10-31',
             debtor={
@@ -220,7 +222,7 @@ class QRBillTests(unittest.TestCase):
             bill.qr_data(),
             'SPC\r\n0200\r\n1\r\nCH4431999123000889012\r\nS\r\nRobert Schneider AG\r\n'
             'Rue du Lac\r\n1268\r\n2501\r\nBiel\r\nCH\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n'
-            '1949.75\r\nCHF\r\nS\r\nPia-Maria Rutschmann-Schnyder\r\nGrosse Marktgasse\r\n'
+            '1949.70\r\nCHF\r\nS\r\nPia-Maria Rutschmann-Schnyder\r\nGrosse Marktgasse\r\n'
             '28\r\n9400\r\nRorschach\r\nCH\r\nQRR\r\n210000000003139471430009017\r\n'
             'Order of 15.09.2019##S1/01/20170309/11/10201409/20/14000000/22/36958/30/CH106017086'
             '/40/1020/41/3010\r\nEPD'
@@ -246,6 +248,13 @@ class QRBillTests(unittest.TestCase):
         # IBAN formatted
         self.assertIn(
             '<text {font10} x="5mm" y="18.5mm">CH44 3199 9123 0008 8901 2</text>'.format(
+                font10=font10
+            ),
+            content
+        )
+        # amount formatted
+        self.assertIn(
+            '<text {font10} x="17.0mm" y="85mm">1 949.70</text>'.format(
                 font10=font10
             ),
             content
