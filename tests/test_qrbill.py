@@ -27,19 +27,19 @@ class QRBillTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "The account parameter is mandatory"):
             QRBill()
         with self.assertRaisesRegex(ValueError, "Creditor information is mandatory"):
-            QRBill(account="CH4431999123000889012")
+            QRBill(account="CH5380005000010283664")
 
     def test_account(self):
         with self.assertRaisesRegex(ValueError, "Sorry, the IBAN is not valid"):
             bill = QRBill(
-                account="CH44319991230008890",
+                account="CH53800050000102836",
                 creditor={
                     'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
                 },
             )
         with self.assertRaisesRegex(ValueError, "Sorry, the IBAN is not valid"):
             bill = QRBill(
-                account="CH4431999123000899012",
+                account="CH5380005000010288664",
                 creditor={
                     'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
                 },
@@ -53,16 +53,16 @@ class QRBillTests(unittest.TestCase):
             )
         # Spaces are auto-stripped
         bill = QRBill(
-            account="CH 44 3199 9123 0008 89012",
+            account="CH 53 8000 5000 0102 83664",
             creditor={
                 'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
             },
         )
-        self.assertEqual(bill.account, "CH4431999123000889012")
+        self.assertEqual(bill.account, "CH5380005000010283664")
 
     def test_country(self):
         bill_data = {
-            'account': 'CH4431999123000889012',
+            'account': 'CH5380005000010283664',
             'creditor': {
                 'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
             },
@@ -86,14 +86,14 @@ class QRBillTests(unittest.TestCase):
     def test_currency(self):
         with self.assertRaisesRegex(ValueError, "Currency can only contain: CHF, EUR"):
             bill = QRBill(
-                account="CH 44 3199 9123 0008 89012",
+                account="CH 53 8000 5000 0102 83664",
                 currency="USD",
                 creditor={
                     'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
                 },
             )
         bill = QRBill(
-                account="CH 44 3199 9123 0008 89012",
+                account="CH 53 8000 5000 0102 83664",
                 currency="CHF",
                 creditor={
                     'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
@@ -101,7 +101,7 @@ class QRBillTests(unittest.TestCase):
             )
         self.assertEqual(bill.currency, "CHF")
         bill = QRBill(
-            account="CH 44 3199 9123 0008 89012",
+            account="CH 53 8000 5000 0102 83664",
             currency="EUR",
             creditor={
                 'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
@@ -125,7 +125,7 @@ class QRBillTests(unittest.TestCase):
         for value, err in unvalid_inputs:
             with self.assertRaisesRegex(ValueError, err):
                 bill = QRBill(
-                    account="CH 44 3199 9123 0008 89012",
+                    account="CH 53 8000 5000 0102 83664",
                     amount=value,
                     creditor={
                         'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
@@ -141,7 +141,7 @@ class QRBillTests(unittest.TestCase):
         ]
         for value, expected in valid_inputs:
             bill = QRBill(
-                    account="CH 44 3199 9123 0008 89012",
+                    account="CH 53 8000 5000 0102 83664",
                     amount=value,
                     creditor={
                         'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
@@ -151,14 +151,14 @@ class QRBillTests(unittest.TestCase):
 
     def test_minimal_data(self):
         bill = QRBill(
-            account="CH 44 3199 9123 0008 89012",
+            account="CH 53 8000 5000 0102 83664",
             creditor={
                 'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
             },
         )
         self.assertEqual(
             bill.qr_data(),
-            'SPC\r\n0200\r\n1\r\nCH4431999123000889012\r\nS\r\nJane\r\n\r\n\r\n'
+            'SPC\r\n0200\r\n1\r\nCH5380005000010283664\r\nS\r\nJane\r\n\r\n\r\n'
             '1000\r\nLausanne\r\nCH\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\nCHF\r\n'
             '\r\n\r\n\r\n\r\n\r\n\r\n\r\nNON\r\n\r\n\r\nEPD'
         )
@@ -169,7 +169,7 @@ class QRBillTests(unittest.TestCase):
 
     def test_ultimate_creditor(self):
         bill_data = {
-            'account': "CH 44 3199 9123 0008 89012",
+            'account': "CH 53 8000 5000 0102 83664",
             'creditor': {
                 'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
             },
@@ -253,7 +253,7 @@ class QRBillTests(unittest.TestCase):
 
     def test_reference(self):
         min_data = {
-            'account': "CH 44 3199 9123 0008 89012",
+            'account': "CH 53 8000 5000 0102 83664",
             'creditor': {
                 'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
             },
@@ -267,10 +267,32 @@ class QRBillTests(unittest.TestCase):
         self.assertEqual(format_ref_number(bill), 'RF18 5390 0754 7034')
         with self.assertRaisesRegex(ValueError, "The reference number is invalid"):
             bill = QRBill(**min_data, ref_number='RF19539007547034')
+        with self.assertRaisesRegex(ValueError, "A QRR reference number is only allowed for a QR-IBAN"):
+            bill = QRBill(**min_data, ref_number='18 78583')
 
+        min_data = {
+            'account': "CH 44 3199 9123 0008 89012",
+            'creditor': {
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+            },
+        }
         bill = QRBill(**min_data, ref_number='210000000003139471430009017')
         self.assertEqual(bill.ref_type, 'QRR')
         self.assertEqual(format_ref_number(bill), '21 00000 00003 13947 14300 09017')
+
+        # check leading zeros
+        bill = QRBill(**min_data, ref_number='18 78583')
+        self.assertEqual(bill.ref_type, 'QRR')
+        self.assertEqual(format_ref_number(bill), '00 00000 00000 00000 00018 78583')
+
+        # invalid QRR
+        with self.assertRaisesRegex(ValueError, "The reference number is invalid"):
+            bill = QRBill(**min_data, ref_number='18539007547034')
+        with self.assertRaisesRegex(ValueError, "The reference number is invalid"):
+            bill = QRBill(**min_data, ref_number='ref-number')
+        with self.assertRaisesRegex(ValueError, "A QR-IBAN requires a QRR reference number"):
+            bill = QRBill(**min_data, ref_number='RF18539007547034')
+
 
 
 class CommandLineTests(unittest.TestCase):
@@ -287,7 +309,7 @@ class CommandLineTests(unittest.TestCase):
     def test_minimal_args(self):
         with tempfile.NamedTemporaryFile(suffix='.svg') as tmp:
             out, err = subprocess.Popen([
-                sys.executable, 'scripts/qrbill', '--account', 'CH 44 3199 9123 0008 89012',
+                sys.executable, 'scripts/qrbill', '--account', 'CH 53 8000 5000 0102 83664',
                 '--creditor-name',  'Jane', '--creditor-postalcode', '1000',
                 '--creditor-city', 'Lausanne',
                 '--output', tmp.name,
