@@ -191,7 +191,7 @@ class QRBillTests(unittest.TestCase):
                 'city': 'Biel',
                 'country': 'CH',
             },
-            amount='1949.75',
+            amount='1949.7',
             currency='CHF',
             due_date='2019-10-31',
             debtor={
@@ -220,7 +220,7 @@ class QRBillTests(unittest.TestCase):
             bill.qr_data(),
             'SPC\r\n0200\r\n1\r\nCH4431999123000889012\r\nS\r\nRobert Schneider AG\r\n'
             'Rue du Lac\r\n1268\r\n2501\r\nBiel\r\nCH\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n'
-            '1949.75\r\nCHF\r\nS\r\nPia-Maria Rutschmann-Schnyder\r\nGrosse Marktgasse\r\n'
+            '1949.70\r\nCHF\r\nS\r\nPia-Maria Rutschmann-Schnyder\r\nGrosse Marktgasse\r\n'
             '28\r\n9400\r\nRorschach\r\nCH\r\nQRR\r\n210000000003139471430009017\r\n'
             'Order of 15.09.2019##S1/01/20170309/11/10201409/20/14000000/22/36958/30/CH106017086'
             '/40/1020/41/3010\r\nEPD'
@@ -246,6 +246,13 @@ class QRBillTests(unittest.TestCase):
         # IBAN formatted
         self.assertIn(
             '<text {font10} x="5mm" y="18.5mm">CH44 3199 9123 0008 8901 2</text>'.format(
+                font10=font10
+            ),
+            content
+        )
+        # amount formatted
+        self.assertIn(
+            '<text {font10} x="17.0mm" y="85mm">1 949.70</text>'.format(
                 font10=font10
             ),
             content
@@ -292,7 +299,6 @@ class QRBillTests(unittest.TestCase):
             bill = QRBill(**min_data, ref_number='ref-number')
         with self.assertRaisesRegex(ValueError, "A QR-IBAN requires a QRR reference number"):
             bill = QRBill(**min_data, ref_number='RF18539007547034')
-
 
 
 class CommandLineTests(unittest.TestCase):
