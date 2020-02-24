@@ -11,6 +11,7 @@ from stdnum import iban, iso11649
 from stdnum.ch import esr
 
 IBAN_ALLOWED_COUNTRIES = ['CH', 'LI']
+QR_IID = {"start": 30000, "end": 31999}
 AMOUNT_REGEX = r'^\d{1,9}\.\d{2}$'
 DATE_REGEX = r'(\d{4})-(\d{2})-(\d{2})'
 MM_TO_UU = 3.543307
@@ -123,6 +124,11 @@ class QRBill:
         self.account = iban.validate(account)
         if self.account[:2] not in IBAN_ALLOWED_COUNTRIES:
             raise ValueError("IBAN must start with: %s" % ", ".join(IBAN_ALLOWED_COUNTRIES))
+        iban_iid = int(self.account[4:9])
+        if QR_IID["start"] <= iban_iid <= QR_IID["end"]:
+            self.account_is_qriban = True
+        else:
+            self.account_is_qriban = False
 
         if amount is not None:
             if isinstance(amount, Decimal):
@@ -195,6 +201,15 @@ class QRBill:
             self.ref_number = esr.format(ref_number).replace(" ", "")
         else:
             raise ValueError("The reference number is invalid")
+
+        # A QRR reference number must only be used with a QR-IBAN and
+        # with a QR-IBAN, a QRR reference number must be used
+        if self.account_is_qriban:
+            if self.ref_type != 'QRR':
+                raise ValueError("A QR-IBAN requires a QRR reference number")
+        else:
+            if self.ref_type == 'QRR':
+                raise ValueError("A QRR reference number is only allowed for a QR-IBAN")
 
         if extra_infos and len(extra_infos) > 140:
             raise ValueError("Additional information cannot contain more than 140 characters")
