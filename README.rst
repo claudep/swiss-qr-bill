@@ -11,6 +11,13 @@ Specifications can be found on https://www.paymentstandards.ch/
 This library is aimed to produce properly-formatted QR-bills as SVG files
 either from command line input or by using the ``QRBill`` class.
 
+Installation
+============
+
+You can easily install this library with::
+
+    $ pip install qrbill
+
 Command line usage example
 ==========================
 
