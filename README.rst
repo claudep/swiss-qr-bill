@@ -1,25 +1,53 @@
 .. image:: https://travis-ci.org/claudep/swiss-qr-bill.svg?branch=master
     :target: https://travis-ci.org/claudep/swiss-qr-bill
 
-Python library to generate Swiss QR-bills
-=========================================
+===============================
+Swiss QR payment slip generator
+===============================
 
-From 2020, Swiss payment slips will progressively be converted to the
-QR-bill format.
-Specifications can be found on https://www.paymentstandards.ch/
+Purpose
+=======
+This library generates QR payment slips for Switzerland and Lichtenstein, which follow the `Swiss Payment Standards 2019 (Version 2.1) <https://www.paymentstandards.ch/>`_. The library outputs the payment slips as SVG graphics.
 
-This library is aimed to produce properly-formatted QR-bills as SVG files
-either from command line input or by using the ``QRBill`` class.
+Samples
+-------
+
+* `Minimal`_
+* `Minimal with amount`_
+* `Minimal with amount and debtor`_
+* `Minimal with amount, debtor and reference number`_
+* `Minimal with amount, debtor, reference number and unstructured message`_
+
+.. _Minimal: ./sample/01_bill_minimal.svg
+.. _Minimal with amount: ./sample/02_bill_amount.svg
+.. _Minimal with amount and debtor: ./sample/03_bill_amount_debtor.svg
+.. _Minimal with amount, debtor and reference number: ./sample/04_bill_amount_debtor_ref.svg
+.. _Minimal with amount, debtor, reference number and unstructured message: ./sample/05_bill_amount_debtor_ref_msg.svg
 
 Installation
 ============
 
-You can easily install this library with::
-
     $ pip install qrbill
 
-Command line usage example
-==========================
+Usage example
+=============
+The library can be used as an instance or via the command line:
+
+Python
+------
+
+.. code-block:: python
+
+    from qrbill.bill import QRBill, Address
+
+    bill = QRBill()
+    bill.account = "CH9889144356966475815"
+    bill.creditor = Address(name="Hans Muster", address_line_1="Musterstrasse 1", pcode=1000, town="Musterhausen")
+
+    bill.save("my_bill.svg")
+
+Command line
+------------
 
 Minimal::
 
@@ -38,23 +66,6 @@ For usage::
 
     $ qrbill -h
 
-If no `--output` SVG file path is specified, the SVG file will be named after
-the account and the current date/time and written in the current directory.
-
-Python usage example
-====================
-
-::
-
-    >>> from qrbill.bill import QRBill
-    >>> my_bill = QRBill(
-            account='CH4431999123000899012',
-            creditor={
-                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
-            },
-            amount='22.45',
-        )
-    >>> bill.as_svg('/tmp/my_bill.svg')
 
 Running tests
 =============
@@ -66,3 +77,4 @@ You can run tests either by executing::
 or::
 
     $ python setup.py test
+
