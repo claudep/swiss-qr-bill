@@ -6,6 +6,7 @@ from stdnum import iban, iso11649
 from stdnum.ch import esr
 
 from qrbill.address import Address
+from qrbill.errors import MissingAttributeError, ConversionError, ValidationError
 from qrbill.printer import SVGPrinter, Printer
 
 IBAN_ALLOWED_COUNTRIES = ["CH", "LI"]
@@ -107,31 +108,35 @@ class QRBill:
 
     @account.setter
     def account(self, account):
-        """ IBAN of the creditor
+        """ Account number (IBAN) according ISO-13616
 
         Only IBANs with CH or LI country code are permitted.
 
-        :param account:
-        :return:
+        :param account: Account number (IBAN) according ISO-13616
         """
         if not account:
             self._account = None
             return
 
         if not iban.is_valid(account):
-            raise ValueError("Invalid IBAN number")
+            raise ValidationError("Invalid IBAN number")
 
         account = iban.validate(account)
 
         if account[:2] not in IBAN_ALLOWED_COUNTRIES:
-            raise ValueError("IBAN must start with: %s" % ", ".join(IBAN_ALLOWED_COUNTRIES))
+            raise ValidationError("IBAN must start with: %s" % ", ".join(IBAN_ALLOWED_COUNTRIES))
 
-        iban_iid = int(account[4:9])
-        self._is_qriban = QR_IID["start"] <= iban_iid <= QR_IID["end"]
-
-        account = f"{account[0:4]} {account[4:8]} {account[8:12]} {account[12:16]} {account[16:20]} {account[20]}"
+        account = iban.format(account, separator=" ")
 
         self._account = account
+
+    @property
+    def iban_iid(self):
+        return int(self.account[5:9])
+
+    @property
+    def is_iban_iid(self):
+        return QR_IID["start"] <= self.iban_iid <= QR_IID["end"]
 
     # Creditor
     @property
@@ -142,10 +147,7 @@ class QRBill:
     def creditor(self, creditor):
         if not creditor:
             self._creditor = None
-        try:
-            self._creditor = self._convert_address(creditor)
-        except ValueError as err:
-            raise ValueError("The creditor address is invalid: %s" % err)
+        self._creditor = self._convert_address(creditor)
 
     # Ultimate Creditor
     @property
@@ -175,7 +177,7 @@ class QRBill:
         :return:
         """
         if currency not in self.allowed_currencies:
-            raise ValueError("Currency can only contain: %s" % ", ".join(self.allowed_currencies))
+            raise ValidationError("Currency can only contain: %s" % ", ".join(self.allowed_currencies))
         self._currency = currency
 
     @property
@@ -199,13 +201,13 @@ class QRBill:
                 amount = amount.replace("'", "").strip()
                 amount = Decimal(amount)
             elif not isinstance(amount, (int, float)):
-                raise ValueError("Amount can only be specified as str or Decimal.")
+                raise ValidationError("Amount can only be specified as str or Decimal.")
 
             # Use blank (space) as thousands separator
             amount = f"{amount:,.2f}".replace(",", " ")
 
             if len(amount) > 14:
-                raise ValueError("Value must be smaller than one billion (1 000 000 000.00)")
+                raise ValidationError("Value must be smaller than one billion (1 000 000 000.00)")
 
         self._amount = amount
 
@@ -216,14 +218,10 @@ class QRBill:
 
     @debtor.setter
     def debtor(self, debtor):
-        if debtor is not None:
-            try:
-                self._debtor = self._convert_address(debtor)
-            except ValueError as err:
-                raise ValueError("The debtor address is invalid: %s" % err)
-
-        else:
+        if not debtor:
             self._debtor = None
+
+        self._debtor = self._convert_address(debtor)
 
     # Payment reference
     @property
@@ -260,7 +258,7 @@ class QRBill:
             self._ref_number = esr.format(ref_number)
 
         else:
-            raise ValueError(f"Invalid reference number {ref_number}")
+            raise ValidationError(f"Invalid reference number {ref_number}")
 
     # Additional information
     @property
@@ -272,7 +270,8 @@ class QRBill:
         billing_info_length = len(self.billing_info) if self.billing_info else 0
 
         if unstructured_message and len(unstructured_message) + billing_info_length > 140:
-            raise ValueError("Unstructured message and billing information cannot contain more than 140 characters")
+            raise ValidationError(
+                "Unstructured message and billing information cannot contain more than 140 characters")
         self._unstructured_message = unstructured_message
 
     @property
@@ -287,7 +286,8 @@ class QRBill:
         unstructured_msg_length = len(self.unstructured_message) if self.unstructured_message else 0
 
         if billing_info and len(billing_info) + unstructured_msg_length > 140:
-            raise ValueError("Unstructured message and billing information cannot contain more than 140 characters")
+            raise ValidationError(
+                "Unstructured message and billing information cannot contain more than 140 characters")
         self._billing_info = billing_info
 
     # Internal
@@ -298,7 +298,7 @@ class QRBill:
     @language.setter
     def language(self, language):
         if language not in ["en", "de", "fr", "it"]:
-            raise ValueError("Language can only be 'en', 'de', 'fr', or 'it'")
+            raise ValidationError("Language can only be 'en', 'de', 'fr', or 'it'")
         self._language = language
 
     def recipient(self):
@@ -346,11 +346,11 @@ class QRBill:
         data.append(self.account)
 
         # Creditor
-        data.append("S")
+        data.append(self.creditor.address_type)
         address_as_list(self.creditor)
 
         # Ultimate Creditor
-        data.append("S")
+        data.append(self.ultimate_creditor.address_type if self.ultimate_creditor else None)
         address_as_list(Address(country=""))
 
         # Payment information
@@ -405,9 +405,9 @@ class QRBill:
             self.printer = printer
 
         if not self.account:
-            raise ValueError("Account (IBAN) is mandatory")
+            raise MissingAttributeError("Account (IBAN) is mandatory")
         if not self.creditor:
-            raise ValueError("Creditor is mandatory")
+            raise MissingAttributeError("Creditor is mandatory")
 
         self.printer.draw(file_name, self)
 
@@ -420,4 +420,4 @@ class QRBill:
         if isinstance(address, dict):
             return Address(**address)
 
-        return ValueError(f"Address can only be an instance {Address.__name__} or dict")
+        return ConversionError(f"Address can only be an instance {Address.__name__} or dict. Cannot convert {address}")

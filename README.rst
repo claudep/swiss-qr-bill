@@ -7,7 +7,7 @@ Swiss QR payment slip generator
 
 Purpose
 =======
-This library generates QR payment slips for Switzerland and Lichtenstein, which follow the `Swiss Payment Standards 2019 (Version 2.1) <https://www.paymentstandards.ch/>`_. The library outputs the payment slips as SVG graphics.
+This library generates QR payment slips for Switzerland and Liechtenstein, which follow the `Swiss Payment Standards 2019 (Version 2.1) <https://www.paymentstandards.ch/>`_. The library outputs the payment slips as SVG graphics.
 
 Samples
 -------

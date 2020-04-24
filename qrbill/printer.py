@@ -5,6 +5,8 @@ import svgwrite
 from svgwrite import container, shapes, text, path, pattern
 from svgwrite import mm, pt, percent
 
+from qrbill.errors import ValidationError, ConversionError
+
 
 class Printer(abc.ABC):
 
@@ -43,8 +45,6 @@ class SVGPrinter(Printer):
         self.receipt_width = receipt_width
         self.payment_width = payment_width
         self.margin = margin
-        self.payment_left = self.receipt_width + self.margin
-        self.payment_detail_left = self.payment_left + 70
 
         # Font size of header and associated values must be between 6 pt and 10 pt. Header must always be printed in the
         # same size. Headings should be printed in bold and 2 pt smaller than the font size of the associated values.
@@ -100,7 +100,7 @@ class SVGPrinter(Printer):
             self.bill = bill
 
         if not self.bill:
-            raise ValueError("No bill provided!")
+            raise ValidationError("No bill provided!")
 
         bill_width = self.receipt_width + self.payment_width
 
@@ -473,4 +473,4 @@ class SVGPrinter(Printer):
         if match:
             return float(match.group(1)) * 3.543307
 
-        raise ValueError(f"Could not convert '{value}' into pixel")
+        raise ConversionError(f"Could not convert '{value}' into pixel")

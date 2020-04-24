@@ -1,6 +1,7 @@
 import unittest
 
 from qrbill import QRBill
+from qrbill.errors import ValidationError
 
 
 class QRBillInitializationTest(unittest.TestCase):
@@ -23,10 +24,10 @@ class QRBillTest(unittest.TestCase):
         self.bill.account = "CH46 8914 4414 9678 4315 8"  # w/ spacing
         self.assertEqual(self.bill.account, "CH46 8914 4414 9678 4315 8")
 
-        with self.assertRaisesRegex(ValueError, "Invalid IBAN number"):
+        with self.assertRaisesRegex(ValidationError, "Invalid IBAN number"):
             self.bill.account = "CH4689144414967843159"  # wrong IBAN (last digit)
 
-        with self.assertRaisesRegex(ValueError, "IBAN must start with: CH, LI"):
+        with self.assertRaisesRegex(ValidationError, "IBAN must start with: CH, LI"):
             self.bill.account = "ES8930044489487486953677"  # unsupported country
 
     def test_creditor(self):
@@ -41,7 +42,7 @@ class QRBillTest(unittest.TestCase):
             self.bill.currency = c
             self.assertEqual(self.bill.currency, c)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             self.bill.currency = "USD"
 
     def test_amount(self):
@@ -54,7 +55,7 @@ class QRBillTest(unittest.TestCase):
         self.bill.amount = 1000
         self.assertEqual(self.bill.amount, "1 000.00")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             self.bill.amount = 1000000000  # must be < 1 000 000 000.00
 
     def test_debtor(self):
@@ -64,7 +65,15 @@ class QRBillTest(unittest.TestCase):
         self.assertEqual(self.bill.ref_type, "NON")
 
     def test_ref_number(self):
-        pass
+
+        self.bill.ref_number = "RF18000000000539007547034"  # ref number according iso11649
+        self.assertEqual(self.bill.ref_type, "SCOR")
+
+        self.bill.ref_number = "00 00000 00000 00000 00000 01236"  # ref number according to ERS
+        self.assertEqual(self.bill.ref_type, "QRR")
+
+        with self.assertRaises(ValidationError):
+            self.bill.ref_number = "123"  # wrong ref number
 
     def test_unstructured_message(self):
         pass
@@ -77,7 +86,7 @@ class QRBillTest(unittest.TestCase):
             self.bill.language = language
             self.assertEqual(self.bill.language, language)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             self.bill.language = "es"  # spanish
 
 

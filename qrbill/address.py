@@ -1,8 +1,10 @@
 from iso3166 import countries
 
+from qrbill.errors import ValidationError
+
 
 class Address:
-    def __init__(self, name=None, address_line_1=None, address_line_2=None, pcode=None, town=None, country="CH",
+    def __init__(self, name=None, address_line_1=None, address_line_2=None, pcode=None, town=None, country=None,
                  is_structured_address=True):
         """Store a postal address
 
@@ -36,7 +38,7 @@ class Address:
         return f"{self.name}, {self.address_line_1}, {self.address_line_2}, {self.pcode} {self.town}, {self.country}"
 
     def data_list(self):
-        """Return address values as a list, appropriate for qr generation."""
+        """Return address values as a list, appropriate for qr code generation."""
         data_list = []
 
         if self.is_structured_address:
@@ -67,6 +69,13 @@ class Address:
     @name.setter
     def name(self, name):
         self._name = self.check_length(name, "Address name", min_len=1, max_len=70)
+
+    @property
+    def address_type(self):
+        if self.is_structured_address:
+            return "S"
+
+        return "K"
 
     @property
     def address_line_1(self):
@@ -106,7 +115,6 @@ class Address:
 
     @town.setter
     def town(self, town):
-        town = (town or "").strip()
         self._town = self.check_length(town, "City", max_len=35)
 
     @property
@@ -115,7 +123,9 @@ class Address:
 
     @country.setter
     def country(self, country):
-        if country:
+        if not country:
+            self._country = None
+        else:
             country = (country or "").strip()
             # allow users to write the country as if used in an address in the local language
             if country.lower() in ["schweiz", "suisse", "svizzera", "svizra"]:
@@ -125,17 +135,15 @@ class Address:
             try:
                 self._country = countries.get(country).alpha2
             except KeyError:
-                raise ValueError("The country code '%s' is not valid" % country)
-        else:
-            self._country = None
+                raise ValidationError("The country code '%s' is not valid" % country)
 
     @staticmethod
-    def check_length(var, var_name, is_mandatory=False, min_len=-1, max_len=-1):
-        var = (var or "").strip()
-        if is_mandatory and not var:
-            raise ValueError(f"{var_name} is mandatory")
+    def check_length(var, var_name, min_len=-1, max_len=-1):
+        if not var:
+            return None
+        var = var.strip()
         if min_len != -1 and var and len(var) < min_len:
-            raise ValueError(f"{var_name} cannot have less than {min_len} characters")
+            raise ValidationError(f"{var_name} cannot have less than {min_len} characters")
         if max_len != -1 and var and len(var) > max_len:
-            raise ValueError(f"{var_name} cannot have more than {max_len} characters")
+            raise ValidationError(f"{var_name} cannot have more than {max_len} characters")
         return var
