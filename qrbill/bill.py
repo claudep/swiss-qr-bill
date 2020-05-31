@@ -283,7 +283,7 @@ class QRBill:
     def label(self, txt):
         return txt if self.language == 'en' else LABELS[txt][self.language]
 
-    def as_svg(self, file_name):
+    def as_svg(self, file_name, file_obj=None):
         bill_height = '105mm'
         receipt_width = '62mm'
         payment_width = '148mm'
@@ -466,8 +466,11 @@ class QRBill:
                 format_date(self.due_date), (payment_detail_left, '%smm' % y_pos), **font_info
             ))
             y_pos += line_space
-
-        dwg.save()
+        
+        if file_obj:
+            dwg.write(file_obj)
+        else:
+            dwg.save()
 
 
 def add_mm(*mms):
