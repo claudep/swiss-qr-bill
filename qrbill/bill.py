@@ -53,10 +53,9 @@ LABELS = {
 
 class Address:
     def __init__(self, *, name=None, street=None, house_num=None, pcode=None, city=None, country=None, line1=None, line2=None):
- self.name = (name or u'').strip()
+        self.name = (name or u'').strip()
         if not (1 <= len(self.name) <= 70):
             raise ValueError(u"An address name should have between 1 and 70 characters.")
-
         if line1 is not None:
             self.line1 = (line1 or '').strip()
             if not (0 <= len(self.line1) <= 70):
@@ -65,7 +64,6 @@ class Address:
             if not (0 <= len(self.line2) <= 70):
                 raise ValueError("An address line2 should have between 0 and 70 characters.")
             self.combined = True
-
         else:
             self.street = (street or '').strip()
             if len(self.street) > 70:
