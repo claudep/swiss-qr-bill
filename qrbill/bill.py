@@ -52,53 +52,74 @@ LABELS = {
 
 
 class Address:
-    def __init__(self, *, name=None, street=None, house_num=None, pcode=None, city=None, country=None):
-        self.name = (name or '').strip()
+    def __init__(self, *, name=None, street=None, house_num=None, pcode=None, city=None, country=None, line1=None, line2=None):
+ self.name = (name or u'').strip()
         if not (1 <= len(self.name) <= 70):
-            raise ValueError("An address name should have between 1 and 70 characters.")
-        self.street = (street or '').strip()
-        if len(self.street) > 70:
-            raise ValueError("A street cannot have more than 70 characters.")
-        self.house_num = (house_num or '').strip()
-        if len(self.house_num) > 16:
-            raise ValueError("A house number cannot have more than 16 characters.")
-        self.pcode = (pcode or '').strip()
-        if not self.pcode:
-            raise ValueError("Postal code is mandatory")
-        elif len(self.pcode) > 16:
-            raise ValueError("A postal code cannot have more than 16 characters.")
-        self.city = (city or '').strip()
-        if not self.city:
-            raise ValueError("City is mandatory")
-        elif len(self.city) > 35:
-            raise ValueError("A city cannot have more than 35 characters.")
-        country = (country or '').strip()
-        # allow users to write the country as if used in an address in the local language
-        if not country or country.lower() in ['schweiz', 'suisse', 'svizzera', 'svizra']:
-            country = 'CH'
-        if country.lower() in ['fürstentum liechtenstein']:
-            country = 'LI'
-        try:
+            raise ValueError(u"An address name should have between 1 and 70 characters.")
+
+        if line1 is not None:
+            self.line1 = (line1 or '').strip()
+            if not (0 <= len(self.line1) <= 70):
+                raise ValueError("An address line should have between 0 and 70 characters.")
+            self.line2 = (line2 or '').strip()
+            if not (0 <= len(self.line2) <= 70):
+                raise ValueError("An address line2 should have between 0 and 70 characters.")
+            self.combined = True
+
+        else:
+            self.street = (street or '').strip()
+            if len(self.street) > 70:
+                raise ValueError("A street cannot have more than 70 characters.")
+            self.house_num = (house_num or '').strip()
+            if len(self.house_num) > 16:
+                raise ValueError("A house number cannot have more than 16 characters.")
+            self.pcode = (pcode or '').strip()
+            if not self.pcode:
+                raise ValueError("Postal code is mandatory")
+            elif len(self.pcode) > 16:
+                raise ValueError("A postal code cannot have more than 16 characters.")
+            self.city = (city or '').strip()
+            if not self.city:
+                raise ValueError("City is mandatory")
+            elif len(self.city) > 35:
+                raise ValueError("A city cannot have more than 35 characters.")
+            country = (country or '').strip()
+            # allow users to write the country as if used in an address in the local language
+            if not country or country.lower() in ['schweiz', 'suisse', 'svizzera', 'svizra']:
+                country = 'CH'
+            if country.lower() in ['fürstentum liechtenstein']:
+                country = 'LI'
+            try:
+                self.country = countries.get(country).alpha2
+            except KeyError:
+                raise ValueError("The country code '%s' is not valid" % country)
             self.country = countries.get(country).alpha2
-        except KeyError:
-            raise ValueError("The country code '%s' is not valid" % country)
-        self.country = countries.get(country).alpha2
+            self.combined = False
 
     def data_list(self):
         """Return address values as a list, appropriate for qr generation."""
-        # 'S': structured address
-        return [
-            'S', self.name, self.street, self.house_num, self.pcode,
-            self.city, self.country
-        ]
+        if self.combined:
+             # 'K': structured address
+            return [
+                'K', self.name, self.line1, self.line2
+            ]
+        else:
+            # 'S': structured address
+            return [
+                'S', self.name, self.street, self.house_num, self.pcode,
+                self.city, self.country
+            ]
 
     def as_paragraph(self):
-        lines = [self.name, "%s-%s %s" % (self.country, self.pcode, self.city)]
-        if self.street:
-            if self.house_num:
-                lines.insert(1, " ".join([self.street, self.house_num]))
-            else:
-                lines.insert(1, self.street)
+        if self.combined:
+            lines = [self.name, self.line1, self.line2]
+        else:
+            lines = [self.name, "%s-%s %s" % (self.country, self.pcode, self.city)]
+            if self.street:
+                if self.house_num:
+                    lines.insert(1, " ".join([self.street, self.house_num]))
+                else:
+                    lines.insert(1, self.street)
         return lines
 
 
