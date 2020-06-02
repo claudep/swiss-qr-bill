@@ -3,6 +3,7 @@ import sys
 import tempfile
 import unittest
 from decimal import Decimal
+from io import StringIO
 
 from qrbill import QRBill
 from qrbill.bill import Address, format_ref_number, format_amount
@@ -301,6 +302,18 @@ class QRBillTests(unittest.TestCase):
             bill = QRBill(**min_data, ref_number='ref-number')
         with self.assertRaisesRegex(ValueError, "A QR-IBAN requires a QRR reference number"):
             bill = QRBill(**min_data, ref_number='RF18539007547034')
+
+    def test_as_svg_filelike(self):
+        bill = QRBill(
+            account="CH 53 8000 5000 0102 83664",
+            creditor={
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+            },
+        )
+
+        buff = StringIO()
+        bill.as_svg(buff)
+        self.assertEqual(buff.getvalue()[:40], '<?xml version="1.0" encoding="utf-8" ?>\n')
 
 
 class CommandLineTests(unittest.TestCase):
