@@ -2,6 +2,7 @@ import re
 from datetime import date
 from decimal import Decimal
 from io import BytesIO
+from pathlib import Path
 
 import qrcode
 import qrcode.image.svg
@@ -283,7 +284,12 @@ class QRBill:
     def label(self, txt):
         return txt if self.language == 'en' else LABELS[txt][self.language]
 
-    def as_svg(self, file_name):
+    def as_svg(self, file_out):
+        """
+        Format as SVG and write the result to file_out.
+        file_out can be a str, a pathlib.Path or a file-like object open in text
+        mode.
+        """
         bill_height = '105mm'
         receipt_width = '62mm'
         payment_width = '148mm'
@@ -296,7 +302,6 @@ class QRBill:
 
         dwg = svgwrite.Drawing(
             size=(add_mm(receipt_width, payment_width), bill_height),  # A4 width, A6 height.
-            filename=file_name,
         )
         dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), fill='white'))  # Force white background
 
@@ -467,7 +472,10 @@ class QRBill:
             ))
             y_pos += line_space
 
-        dwg.save()
+        if isinstance(file_out, (str, Path)):
+            dwg.saveas(file_out)
+        else:
+            dwg.write(file_out)
 
 
 def add_mm(*mms):
