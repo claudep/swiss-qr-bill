@@ -99,7 +99,7 @@ class Address:
         if self.combined:
              # 'K': structured address
             return [
-                'K', self.name, self.line1, self.line2
+                'K', self.name, self.line1, self.line2, '', '', ''
             ]
         else:
             # 'S': structured address
