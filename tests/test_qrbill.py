@@ -28,9 +28,9 @@ class AddressTests(unittest.TestCase):
             Address.create(name='Me', line1='Something')
         err_msg = "An address line should have between 0 and 70 characters."
         with self.assertRaisesRegex(ValueError, err_msg):
-            Address.create(name='Me', line1= 'a' * 71, line2='b')
+            Address.create(name='Me', line1='a' * 71, line2='b')
         with self.assertRaisesRegex(ValueError, err_msg):
-            Address.create(name='Me', line1='a', line2= 'b' * 71)
+            Address.create(name='Me', line1='a', line2='b' * 71)
 
 
 class QRBillTests(unittest.TestCase):
