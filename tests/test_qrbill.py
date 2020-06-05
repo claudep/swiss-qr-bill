@@ -14,13 +14,23 @@ class AddressTests(unittest.TestCase):
         err_msg = "An address name should have between 1 and 70 characters."
         defaults = {'pcode': '1234', 'city': 'Somewhere'}
         with self.assertRaisesRegex(ValueError, err_msg):
-            Address(name='', **defaults)
+            Address.create(name='', **defaults)
         with self.assertRaisesRegex(ValueError, err_msg):
-            Address(name='a' * 71, **defaults)
-        Address(name='a', **defaults)
+            Address.create(name='a' * 71, **defaults)
+        Address.create(name='a', **defaults)
         # Spaces are stripped
-        addr = Address(name='  {}  '.format('a' * 70), **defaults)
+        addr = Address.create(name='  {}  '.format('a' * 70), **defaults)
         self.assertEqual(addr.name, 'a' * 70)
+
+    def test_combined(self):
+        err_msg = "line2 is mandatory for combined address type."
+        with self.assertRaisesRegex(ValueError, err_msg):
+            Address.create(name='Me', line1='Something')
+        err_msg = "An address line should have between 0 and 70 characters."
+        with self.assertRaisesRegex(ValueError, err_msg):
+            Address.create(name='Me', line1= 'a' * 71, line2='b')
+        with self.assertRaisesRegex(ValueError, err_msg):
+            Address.create(name='Me', line1='a', line2= 'b' * 71)
 
 
 class QRBillTests(unittest.TestCase):
@@ -322,9 +332,9 @@ class CommandLineTests(unittest.TestCase):
             [sys.executable, 'scripts/qrbill'],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         ).communicate()
-        self.assertTrue(
-            'error: the following arguments are required: --account, --creditor-name, '
-            '--creditor-postalcode, --creditor-city' in err.decode()
+        self.assertIn(
+            'error: the following arguments are required: --account, --creditor-name',
+            err.decode()
         )
 
     def test_minimal_args(self):
@@ -333,6 +343,16 @@ class CommandLineTests(unittest.TestCase):
                 sys.executable, 'scripts/qrbill', '--account', 'CH 53 8000 5000 0102 83664',
                 '--creditor-name',  'Jane', '--creditor-postalcode', '1000',
                 '--creditor-city', 'Lausanne',
+                '--output', tmp.name,
+            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            self.assertEqual(err, b'')
+
+    def test_combined_address(self):
+        with tempfile.NamedTemporaryFile(suffix='.svg') as tmp:
+            out, err = subprocess.Popen([
+                sys.executable, 'scripts/qrbill', '--account', 'CH 53 8000 5000 0102 83664',
+                '--creditor-name',  'Jane', '--creditor-line1', 'Av. des Fleurs 5',
+                '--creditor-line2', '1000 Lausanne',
                 '--output', tmp.name,
             ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
             self.assertEqual(err, b'')

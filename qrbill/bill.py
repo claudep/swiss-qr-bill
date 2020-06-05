@@ -53,6 +53,60 @@ LABELS = {
 
 
 class Address:
+    @classmethod
+    def create(cls, **kwargs):
+        if kwargs.get('line1') or kwargs.get('line2'):
+            for arg_name in ('street', 'house_num', 'pcode', 'city'):
+                if kwargs.get(arg_name):
+                    raise ValueError("When providing line1 or line2, you cannot provide %s" % arg_name)
+            if not kwargs.get('line2'):
+                raise ValueError("line2 is mandatory for combined address type.")
+            return CombinedAddress(name=kwargs['name'], line1=kwargs['line1'], line2=kwargs['line2'])
+        else:
+            kwargs.pop('line1', None)
+            kwargs.pop('line2', None)
+            return StructuredAddress(**kwargs)
+
+    def parse_country(self, country):
+        country = (country or '').strip()
+        # allow users to write the country as if used in an address in the local language
+        if not country or country.lower() in ['schweiz', 'suisse', 'svizzera', 'svizra']:
+            country = 'CH'
+        if country.lower() in ['fürstentum liechtenstein']:
+            country = 'LI'
+        try:
+            self.country = countries.get(country).alpha2
+        except KeyError:
+            raise ValueError("The country code '%s' is not valid" % country)
+        return countries.get(country).alpha2
+
+
+class CombinedAddress(Address):
+    combined = True
+
+    def __init__(self, *, name=None, line1=None, line2=None, country=None):
+        self.name = (name or '').strip()
+        self.line1 = (line1 or '').strip()
+        if not (0 <= len(self.line1) <= 70):
+            raise ValueError("An address line should have between 0 and 70 characters.")
+        self.line2 = (line2 or '').strip()
+        if not (0 <= len(self.line2) <= 70):
+            raise ValueError("An address line should have between 0 and 70 characters.")
+        self.country = self.parse_country(country)
+
+    def data_list(self):
+        # 'K': combined address
+        return [
+            'K', self.name, self.line1, self.line2, '', '', ''
+        ]
+
+    def as_paragraph(self):
+        return [self.name, self.line1, self.line2]
+
+
+class StructuredAddress(Address):
+    combined = False
+
     def __init__(self, *, name=None, street=None, house_num=None, pcode=None, city=None, country=None):
         self.name = (name or '').strip()
         if not (1 <= len(self.name) <= 70):
@@ -73,17 +127,7 @@ class Address:
             raise ValueError("City is mandatory")
         elif len(self.city) > 35:
             raise ValueError("A city cannot have more than 35 characters.")
-        country = (country or '').strip()
-        # allow users to write the country as if used in an address in the local language
-        if not country or country.lower() in ['schweiz', 'suisse', 'svizzera', 'svizra']:
-            country = 'CH'
-        if country.lower() in ['fürstentum liechtenstein']:
-            country = 'LI'
-        try:
-            self.country = countries.get(country).alpha2
-        except KeyError:
-            raise ValueError("The country code '%s' is not valid" % country)
-        self.country = countries.get(country).alpha2
+        self.country = self.parse_country(country)
 
     def data_list(self):
         """Return address values as a list, appropriate for qr generation."""
@@ -170,7 +214,7 @@ class QRBill:
         if not creditor:
             raise ValueError("Creditor information is mandatory")
         try:
-            self.creditor = Address(**creditor)
+            self.creditor = Address.create(**creditor)
         except ValueError as err:
             raise ValueError("The creditor address is invalid: %s" % err)
         if final_creditor is not None:
@@ -182,7 +226,7 @@ class QRBill:
             self.final_creditor = final_creditor
         if debtor is not None:
             try:
-                self.debtor = Address(**debtor)
+                self.debtor = Address.create(**debtor)
             except ValueError as err:
                 raise ValueError("The debtor address is invalid: %s" % err)
         else:

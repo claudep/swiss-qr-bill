@@ -14,13 +14,17 @@ if __name__ == '__main__':
                         help='creditor IBAN account number')
     parser.add_argument('--creditor-name', required=True,
                         help='creditor name')
+    parser.add_argument('--creditor-line1',
+                        help='creditor address line 1')
+    parser.add_argument('--creditor-line2',
+                        help='creditor address line 2')
     parser.add_argument('--creditor-street',
                         help='creditor street')
     parser.add_argument('--creditor-housenumber',
                         help='creditor house number')
-    parser.add_argument('--creditor-postalcode', required=True,
+    parser.add_argument('--creditor-postalcode',
                         help='creditor postal code')
-    parser.add_argument('--creditor-city', required=True,
+    parser.add_argument('--creditor-city',
                         help='creditor city')
     parser.add_argument('--creditor-country', default='CH',
                         help='creditor country')
@@ -47,6 +51,10 @@ if __name__ == '__main__':
                         help='due date of payment in the form YYYY-MM-DD')
     parser.add_argument('--debtor-name',
                         help='debtor name')
+    parser.add_argument('--debtor-line1',
+                        help='debtor address line 1')
+    parser.add_argument('--debtor-line2',
+                        help='debtor address line 1')
     parser.add_argument('--debtor-street',
                         help='debtor street')
     parser.add_argument('--debtor-housenumber',
@@ -68,9 +76,11 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     creditor = {
-        'name': args.creditor_name, 'street': args.creditor_street,
-        'house_num': args.creditor_housenumber, 'pcode': args.creditor_postalcode,
-        'city': args.creditor_city, 'country': args.creditor_country,
+        'name': args.creditor_name,
+        'line1': args.creditor_line1, 'line2': args.creditor_line2,
+        'street': args.creditor_street, 'house_num': args.creditor_housenumber,
+        'pcode': args.creditor_postalcode, 'city': args.creditor_city,
+        'country': args.creditor_country,
     } if args.creditor_name else None
     final_creditor = {
         'name': args.ucreditor_name, 'street': args.ucreditor_street,
@@ -78,9 +88,11 @@ if __name__ == '__main__':
         'city': args.ucreditor_city, 'country': args.ucreditor_country,
     } if args.ucreditor_name else None
     debtor = {
-        'name': args.debtor_name, 'street': args.debtor_street,
-        'house_num': args.debtor_housenumber, 'pcode': args.debtor_postalcode,
-        'city': args.debtor_city, 'country': args.debtor_country,
+        'name': args.debtor_name,
+        'line1': args.debtor_line1, 'line2': args.debtor_line2,
+        'street': args.debtor_street, 'house_num': args.debtor_housenumber,
+        'pcode': args.debtor_postalcode, 'city': args.debtor_city,
+        'country': args.debtor_country,
     } if args.debtor_name else None
 
     if args.output and not args.output.endswith('.svg'):
