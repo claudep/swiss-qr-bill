@@ -360,7 +360,7 @@ class QRBill:
         if self.top_line:
             dwg.add(dwg.line(
                 start=(0, 0), end=(receipt_width + payment_width, 0),
-                stroke=u'black', stroke_dasharray=u'2 2'
+                stroke='black', stroke_dasharray='2 2'
             ))
 
         # Separation line between receipt and payment parts
