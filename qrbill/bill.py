@@ -160,7 +160,7 @@ class QRBill:
     def __init__(
             self, account=None, creditor=None, final_creditor=None, amount=None,
             currency='CHF', due_date=None, debtor=None, ref_number=None, extra_infos='',
-            language='en'):
+            language='en', top_line=True):
         # Account (IBAN) validation
         if not account:
             raise ValueError("The account parameter is mandatory")
@@ -262,6 +262,7 @@ class QRBill:
         if language not in ['en', 'de', 'fr', 'it']:
             raise ValueError("Language should be 'en', 'de', 'fr', or 'it'")
         self.language = language
+        self.top_line = top_line
 
     def qr_data(self):
         """Return data to be encoded in the QR code."""
@@ -403,6 +404,14 @@ class QRBill:
             self.label("Acceptance point"), (add_mm(receipt_width, '-' + margin), '91mm'),
             text_anchor='end', **head_font_info
         ))
+        
+        # Top separation line
+        if self.top_line:
+            dwg.add(dwg.line(
+                start=(0, 0), end=(receipt_width + payment_width, 0),
+                stroke='black', stroke_dasharray='2 2'
+            ))
+
         # Separation line between receipt and payment parts
         dwg.add(dwg.line(
             start=(receipt_width, 0), end=(receipt_width, bill_height),
