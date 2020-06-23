@@ -408,7 +408,7 @@ class QRBill:
         # Top separation line
         if self.top_line:
             dwg.add(dwg.line(
-                start=(0, 0), end=(receipt_width + payment_width, 0),
+                start=(0, 0), end=(add_mm(receipt_width, payment_width), 0),
                 stroke='black', stroke_dasharray='2 2'
             ))
 
