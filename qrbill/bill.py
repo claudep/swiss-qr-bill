@@ -404,7 +404,7 @@ class QRBill:
             self.label("Acceptance point"), (add_mm(receipt_width, '-' + margin), '91mm'),
             text_anchor='end', **head_font_info
         ))
-        
+
         # Top separation line
         if self.top_line:
             dwg.add(dwg.line(
