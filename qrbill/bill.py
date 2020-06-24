@@ -67,7 +67,8 @@ class Address:
             kwargs.pop('line2', None)
             return StructuredAddress(**kwargs)
 
-    def parse_country(self, country):
+    @staticmethod
+    def parse_country(country):
         country = (country or '').strip()
         # allow users to write the country as if used in an address in the local language
         if not country or country.lower() in ['schweiz', 'suisse', 'svizzera', 'svizra']:
@@ -75,10 +76,9 @@ class Address:
         if country.lower() in ['fürstentum liechtenstein']:
             country = 'LI'
         try:
-            self.country = countries.get(country).alpha2
+            return countries.get(country).alpha2
         except KeyError:
             raise ValueError("The country code '%s' is not valid" % country)
-        return countries.get(country).alpha2
 
 
 class CombinedAddress(Address):
