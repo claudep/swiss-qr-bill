@@ -279,7 +279,7 @@ class QRBill:
         return qrcode.make(
             self.qr_data(),
             image_factory=factory,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            error_correction=qrcode.constants.ERROR_CORRECT_M,
         )
 
     def draw_swiss_cross(self, dwg, qr_width):
