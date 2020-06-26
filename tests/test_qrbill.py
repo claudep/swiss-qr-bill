@@ -74,25 +74,35 @@ class QRBillTests(unittest.TestCase):
     def test_country(self):
         bill_data = {
             'account': 'CH5380005000010283664',
-            'creditor': {
-                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
-            },
         }
-        # Switzerland - German/French/Italian/Romansh/English/code
-        for country_name in ('Schweiz', 'Suisse', 'Svizzera', 'Svizra', 'Switzerland', 'CH'):
-            bill_data['creditor']['country'] = country_name
-            bill = QRBill(**bill_data)
-            self.assertEqual(bill.creditor.country, 'CH')
+        for creditor in [
+            {
+                'name': 'Jane',
+                'pcode': '1000',
+                'city': 'Lausanne',
+            },
+            {
+                'name': 'Jane',
+                'line1': 'rue de foo 123',
+                'line2': '1000 Lausanne',
+            },
+        ]:
+            bill_data["creditor"] = creditor
+            # Switzerland - German/French/Italian/Romansh/English/code
+            for country_name in ('Schweiz', 'Suisse', 'Svizzera', 'Svizra', 'Switzerland', 'CH'):
+                bill_data['creditor']['country'] = country_name
+                bill = QRBill(**bill_data)
+                self.assertEqual(bill.creditor.country, 'CH')
 
-        # Liechtenstein - short and long names/code
-        for country_name in ('Liechtenstein', 'Fürstentum Liechtenstein', 'LI'):
-            bill_data['creditor']['country'] = country_name
-            bill = QRBill(**bill_data)
-            self.assertEqual(bill.creditor.country, 'LI')
+            # Liechtenstein - short and long names/code
+            for country_name in ('Liechtenstein', 'Fürstentum Liechtenstein', 'LI'):
+                bill_data['creditor']['country'] = country_name
+                bill = QRBill(**bill_data)
+                self.assertEqual(bill.creditor.country, 'LI')
 
-        with self.assertRaisesRegex(ValueError, "The country code 'XY' is not valid"):
-            bill_data['creditor']['country'] = 'XY'
-            bill = QRBill(**bill_data)
+            with self.assertRaisesRegex(ValueError, "The country code 'XY' is not valid"):
+                bill_data['creditor']['country'] = 'XY'
+                bill = QRBill(**bill_data)
 
     def test_currency(self):
         with self.assertRaisesRegex(ValueError, "Currency can only contain: CHF, EUR"):
