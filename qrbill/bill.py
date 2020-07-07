@@ -57,11 +57,11 @@ class Address:
     def create(cls, **kwargs):
         if kwargs.get('line1') or kwargs.get('line2'):
             for arg_name in ('street', 'house_num', 'pcode', 'city'):
-                if kwargs.get(arg_name):
+                if kwargs.pop(arg_name, False):
                     raise ValueError("When providing line1 or line2, you cannot provide %s" % arg_name)
             if not kwargs.get('line2'):
                 raise ValueError("line2 is mandatory for combined address type.")
-            return CombinedAddress(name=kwargs['name'], line1=kwargs['line1'], line2=kwargs['line2'])
+            return CombinedAddress(**kwargs)
         else:
             kwargs.pop('line1', None)
             kwargs.pop('line2', None)
@@ -97,7 +97,7 @@ class CombinedAddress(Address):
     def data_list(self):
         # 'K': combined address
         return [
-            'K', self.name, self.line1, self.line2, '', '', ''
+            'K', self.name, self.line1, self.line2, '', '', self.country
         ]
 
     def as_paragraph(self):
