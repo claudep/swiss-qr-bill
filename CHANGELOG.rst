@@ -3,6 +3,11 @@
 ChangeLog
 =========
 
+Unreleased
+----------
+
+- Fix for missing country field in QR code when using CombinedAddress (#31)
+
 0.5 (2020-06-24)
 ----------------
 
