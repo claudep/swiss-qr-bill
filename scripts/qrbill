@@ -74,6 +74,9 @@ if __name__ == '__main__':
     parser.add_argument('--language', default='en', choices=['en', 'de', 'fr', 'it'],
                         help='language')
 
+    parser.add_argument('--full-page', default=False, action='store_true',
+                        help='Print to full A4 size page')
+
     args = parser.parse_args()
     creditor = {
         'name': args.creditor_name,
@@ -121,4 +124,4 @@ if __name__ == '__main__':
             args.account.replace(' ', ''),
             datetime.now().strftime("%Y-%m-%d_%H%M%S")
         )
-    bill.as_svg(out_path)
+    bill.as_svg(out_path, full_page=args.full_page)

@@ -11,6 +11,9 @@ from iso3166 import countries
 from stdnum import iban, iso11649
 from stdnum.ch import esr
 
+from svgwrite.utils import split_coordinate
+from svgwrite import mm
+
 IBAN_ALLOWED_COUNTRIES = ['CH', 'LI']
 QR_IID = {"start": 30000, "end": 31999}
 AMOUNT_REGEX = r'^\d{1,9}\.\d{2}$'
@@ -21,6 +24,11 @@ BILL_HEIGHT = '105mm'
 RECEIPT_WIDTH = '62mm'
 PAYMENT_WIDTH = '148mm'
 A4 = ('210mm', '297mm')
+
+# y-offset to where to translate the bill to on a A4 page
+# TODO: this should be (A4[1] - BILL_HEIGHT) * MM_TO_UU, but the resulting
+# translation is too small (~690 uu)
+FULL_PAGE_Y_OFFSET = 727
 
 # Annex D: Multilingual headings
 LABELS = {
@@ -338,12 +346,60 @@ class QRBill:
     def label(self, txt):
         return txt if self.language == 'en' else LABELS[txt][self.language]
 
-    def as_svg(self, file_out):
+    def as_svg(self, file_out, full_page=False):
         """
         Format as SVG and write the result to file_out.
         file_out can be a str, a pathlib.Path or a file-like object open in text
         mode.
         """
+
+        dwg = self.draw_svg()
+
+        if full_page:
+            dwg = self.transform_to_full_page(dwg)
+
+        if isinstance(file_out, (str, Path)):
+            dwg.saveas(file_out)
+        else:
+            dwg.write(file_out)
+
+    def transform_to_full_page(self, bill):
+        """Renders to a A4 page, adding bill in a group element.
+
+        Adds a note about separating the bill as well.
+
+        :param bill: The regular sized bill drawing.
+        :returns: Bill rendered to A4 size.
+        """
+
+        dwg = svgwrite.Drawing(size=A4)
+        dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), fill='white'))
+        group = dwg.add(dwg.g())
+        group.add(bill)
+
+        true_y_offset = split_coordinate(A4[1])[0] - split_coordinate(BILL_HEIGHT)[0]
+        group.translate(tx=0, ty=FULL_PAGE_Y_OFFSET)
+
+        # TODO: figure out why this doesn't translate far enough
+        # group.translate(tx=0, ty=true_y_offset * MM_TO_UU)
+
+        # add text snippet
+        x_center = split_coordinate(A4[0])[0] / 2 * mm
+        y_pos = (true_y_offset - 2) * mm
+
+        dwg.add(dwg.text(
+            self.label("Separate before paying in"),
+            (x_center, y_pos),
+            text_anchor="middle",
+            font_style="italic",
+            **self.font_info)
+        )
+
+        return dwg
+
+    def draw_svg(self):
+        """Draw the bill in SVG format."""
+
         margin = '5mm'
         payment_left = add_mm(RECEIPT_WIDTH, margin)
         payment_detail_left = add_mm(payment_left, '70mm')
@@ -528,10 +584,7 @@ class QRBill:
             ))
             y_pos += line_space
 
-        if isinstance(file_out, (str, Path)):
-            dwg.saveas(file_out)
-        else:
-            dwg.write(file_out)
+        return dwg
 
 
 def add_mm(*mms):
