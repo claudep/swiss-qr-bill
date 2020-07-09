@@ -262,7 +262,7 @@ class QRBillTests(unittest.TestCase):
             '<text {font10} x="{x}" y="{y4}">CH-9400 Rorschach</text>'
             '<text {font8} x="{x}" y="{y5}">Payable by </text>'
             '<text {font10} x="{x}" y="{y6}">31.10.2019</text>'.format(
-                font8=font8, font10=font10, x='485.44',
+                font8=font8, font10=font10, x='485.43306',
                 y1=mm(52.5), y2=mm(56), y3=mm(59.5), y4=mm(63), y5=mm(67.5), y6=mm(71),
             )
         )
@@ -323,6 +323,19 @@ class QRBillTests(unittest.TestCase):
             bill = QRBill(**min_data, ref_number='ref-number')
         with self.assertRaisesRegex(ValueError, "A QR-IBAN requires a QRR reference number"):
             bill = QRBill(**min_data, ref_number='RF18539007547034')
+
+    def test_full_page(self):
+        bill = QRBill(
+            account="CH 53 8000 5000 0102 83664",
+            creditor={
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+            },
+        )
+        buff = StringIO()
+        bill.as_svg(buff, full_page=True)
+        file_head = buff.getvalue()[:250]
+        self.assertIn('width="210mm"', file_head)
+        self.assertIn('height="297mm"', file_head)
 
     def test_as_svg_filelike(self):
         bill = QRBill(
