@@ -346,6 +346,7 @@ class QRBill:
         """
         dwg = svgwrite.Drawing(
             size=(A4[0], BILL_HEIGHT),  # A4 width, A6 height.
+            viewBox=('0 0 %f %f' % (mm(A4[0]), mm(BILL_HEIGHT))),
         )
         dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), fill='white'))  # Force white background
 
@@ -414,7 +415,7 @@ class QRBill:
 
         # Right-aligned
         grp.add(dwg.text(
-            self.label("Acceptance point"), (add_mm(RECEIPT_WIDTH, '-' + margin), mm(91)),
+            self.label("Acceptance point"), (add_mm(RECEIPT_WIDTH, margin * -1), mm(91)),
             text_anchor='end', **self.head_font_info
         ))
 
@@ -427,7 +428,7 @@ class QRBill:
 
         # Separation line between receipt and payment parts
         grp.add(dwg.line(
-            start=(RECEIPT_WIDTH, 0), end=(RECEIPT_WIDTH, BILL_HEIGHT),
+            start=(mm(RECEIPT_WIDTH), 0), end=(mm(RECEIPT_WIDTH), mm(BILL_HEIGHT)),
             stroke='black', stroke_dasharray='2 2'
         ))
         grp.add(dwg.text(
@@ -541,12 +542,18 @@ class QRBill:
 
 def add_mm(*mms):
     """Utility to allow additions of '23mm'-type strings."""
-    return '%smm' % str(sum(float(mm[:-2]) for mm in mms))
+    return sum(
+        mm(float(m[:-2])) if isinstance(m, str) else m for m in mms
+    )
 
 
 def mm(val):
-    """Append 'mm' to value."""
-    return '%smm' % val
+    """Convert val (as mm, either number of '12mm' str) into user units."""
+    try:
+        val = float(val.rstrip('mm'))
+    except AttributeError:
+        pass
+    return round(val * MM_TO_UU, 2)
 
 
 def format_ref_number(bill):

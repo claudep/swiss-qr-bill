@@ -6,7 +6,7 @@ from decimal import Decimal
 from io import StringIO
 
 from qrbill import QRBill
-from qrbill.bill import Address, format_ref_number, format_amount
+from qrbill.bill import Address, format_ref_number, format_amount, mm
 
 
 class AddressTests(unittest.TestCase):
@@ -255,28 +255,29 @@ class QRBillTests(unittest.TestCase):
         font8 = 'font-family="helvetica" font-size="8" font-weight="bold"'
         font10 = 'font-family="helvetica" font-size="10"'
         # Test the Payable by section:
-        self.assertIn(
-            '<text {font8} {x} y="52.5mm">Payable by</text>'
-            '<text {font10} {x} y="56.0mm">Pia-Maria Rutschmann-Schnyder</text>'
-            '<text {font10} {x} y="59.5mm">Grosse Marktgasse 28</text>'
-            '<text {font10} {x} y="63.0mm">CH-9400 Rorschach</text>'
-            '<text {font8} {x} y="67.5mm">Payable by </text>'
-            '<text {font10} {x} y="71.0mm">31.10.2019</text>'.format(
-                font8=font8, font10=font10, x='x="137.0mm"'
-            ),
-            content
+        expected = (
+            '<text {font8} x="{x}" y="{y1}">Payable by</text>'
+            '<text {font10} x="{x}" y="{y2}">Pia-Maria Rutschmann-Schnyder</text>'
+            '<text {font10} x="{x}" y="{y3}">Grosse Marktgasse 28</text>'
+            '<text {font10} x="{x}" y="{y4}">CH-9400 Rorschach</text>'
+            '<text {font8} x="{x}" y="{y5}">Payable by </text>'
+            '<text {font10} x="{x}" y="{y6}">31.10.2019</text>'.format(
+                font8=font8, font10=font10, x='485.44',
+                y1=mm(52.5), y2=mm(56), y3=mm(59.5), y4=mm(63), y5=mm(67.5), y6=mm(71),
+            )
         )
+        self.assertIn(expected, content)
         # IBAN formatted
         self.assertIn(
-            '<text {font10} x="5mm" y="18.5mm">CH44 3199 9123 0008 8901 2</text>'.format(
-                font10=font10
+            '<text {font10} x="{x}" y="{y}">CH44 3199 9123 0008 8901 2</text>'.format(
+                font10=font10, x=mm(5), y=mm(18.5),
             ),
             content
         )
         # amount formatted
         self.assertIn(
-            '<text {font10} x="17.0mm" y="85mm">1 949.70</text>'.format(
-                font10=font10
+            '<text {font10} x="{x}" y="{y}">1 949.70</text>'.format(
+                font10=font10, x=mm(17), y=mm(85),
             ),
             content
         )
