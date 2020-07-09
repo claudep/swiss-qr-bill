@@ -338,24 +338,55 @@ class QRBill:
     def label(self, txt):
         return txt if self.language == 'en' else LABELS[txt][self.language]
 
-    def as_svg(self, file_out):
+    def as_svg(self, file_out, full_page=False):
         """
         Format as SVG and write the result to file_out.
         file_out can be a str, a pathlib.Path or a file-like object open in text
         mode.
         """
-        dwg = svgwrite.Drawing(
-            size=(A4[0], BILL_HEIGHT),  # A4 width, A6 height.
-            viewBox=('0 0 %f %f' % (mm(A4[0]), mm(BILL_HEIGHT))),
-        )
+        if full_page:
+            dwg = svgwrite.Drawing(
+                size=A4,
+                viewBox=('0 0 %f %f' % (mm(A4[0]), mm(A4[1]))),
+            )
+        else:
+            dwg = svgwrite.Drawing(
+                size=(A4[0], BILL_HEIGHT),  # A4 width, A6 height.
+                viewBox=('0 0 %f %f' % (mm(A4[0]), mm(BILL_HEIGHT))),
+            )
         dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), fill='white'))  # Force white background
 
-        self.draw_bill(dwg)
+        bill_group = self.draw_bill(dwg)
+        if full_page:
+            self.transform_to_full_page(dwg, bill_group)
 
         if isinstance(file_out, (str, Path)):
             dwg.saveas(file_out)
         else:
             dwg.write(file_out)
+
+    def transform_to_full_page(self, dwg, bill):
+        """Renders to a A4 page, adding bill in a group element.
+
+        Adds a note about separating the bill as well.
+
+        :param dwg: The svg drawing.
+        :param bill: The svg group containing regular sized bill drawing.
+        """
+        y_offset = mm(A4[1]) - mm(BILL_HEIGHT)
+        bill.translate(tx=0, ty=y_offset)
+
+        # add text snippet
+        x_center = mm(A4[0]) / 2
+        y_pos = y_offset - mm(2)
+
+        dwg.add(dwg.text(
+            self.label("Separate before paying in"),
+            (x_center, y_pos),
+            text_anchor="middle",
+            font_style="italic",
+            **self.font_info)
+        )
 
     def draw_bill(self, dwg):
         """Draw the bill in SVG format."""
@@ -538,6 +569,7 @@ class QRBill:
                 format_date(self.due_date), (payment_detail_left, mm(y_pos)), **self.font_info
             ))
             y_pos += line_space
+        return grp
 
 
 def add_mm(*mms):
@@ -553,7 +585,7 @@ def mm(val):
         val = float(val.rstrip('mm'))
     except AttributeError:
         pass
-    return round(val * MM_TO_UU, 2)
+    return round(val * MM_TO_UU, 5)
 
 
 def format_ref_number(bill):
