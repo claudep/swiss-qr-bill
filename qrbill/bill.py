@@ -15,7 +15,12 @@ IBAN_ALLOWED_COUNTRIES = ['CH', 'LI']
 QR_IID = {"start": 30000, "end": 31999}
 AMOUNT_REGEX = r'^\d{1,9}\.\d{2}$'
 DATE_REGEX = r'(\d{4})-(\d{2})-(\d{2})'
+
 MM_TO_UU = 3.543307
+BILL_HEIGHT = '105mm'
+RECEIPT_WIDTH = '62mm'
+PAYMENT_WIDTH = '148mm'
+A4 = ('210mm', '297mm')
 
 # Annex D: Multilingual headings
 LABELS = {
@@ -339,15 +344,12 @@ class QRBill:
         file_out can be a str, a pathlib.Path or a file-like object open in text
         mode.
         """
-        bill_height = '105mm'
-        receipt_width = '62mm'
-        payment_width = '148mm'
         margin = '5mm'
-        payment_left = add_mm(receipt_width, margin)
+        payment_left = add_mm(RECEIPT_WIDTH, margin)
         payment_detail_left = add_mm(payment_left, '70mm')
 
         dwg = svgwrite.Drawing(
-            size=(add_mm(receipt_width, payment_width), bill_height),  # A4 width, A6 height.
+            size=(A4[0], BILL_HEIGHT),  # A4 width, A6 height.
         )
         dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), fill='white'))  # Force white background
 
@@ -402,24 +404,24 @@ class QRBill:
 
         # Right-aligned
         dwg.add(dwg.text(
-            self.label("Acceptance point"), (add_mm(receipt_width, '-' + margin), '91mm'),
+            self.label("Acceptance point"), (add_mm(RECEIPT_WIDTH, '-' + margin), '91mm'),
             text_anchor='end', **self.head_font_info
         ))
 
         # Top separation line
         if self.top_line:
             dwg.add(dwg.line(
-                start=(0, 0), end=(add_mm(receipt_width, payment_width), 0),
+                start=(0, 0), end=(add_mm(RECEIPT_WIDTH, PAYMENT_WIDTH), 0),
                 stroke='black', stroke_dasharray='2 2'
             ))
 
         # Separation line between receipt and payment parts
         dwg.add(dwg.line(
-            start=(receipt_width, 0), end=(receipt_width, bill_height),
+            start=(RECEIPT_WIDTH, 0), end=(RECEIPT_WIDTH, BILL_HEIGHT),
             stroke='black', stroke_dasharray='2 2'
         ))
         dwg.add(dwg.text(
-            "✂", insert=(add_mm(receipt_width, '-1.5mm'), 40),
+            "✂", insert=(add_mm(RECEIPT_WIDTH, '-1.5mm'), 40),
             font_size=16, font_family='helvetica', rotate=[90]
         ))
 
@@ -456,7 +458,7 @@ class QRBill:
             dwg.add(dwg.text(format_amount(self.amount), (add_mm(payment_left, '12mm'), '85mm'), **self.font_info))
         else:
             self.draw_blank_rect(
-                dwg, x=add_mm(receipt_width, margin, '12mm'), y='83mm',
+                dwg, x=add_mm(RECEIPT_WIDTH, margin, '12mm'), y='83mm',
                 width='40mm', height='15mm'
             )
 
