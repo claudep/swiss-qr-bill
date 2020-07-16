@@ -25,13 +25,14 @@ Command line usage example
 
 Minimal::
 
-    $ qrbill --account "CH4431999123000889012" --creditor-name "John Doe"
+    $ qrbill --account "CH5800791123000889012" --creditor-name "John Doe"
       --creditor-postalcode 2501 --creditor-city "Biel"
 
 More complete::
 
-    $ qrbill --account "CH58 0079 1123 0008 8901 2" --creditor-name "Robert Schneider AG"
-    --creditor-street "Rue du Lac 1268" --creditor-postalcode "2501" --creditor-city "Biel"
+    $ qrbill --account "CH44 3199 9123 0008 8901 2" --reference-number "210000000003139471430009017"
+    --creditor-name "Robert Schneider AG" --creditor-street "Rue du Lac 1268"
+    --creditor-postalcode "2501" --creditor-city "Biel"
     --extra-infos "Bill No. 3139 for garden work and disposal of cuttings."
     --debtor-name "Pia Rutschmann" --debtor-street "Marktgasse 28" --debtor-postalcode "9400"
     --debtor-city "Rorschach" --due-date "2019-10-31" --language "de"
@@ -50,7 +51,7 @@ Python usage example
 
     >>> from qrbill.bill import QRBill
     >>> my_bill = QRBill(
-            account='CH4431999123000899012',
+            account='CH5800791123000889012',
             creditor={
                 'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
             },
