@@ -169,7 +169,7 @@ class QRBill:
     def __init__(
             self, account=None, creditor=None, final_creditor=None, amount=None,
             currency='CHF', due_date=None, debtor=None, ref_number=None, extra_infos='',
-            language='en', top_line=True):
+            language='en', top_line=True, payment_line=True):
         # Account (IBAN) validation
         if not account:
             raise ValueError("The account parameter is mandatory")
@@ -272,6 +272,7 @@ class QRBill:
             raise ValueError("Language should be 'en', 'de', 'fr', or 'it'")
         self.language = language
         self.top_line = top_line
+        self.payment_line = payment_line
 
     def qr_data(self):
         """Return data to be encoded in the QR code."""
@@ -458,14 +459,15 @@ class QRBill:
             ))
 
         # Separation line between receipt and payment parts
-        grp.add(dwg.line(
-            start=(mm(RECEIPT_WIDTH), 0), end=(mm(RECEIPT_WIDTH), mm(BILL_HEIGHT)),
-            stroke='black', stroke_dasharray='2 2'
-        ))
-        grp.add(dwg.text(
-            "✂", insert=(add_mm(RECEIPT_WIDTH, mm(-1.5)), 40),
-            font_size=16, font_family='helvetica', rotate=[90]
-        ))
+        if self.payment_line:
+            grp.add(dwg.line(
+                start=(mm(RECEIPT_WIDTH), 0), end=(mm(RECEIPT_WIDTH), mm(BILL_HEIGHT)),
+                stroke='black', stroke_dasharray='2 2'
+            ))
+            grp.add(dwg.text(
+                "✂", insert=(add_mm(RECEIPT_WIDTH, mm(-1.5)), 40),
+                font_size=16, font_family='helvetica', rotate=[90]
+            ))
 
         # Payment part
         grp.add(dwg.text(self.label("Payment part"), (payment_left, mm(10)), **self.title_font_info))
