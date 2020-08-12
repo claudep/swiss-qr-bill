@@ -75,6 +75,10 @@ if __name__ == '__main__':
                         help='language')
     parser.add_argument('--full-page', default=False, action='store_true',
                         help='Print to full A4 size page')
+    parser.add_argument('--no-top-line', dest="top_line", default=True, action='store_false',
+                        help='Do not print top separation line')
+    parser.add_argument('--no-payment-line', dest="payment_line", default=True, action='store_false',
+                        help='Do not print vertical separation line between receipt and payment parts')
 
     args = parser.parse_args()
     creditor = {
@@ -112,6 +116,8 @@ if __name__ == '__main__':
             ref_number=args.reference_number,
             extra_infos=args.extra_infos,
             language=args.language,
+            top_line=args.top_line,
+            payment_line=args.payment_line,
         )
     except ValueError as err:
         sys.exit("Error: %s" % err)
