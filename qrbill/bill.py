@@ -87,6 +87,10 @@ class Address:
 
 
 class CombinedAddress(Address):
+    """
+    Combined address
+    (name, line1, line2, country)
+    """
     combined = True
 
     def __init__(self, *, name=None, line1=None, line2=None, country=None):
@@ -110,6 +114,10 @@ class CombinedAddress(Address):
 
 
 class StructuredAddress(Address):
+    """
+    Structured address
+    (name, street, house_num, pcode, city, country)
+    """
     combined = False
 
     def __init__(self, *, name=None, street=None, house_num=None, pcode=None, city=None, country=None):
@@ -167,9 +175,43 @@ class QRBill:
     head_font_info = {'font_size': 8, 'font_family': 'helvetica', 'font_weight': 'bold'}
 
     def __init__(
-            self, account=None, creditor=None, final_creditor=None, amount=None,
-            currency='CHF', due_date=None, debtor=None, ref_number=None, extra_infos='',
+            self, account=None, creditor=None,
+            final_creditor=None, amount=None,
+            currency='CHF', due_date=None,
+            debtor=None, ref_number=None, 
+            extra_infos='', # unstructured message
+            billing_info='', alternative_scheme='',
             language='en', top_line=True, payment_line=True):
+        """ Load the QR bill from text. 
+
+        Arguments
+        ---------
+        account: str
+            IBAN of the creditor (must start with 'CH' or 'LI')
+        creditor: Address
+            Address (combined or structured) of the creditor
+        final_creditor: Address
+            (for future use)
+        amount: str
+        currency: str
+            two values allowed: 'CHF' and 'EUR'
+        due_date: str (YYYY-MM-DD)
+            this information is, at the moment, not put into the QR
+        debtor: Address
+            Address (combined or structured) of the debtor
+        extra_infos: str
+            the field 'Unstructured Information"
+        billing_info: str
+            trailer field containing encoded information
+        alternative_scheme: list/tuple of str (2)
+            two additional fields for alternative payment schemes
+        language: str
+            language of the output (ISO, 2 letters): 'en', 'de', 'fr 'or 'it'
+        top_line: bool
+            print a horizontal line at the top of the bill
+        payment_line: bool
+            print a vertical line between the receipt and the bill itself
+        """
         # Account (IBAN) validation
         if not account:
             raise ValueError("The account parameter is mandatory")
@@ -265,9 +307,20 @@ class QRBill:
             if self.ref_type == 'QRR':
                 raise ValueError("A QRR reference number is only allowed for a QR-IBAN")
 
-        if extra_infos and len(extra_infos) > 140:
-            raise ValueError("Additional information cannot contain more than 140 characters")
+        # process the additional information (unstructured message + trailer)
+        if len(extra_infos) + len(billing_info) > 140:
+            raise ValueError("Additional information "
+                                "(unstructured message + billing info) "
+                                "cannot contain more than 140 characters")
         self.extra_infos = extra_infos
+        if len(alternative_scheme) > 2:
+            raise ValueError("Only two lines allowed in alternative "
+                                "scheme parameters")
+        if any(len(el) > 100 for el in alternative_scheme):
+            raise ValueError("Cannot have an alternative scheme line "
+                                "longer than 100 characters")
+        self.trailer = ['EPD', billing_info] + list(alternative_scheme)
+        # meta-information:
         if language not in ['en', 'de', 'fr', 'it']:
             raise ValueError("Language should be 'en', 'de', 'fr', or 'it'")
         self.language = language
@@ -275,14 +328,22 @@ class QRBill:
         self.payment_line = payment_line
 
     def qr_data(self):
-        """Return data to be encoded in the QR code."""
-        values = [self.qr_type or '', self.version or '', self.coding or '', self.account or '']
+        """
+        Return data to be encoded in the QR code,
+        in the standard text representation.
+        """
+        values = [self.qr_type or '', self.version or '', 
+                  self.coding or '', self.account or '']
         values.extend(self.creditor.data_list())
-        values.extend(self.final_creditor.data_list() if self.final_creditor else [''] * 7)
+        values.extend(self.final_creditor.data_list() 
+                      if self.final_creditor else [''] * 7)
         values.extend([self.amount or '', self.currency or ''])
         values.extend(self.debtor.data_list() if self.debtor else [''] * 7)
-        values.extend([self.ref_type or '', self.ref_number or '', self.extra_infos or '', 'EPD'])
-        return "\r\n".join([str(v) for v in values])
+        values.extend([self.ref_type or '', self.ref_number or '',
+                       self.extra_infos or ''])
+        values += self.trailer
+        # note: strip the trailer, to maintain compatibility with tests:
+        return "\r\n".join([str(v) for v in values]).rstrip()
 
     def qr_image(self):
         factory = qrcode.image.svg.SvgPathImage

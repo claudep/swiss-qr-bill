@@ -10,6 +10,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--output',
                         help='output file')
+    parser.add_argument('-t', '--text',
+                        help='print the bill data as text on the console '
+                             'instead of saving as image file',
+                        action='store_true')
     parser.add_argument('--account', required=True,
                         help='creditor IBAN account number')
     parser.add_argument('--creditor-name', required=True,
@@ -68,7 +72,16 @@ if __name__ == '__main__':
     parser.add_argument('--reference-number',
                         help='reference number')
     parser.add_argument('--extra-infos',
-                        help='payment purpose')
+                        help='payment purpose (unstructured message',
+                        default='')
+    parser.add_argument('--billing-info',
+                        help='billing information',
+                        default='')
+    parser.add_argument('--alt-scheme',
+                        dest='alternative_scheme',
+                        nargs='*',
+                        help='alternative payment parameters (2 lines max)',
+                        default=())
     # see https://www.paymentstandards.ch/dam/downloads/ig-qr-bill-en.pdf
     # annex D table 16
     parser.add_argument('--language', default='en', choices=['en', 'de', 'fr', 'it'],
@@ -118,9 +131,18 @@ if __name__ == '__main__':
             language=args.language,
             top_line=args.top_line,
             payment_line=args.payment_line,
+            billing_info=args.billing_info,
+            alternative_scheme=args.alternative_scheme
         )
     except ValueError as err:
         sys.exit("Error: %s" % err)
+
+    if args.text:
+        # print as text:
+        print(bill.qr_data())
+        # exit, unless an output file is explicitly required:
+        if not args.output:
+            exit
 
     if args.output:
         out_path = args.output
