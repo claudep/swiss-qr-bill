@@ -170,7 +170,7 @@ class QRBill:
     # QR reference, Creditor Reference (ISO 11649), without reference
     reference_types = ('QRR', 'SCOR', 'NON')
 
-    title_font_info = {'font_size': 11, 'font_family': 'helvetica', 'font_weight': 'bold'}
+    title_font_info = {'font_size': 12, 'font_family': 'helvetica', 'font_weight': 'bold'}
     font_info = {'font_size': 10, 'font_family': 'helvetica'}
     head_font_info = {'font_size': 8, 'font_family': 'helvetica', 'font_weight': 'bold'}
     proc_font_info = {'font_size': 7, 'font_family': 'helvetica'}
@@ -367,7 +367,8 @@ class QRBill:
 
     def draw_blank_rect(self, dwg, grp, x, y, width, height):
         """Draw a empty blank rect with corners (e.g. amount, debtor)"""
-        stroke_info = {'stroke': 'black', 'stroke_width': '0.7mm', 'stroke_linecap': 'square'}
+        # 0.75pt ~= 0.26mm
+        stroke_info = {'stroke': 'black', 'stroke_width': '0.26mm', 'stroke_linecap': 'square'}
         rect_grp = grp.add(dwg.g())
         rect_grp.add(dwg.line((x, y), (x, add_mm(y, mm(2))), **stroke_info))
         rect_grp.add(dwg.line((x, y), (add_mm(x, mm(3)), y), **stroke_info))
