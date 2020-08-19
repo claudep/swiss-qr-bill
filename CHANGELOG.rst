@@ -9,6 +9,7 @@ Unreleased
 - Fix for missing country field in QR code when using CombinedAddress (#31).
 - Added support for printing bill to full A4 format, using the ``full_page``
   parameter of ``QRBill.as_svg()`` or the CLI argument ``--full-page``.
+- A new ``--text`` command line parameter allows for a raw text output.
 
 0.5 (2020-06-24)
 ----------------

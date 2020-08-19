@@ -396,6 +396,26 @@ class CommandLineTests(unittest.TestCase):
             self.assertIn('Reference', svg_content)
             self.assertIn('Order of 15.09.2019', svg_content)
 
+    def test_text_result(self):
+        cmd = [
+            sys.executable, 'scripts/qrbill', '--account', 'CH 44 3199 9123 0008 89012',
+            '--creditor-name',  'Jane', '--creditor-postalcode', '1000',
+            '--creditor-city', 'Lausanne', '--reference-number', '210000000003139471430009017',
+            '--extra-infos', 'Order of 15.09.2019', '--text',
+        ]
+        out, err = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        ).communicate()
+        self.assertEqual(err, b'')
+        self.assertEqual(
+            out.decode(),
+            'SPC\r\n0200\r\n1\r\nCH4431999123000889012\r\nS\r\nJane'
+            '\r\n\r\n\r\n'
+            '1000\r\nLausanne\r\nCH'
+            '\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\nCHF\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n'
+            'QRR\r\n210000000003139471430009017\r\nOrder of 15.09.2019\r\nEPD\n'
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -6,10 +6,15 @@ from datetime import datetime
 
 from qrbill import QRBill
 
-if __name__ == '__main__':
+
+def run():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output',
                         help='output file')
+    parser.add_argument('-t', '--text',
+                        help='print the bill data as text on the console '
+                             'and exit if --output is not provided',
+                        action='store_true')
     parser.add_argument('--account', required=True,
                         help='creditor IBAN account number')
     parser.add_argument('--creditor-name', required=True,
@@ -122,6 +127,13 @@ if __name__ == '__main__':
     except ValueError as err:
         sys.exit("Error: %s" % err)
 
+    if args.text:
+        # print as text:
+        print(bill.qr_data())
+        # exit, unless an output file is explicitly required:
+        if not args.output:
+            return
+
     if args.output:
         out_path = args.output
     else:
@@ -130,3 +142,6 @@ if __name__ == '__main__':
             datetime.now().strftime("%Y-%m-%d_%H%M%S")
         )
     bill.as_svg(out_path, full_page=args.full_page)
+
+if __name__ == '__main__':
+    run()
