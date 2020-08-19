@@ -173,11 +173,12 @@ class QRBill:
     title_font_info = {'font_size': 11, 'font_family': 'helvetica', 'font_weight': 'bold'}
     font_info = {'font_size': 10, 'font_family': 'helvetica'}
     head_font_info = {'font_size': 8, 'font_family': 'helvetica', 'font_weight': 'bold'}
+    proc_font_info = {'font_size': 7, 'font_family': 'helvetica'}
 
     def __init__(
             self, account=None, creditor=None, final_creditor=None, amount=None,
             currency='CHF', due_date=None, debtor=None, ref_number=None, extra_infos='',
-            language='en', top_line=True, payment_line=True):
+            alt_procs=(), language='en', top_line=True, payment_line=True):
         """
         Arguments
         ---------
@@ -195,6 +196,8 @@ class QRBill:
             Address (combined or structured) of the debtor
         extra_infos: str
             Extra information aimed for the bill recipient
+        alt_procs: list of str (max 2)
+            two additional fields for alternative payment schemes
         language: str
             language of the output (ISO, 2 letters): 'en', 'de', 'fr' or 'it'
         top_line: bool
@@ -300,6 +303,14 @@ class QRBill:
         if extra_infos and len(extra_infos) > 140:
             raise ValueError("Additional information cannot contain more than 140 characters")
         self.extra_infos = extra_infos
+
+        if len(alt_procs) > 2:
+            raise ValueError("Only two lines allowed in alternative procedure parameters")
+        if any(len(el) > 100 for el in alt_procs):
+            raise ValueError("An alternative procedure line cannot be longer than 100 characters")
+        self.alt_procs = list(alt_procs)
+
+        # Meta-information
         if language not in ['en', 'de', 'fr', 'it']:
             raise ValueError("Language should be 'en', 'de', 'fr', or 'it'")
         self.language = language
@@ -316,7 +327,9 @@ class QRBill:
         values.extend(self.final_creditor.data_list() if self.final_creditor else [''] * 7)
         values.extend([self.amount or '', self.currency or ''])
         values.extend(self.debtor.data_list() if self.debtor else [''] * 7)
-        values.extend([self.ref_type or '', self.ref_number or '', self.extra_infos or '', 'EPD'])
+        values.extend([self.ref_type or '', self.ref_number or '', self.extra_infos or ''])
+        values.append('EPD')
+        values.extend(self.alt_procs)
         return "\r\n".join([str(v) for v in values])
 
     def qr_image(self):
@@ -606,6 +619,14 @@ class QRBill:
                 format_date(self.due_date), (payment_detail_left, mm(y_pos)), **self.font_info
             ))
             y_pos += line_space
+
+        # Bottom section
+        y_pos = mm(94)
+        for alt_proc_line in self.alt_procs:
+            grp.add(dwg.text(
+                alt_proc_line, (payment_left, y_pos), **self.proc_font_info
+            ))
+            y_pos += mm(2.2)
         return grp
 
 

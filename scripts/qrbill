@@ -74,6 +74,10 @@ def run():
                         help='reference number')
     parser.add_argument('--extra-infos',
                         help='payment purpose')
+    parser.add_argument('--alt-procs',
+                        nargs='*',
+                        help='alternative payment parameters (2 lines max)',
+                        default=())
     # see https://www.paymentstandards.ch/dam/downloads/ig-qr-bill-en.pdf
     # annex D table 16
     parser.add_argument('--language', default='en', choices=['en', 'de', 'fr', 'it'],
@@ -120,6 +124,7 @@ def run():
             debtor=debtor,
             ref_number=args.reference_number,
             extra_infos=args.extra_infos,
+            alt_procs=args.alt_procs,
             language=args.language,
             top_line=args.top_line,
             payment_line=args.payment_line,

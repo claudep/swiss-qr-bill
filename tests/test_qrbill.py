@@ -34,6 +34,11 @@ class AddressTests(unittest.TestCase):
 
 
 class QRBillTests(unittest.TestCase):
+    def _produce_svg(self, bill, **kwargs):
+        buff = StringIO()
+        bill.as_svg(buff, **kwargs)
+        return buff.getvalue()
+
     def test_mandatory_fields(self):
         with self.assertRaisesRegex(ValueError, "The account parameter is mandatory"):
             QRBill()
@@ -324,6 +329,25 @@ class QRBillTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "A QR-IBAN requires a QRR reference number"):
             bill = QRBill(**min_data, ref_number='RF18539007547034')
 
+    def test_alt_procs(self):
+        min_data = {
+            'account': "CH 53 8000 5000 0102 83664",
+            'creditor': {
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+            },
+        }
+        err1 = "An alternative procedure line cannot be longer than 100 characters"
+        with self.assertRaisesRegex(ValueError, err1):
+            bill = QRBill(**min_data, alt_procs=['x' * 101])
+        err2 = "Only two lines allowed in alternative procedure parameters"
+        with self.assertRaisesRegex(ValueError, err2):
+            bill = QRBill(**min_data, alt_procs=['x', 'y', 'z'])
+        bill = QRBill(**min_data, alt_procs=['ABCDEFGH', '012345678'])
+        svg_result = self._produce_svg(bill)
+        self.assertEqual(svg_result[:40], '<?xml version="1.0" encoding="utf-8" ?>\n')
+        self.assertIn('ABCDEFGH', svg_result)
+        self.assertIn('012345678', svg_result)
+
     def test_full_page(self):
         bill = QRBill(
             account="CH 53 8000 5000 0102 83664",
@@ -331,9 +355,7 @@ class QRBillTests(unittest.TestCase):
                 'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
             },
         )
-        buff = StringIO()
-        bill.as_svg(buff, full_page=True)
-        file_head = buff.getvalue()[:250]
+        file_head = self._produce_svg(bill, full_page=True)[:250]
         self.assertIn('width="210mm"', file_head)
         self.assertIn('height="297mm"', file_head)
 
@@ -344,10 +366,7 @@ class QRBillTests(unittest.TestCase):
                 'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
             },
         )
-
-        buff = StringIO()
-        bill.as_svg(buff)
-        self.assertEqual(buff.getvalue()[:40], '<?xml version="1.0" encoding="utf-8" ?>\n')
+        self.assertEqual(self._produce_svg(bill)[:40], '<?xml version="1.0" encoding="utf-8" ?>\n')
 
 
 class CommandLineTests(unittest.TestCase):
