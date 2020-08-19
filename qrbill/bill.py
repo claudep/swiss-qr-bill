@@ -87,6 +87,10 @@ class Address:
 
 
 class CombinedAddress(Address):
+    """
+    Combined address
+    (name, line1, line2, country)
+    """
     combined = True
 
     def __init__(self, *, name=None, line1=None, line2=None, country=None):
@@ -110,6 +114,10 @@ class CombinedAddress(Address):
 
 
 class StructuredAddress(Address):
+    """
+    Structured address
+    (name, street, house_num, pcode, city, country)
+    """
     combined = False
 
     def __init__(self, *, name=None, street=None, house_num=None, pcode=None, city=None, country=None):
@@ -170,6 +178,30 @@ class QRBill:
             self, account=None, creditor=None, final_creditor=None, amount=None,
             currency='CHF', due_date=None, debtor=None, ref_number=None, extra_infos='',
             language='en', top_line=True, payment_line=True):
+        """
+        Arguments
+        ---------
+        account: str
+            IBAN of the creditor (must start with 'CH' or 'LI')
+        creditor: Address
+            Address (combined or structured) of the creditor
+        final_creditor: Address
+            (for future use)
+        amount: str
+        currency: str
+            two values allowed: 'CHF' and 'EUR'
+        due_date: str (YYYY-MM-DD)
+        debtor: Address
+            Address (combined or structured) of the debtor
+        extra_infos: str
+            Extra information aimed for the bill recipient
+        language: str
+            language of the output (ISO, 2 letters): 'en', 'de', 'fr' or 'it'
+        top_line: bool
+            print a horizontal line at the top of the bill
+        payment_line: bool
+            print a vertical line between the receipt and the bill itself
+        """
         # Account (IBAN) validation
         if not account:
             raise ValueError("The account parameter is mandatory")
@@ -275,7 +307,10 @@ class QRBill:
         self.payment_line = payment_line
 
     def qr_data(self):
-        """Return data to be encoded in the QR code."""
+        """
+        Return data to be encoded in the QR code in the standard text
+        representation.
+        """
         values = [self.qr_type or '', self.version or '', self.coding or '', self.account or '']
         values.extend(self.creditor.data_list())
         values.extend(self.final_creditor.data_list() if self.final_creditor else [''] * 7)
