@@ -33,18 +33,6 @@ def run():
                         help='creditor city')
     parser.add_argument('--creditor-country', default='CH',
                         help='creditor country')
-    parser.add_argument('--ucreditor-name',
-                        help='ultimate creditor name')
-    parser.add_argument('--ucreditor-street',
-                        help='ultimate creditor street')
-    parser.add_argument('--ucreditor-housenumber',
-                        help='ultimate creditor house number')
-    parser.add_argument('--ucreditor-postalcode',
-                        help='ultimate creditor postal code')
-    parser.add_argument('--ucreditor-city',
-                        help='ultimate creditor city')
-    parser.add_argument('--ucreditor-country', default='CH',
-                        help='ultimate creditor country')
     parser.add_argument('--amount',
                         help='amount of payment')
     # only CHF and EUR are acceptable
@@ -97,11 +85,6 @@ def run():
         'pcode': args.creditor_postalcode, 'city': args.creditor_city,
         'country': args.creditor_country,
     } if args.creditor_name else None
-    final_creditor = {
-        'name': args.ucreditor_name, 'street': args.ucreditor_street,
-        'house_num': args.ucreditor_housenumber, 'pcode': args.ucreditor_postalcode,
-        'city': args.ucreditor_city, 'country': args.ucreditor_country,
-    } if args.ucreditor_name else None
     debtor = {
         'name': args.debtor_name,
         'line1': args.debtor_line1, 'line2': args.debtor_line2,
@@ -117,7 +100,6 @@ def run():
         bill = QRBill(
             account=args.account,
             creditor=creditor,
-            final_creditor=final_creditor,
             amount=args.amount,
             currency=args.currency,
             due_date=args.due_date,
