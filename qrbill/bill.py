@@ -503,7 +503,7 @@ class QRBill:
         # Top separation line
         if self.top_line:
             grp.add(dwg.line(
-                start=(0, 0), end=(add_mm(RECEIPT_WIDTH, PAYMENT_WIDTH), 0),
+                start=(0, mm(0.141)), end=(add_mm(RECEIPT_WIDTH, PAYMENT_WIDTH), mm(0.141)),
                 stroke='black', stroke_dasharray='2 2'
             ))
 
