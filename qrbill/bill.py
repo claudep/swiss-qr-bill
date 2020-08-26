@@ -170,10 +170,10 @@ class QRBill:
     # QR reference, Creditor Reference (ISO 11649), without reference
     reference_types = ('QRR', 'SCOR', 'NON')
 
-    title_font_info = {'font_size': 12, 'font_family': 'helvetica', 'font_weight': 'bold'}
-    font_info = {'font_size': 10, 'font_family': 'helvetica'}
-    head_font_info = {'font_size': 8, 'font_family': 'helvetica', 'font_weight': 'bold'}
-    proc_font_info = {'font_size': 7, 'font_family': 'helvetica'}
+    title_font_info = {'font_size': 12, 'font_family': 'Helvetica', 'font_weight': 'bold'}
+    font_info = {'font_size': 10, 'font_family': 'Helvetica'}
+    head_font_info = {'font_size': 8, 'font_family': 'Helvetica', 'font_weight': 'bold'}
+    proc_font_info = {'font_size': 7, 'font_family': 'Helvetica'}
 
     def __init__(
             self, account=None, creditor=None, final_creditor=None, amount=None,
@@ -515,7 +515,7 @@ class QRBill:
             ))
             grp.add(dwg.text(
                 "✂", insert=(add_mm(RECEIPT_WIDTH, mm(-1.5)), 40),
-                font_size=16, font_family='helvetica', rotate=[90]
+                font_size=16, font_family='Helvetica', rotate=[90]
             ))
 
         # Payment part

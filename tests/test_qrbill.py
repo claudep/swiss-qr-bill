@@ -257,8 +257,8 @@ class QRBillTests(unittest.TestCase):
             bill.as_svg(fh.name)
             content = fh.read().decode()
         self.assertTrue(content.startswith('<?xml version="1.0" encoding="utf-8" ?>'))
-        font8 = 'font-family="helvetica" font-size="8" font-weight="bold"'
-        font10 = 'font-family="helvetica" font-size="10"'
+        font8 = 'font-family="Helvetica" font-size="8" font-weight="bold"'
+        font10 = 'font-family="Helvetica" font-size="10"'
         # Test the Payable by section:
         expected = (
             '<text {font8} x="{x}" y="{y1}">Payable by</text>'
