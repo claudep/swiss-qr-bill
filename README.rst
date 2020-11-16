@@ -59,6 +59,31 @@ Python usage example
         )
     >>> bill.as_svg('/tmp/my_bill.svg')
 
+Outputting as PDF
+=================
+
+If you want to produce a PDF version of the resulting bill, we suggest using the
+`svglib <https://pypi.org/project/svglib/>` library. It can be used on the
+command line with the `svg2pdf` script, or directly from Python::
+
+    >>> import tempfile
+    >>> from qrbill.bill import QRBill
+    >>> from svglib.svglib import svg2rlg
+    >>> from reportlab.graphics import renderPDF
+
+    >>> my_bill = QRBill(
+            account='CH5800791123000889012',
+            creditor={
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne', 'country': 'CH',
+            },
+            amount='22.45',
+        )
+    >>> with tempfile.NamedTemporaryFile(mode='w') as temp:
+    >>>     my_bill.as_svg(temp)
+    >>>     temp.seek(0)
+    >>>     drawing = svg2rlg(temp.name)
+    >>> renderPDF.drawToFile(drawing, "file.pdf")
+
 Running tests
 =============
 
