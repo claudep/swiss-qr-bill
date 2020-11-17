@@ -3,6 +3,14 @@
 ChangeLog
 =========
 
+0.5.2 (2020-11-17)
+------------------
+
+- Final creditor is only for future use, it was removed from command line
+  parameters.
+- Capitalized Helvetica font name in code (#43).
+- The top line was printed a bit lower to be more visible (#42).
+
 0.5.1 (2020-08-19)
 ------------------
 
