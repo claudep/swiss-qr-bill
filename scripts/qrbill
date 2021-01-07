@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+import warnings
 from datetime import datetime
 
 from qrbill import QRBill
@@ -94,7 +95,7 @@ def run():
     } if args.debtor_name else None
 
     if args.output and not args.output.endswith('.svg'):
-        sys.exit("Error: The output file name should end with .svg")
+        warnings.warn("Warning: The output file name should end with .svg")
 
     try:
         bill = QRBill(
