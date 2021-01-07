@@ -76,6 +76,8 @@ def run():
                         help='Do not print top separation line')
     parser.add_argument('--no-payment-line', dest="payment_line", default=True, action='store_false',
                         help='Do not print vertical separation line between receipt and payment parts')
+    parser.add_argument('--no-output-filename-check', dest="output_fn_check", default=True, action='store_false',
+                        help='Do not check if the output file name ends with ".svg"')
 
     args = parser.parse_args()
     creditor = {
@@ -93,7 +95,7 @@ def run():
         'country': args.debtor_country,
     } if args.debtor_name else None
 
-    if args.output and not args.output.endswith('.svg'):
+    if args.output_fn_check and args.output and not args.output.endswith('.svg'):
         sys.exit("Error: The output file name should end with .svg")
 
     try:
