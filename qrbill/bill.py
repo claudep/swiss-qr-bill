@@ -85,7 +85,7 @@ class Address:
         try:
             return countries.get(country).alpha2
         except KeyError:
-            raise ValueError("The country code '%s' is not valid" % country)
+            raise ValueError("The country code '%s' is not an ISO 3166 valid code" % country)
 
     @staticmethod
     def _split_lines(lines, max_chars):
