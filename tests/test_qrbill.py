@@ -119,7 +119,7 @@ class QRBillTests(unittest.TestCase):
                 bill = QRBill(**bill_data)
                 self.assertEqual(bill.creditor.country, 'LI')
 
-            with self.assertRaisesRegex(ValueError, "The country code 'XY' is not valid"):
+            with self.assertRaisesRegex(ValueError, "The country code 'XY' is not an ISO 3166 valid code"):
                 bill_data['creditor']['country'] = 'XY'
                 bill = QRBill(**bill_data)
 
