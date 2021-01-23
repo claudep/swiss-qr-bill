@@ -20,6 +20,8 @@ MM_TO_UU = 3.543307
 BILL_HEIGHT = '105mm'
 RECEIPT_WIDTH = '62mm'
 PAYMENT_WIDTH = '148mm'
+MAX_CHARS_PAYMENT_LINE = 48
+MAX_CHARS_RECEIPT_LINE = 38
 A4 = ('210mm', '297mm')
 
 # Annex D: Multilingual headings
@@ -85,6 +87,27 @@ class Address:
         except KeyError:
             raise ValueError("The country code '%s' is not valid" % country)
 
+    @staticmethod
+    def _split_lines(lines, max_chars):
+        """
+        Each line should be no more than `max_chars` chars, splitting on spaces
+        (if possible).
+        """
+        for line in lines:
+            if len(line) <= max_chars:
+                yield line
+            else:
+                chunks = line.split(' ')
+                line2 = ''
+                while chunks:
+                    if line2 and len(line2 + chunks[0]) + 1 > max_chars:
+                        yield line2
+                        line2 = ''
+                    line2 += (' ' if line2 else '') + chunks[0]
+                    chunks = chunks[1:]
+                if line2:
+                    yield line2
+
 
 class CombinedAddress(Address):
     """
@@ -109,8 +132,8 @@ class CombinedAddress(Address):
             'K', self.name, self.line1, self.line2, '', '', self.country
         ]
 
-    def as_paragraph(self):
-        return [self.name, self.line1, self.line2]
+    def as_paragraph(self, max_chars=MAX_CHARS_PAYMENT_LINE):
+        return self._split_lines([self.name, self.line1, self.line2], max_chars)
 
 
 class StructuredAddress(Address):
@@ -150,14 +173,14 @@ class StructuredAddress(Address):
             self.city, self.country
         ]
 
-    def as_paragraph(self):
+    def as_paragraph(self, max_chars=MAX_CHARS_PAYMENT_LINE):
         lines = [self.name, "%s-%s %s" % (self.country, self.pcode, self.city)]
         if self.street:
             if self.house_num:
                 lines.insert(1, " ".join([self.street, self.house_num]))
             else:
                 lines.insert(1, self.street)
-        return lines
+        return self._split_lines(lines, max_chars)
 
 
 class QRBill:
@@ -455,7 +478,7 @@ class QRBill:
             iban.format(self.account), (margin, mm(y_pos)), **self.font_info
         ))
         y_pos += line_space
-        for line_text in self.creditor.as_paragraph():
+        for line_text in self.creditor.as_paragraph(max_chars=MAX_CHARS_RECEIPT_LINE):
             grp.add(dwg.text(line_text, (margin, mm(y_pos)), **self.font_info))
             y_pos += line_space
 
@@ -473,7 +496,7 @@ class QRBill:
         ))
         y_pos += line_space
         if self.debtor:
-            for line_text in self.debtor.as_paragraph():
+            for line_text in self.debtor.as_paragraph(max_chars=MAX_CHARS_RECEIPT_LINE):
                 grp.add(dwg.text(line_text, (margin, mm(y_pos)), **self.font_info))
                 y_pos += line_space
         else:
@@ -672,5 +695,5 @@ def format_amount(amount_):
 def wrap_infos(infos):
     for text in infos:
         while(text):
-            yield text[:42]
-            text = text[42:]
+            yield text[:MAX_CHARS_PAYMENT_LINE]
+            text = text[MAX_CHARS_PAYMENT_LINE:]

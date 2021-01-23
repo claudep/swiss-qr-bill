@@ -32,6 +32,20 @@ class AddressTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, err_msg):
             Address.create(name='Me', line1='a', line2='b' * 71)
 
+    def test_split_lines(self):
+        self.assertEqual(
+            list(Address._split_lines(['Short line', ''], 30)),
+            ['Short line', '']
+        )
+        self.assertEqual(
+            list(Address._split_lines(['Line1', 'A very long line that will not fit in available space'], 20)),
+            ['Line1', 'A very long line', 'that will not fit in', 'available space']
+        )
+        self.assertEqual(
+            list(Address._split_lines(['AVeryLongLineWithoutSpacesAndCannotBeSplit'], 20)),
+            ['AVeryLongLineWithoutSpacesAndCannotBeSplit']
+        )
+
 
 class QRBillTests(unittest.TestCase):
     def _produce_svg(self, bill, **kwargs):
