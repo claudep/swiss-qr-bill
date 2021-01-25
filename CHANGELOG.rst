@@ -3,6 +3,12 @@
 ChangeLog
 =========
 
+0.5.3 (2021-01-25)
+------------------
+- Enforced black as swiss cross background color.
+- Allowed output with extension other than .svg (warning instead of error).
+- Split long address lines to fit in available space (#48).
+
 0.5.2 (2020-11-17)
 ------------------
 
