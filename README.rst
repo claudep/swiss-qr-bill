@@ -59,8 +59,8 @@ Python usage example
         )
     >>> bill.as_svg('/tmp/my_bill.svg')
 
-Outputting as PDF
-=================
+Outputting as PDF or bitmap
+===========================
 
 If you want to produce a PDF version of the resulting bill, we suggest using the
 `svglib <https://pypi.org/project/svglib/>` library. It can be used on the
@@ -83,6 +83,13 @@ command line with the `svg2pdf` script, or directly from Python::
     >>>     temp.seek(0)
     >>>     drawing = svg2rlg(temp.name)
     >>> renderPDF.drawToFile(drawing, "file.pdf")
+
+or to produce a bitmap image output::
+
+    >>> from reportlab.graphics import renderPM
+    >>> dpi = 300
+    >>> drawing.scale(dpi/72, dpi/72)
+    >>> renderPM.drawToFile(drawing, "file.png", fmt='PNG', dpi=dpi)
 
 Running tests
 =============
