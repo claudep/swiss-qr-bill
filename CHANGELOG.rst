@@ -3,6 +3,11 @@
 ChangeLog
 =========
 
+Unreleased
+----------
+- Added the possibility to include newline sequences in name, street, line1, or
+  line2 part of addresses to improve printed line wrapping of long lines.
+
 0.5.3 (2021-01-25)
 ------------------
 - Enforced black as swiss cross background color.

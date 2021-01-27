@@ -2,6 +2,7 @@ import re
 from datetime import date
 from decimal import Decimal
 from io import BytesIO
+from itertools import chain
 from pathlib import Path
 
 import qrcode
@@ -88,25 +89,28 @@ class Address:
             raise ValueError("The country code '%s' is not an ISO 3166 valid code" % country)
 
     @staticmethod
-    def _split_lines(lines, max_chars):
+    def _split(line, max_chars):
         """
-        Each line should be no more than `max_chars` chars, splitting on spaces
+        The line should be no more than `max_chars` chars, splitting on spaces
         (if possible).
         """
-        for line in lines:
-            if len(line) <= max_chars:
-                yield line
-            else:
-                chunks = line.split(' ')
-                line2 = ''
-                while chunks:
-                    if line2 and len(line2 + chunks[0]) + 1 > max_chars:
-                        yield line2
-                        line2 = ''
-                    line2 += (' ' if line2 else '') + chunks[0]
-                    chunks = chunks[1:]
-                if line2:
-                    yield line2
+        if '\n' in line:
+            return list(chain(*[Address._split(l, max_chars) for l in line.split('\n')]))
+        if len(line) <= max_chars:
+            return [line]
+        else:
+            chunks = line.split(' ')
+            lines = []
+            line2 = ''
+            while chunks:
+                if line2 and len(line2 + chunks[0]) + 1 > max_chars:
+                    lines.append(line2)
+                    line2 = ''
+                line2 += (' ' if line2 else '') + chunks[0]
+                chunks = chunks[1:]
+            if line2:
+                lines.append(line2)
+            return lines
 
 
 class CombinedAddress(Address):
@@ -129,11 +133,12 @@ class CombinedAddress(Address):
     def data_list(self):
         # 'K': combined address
         return [
-            'K', self.name, self.line1, self.line2, '', '', self.country
+            'K', self.name.replace('\n', ' '), self.line1.replace('\n', ' '),
+            self.line2.replace('\n', ' '), '', '', self.country
         ]
 
     def as_paragraph(self, max_chars=MAX_CHARS_PAYMENT_LINE):
-        return self._split_lines([self.name, self.line1, self.line2], max_chars)
+        return chain(*(self._split(line, max_chars) for line in [self.name, self.line1, self.line2]))
 
 
 class StructuredAddress(Address):
@@ -169,8 +174,8 @@ class StructuredAddress(Address):
         """Return address values as a list, appropriate for qr generation."""
         # 'S': structured address
         return [
-            'S', self.name, self.street, self.house_num, self.pcode,
-            self.city, self.country
+            'S', self.name.replace('\n', ' '), self.street.replace('\n', ' '),
+            self.house_num, self.pcode, self.city, self.country
         ]
 
     def as_paragraph(self, max_chars=MAX_CHARS_PAYMENT_LINE):
@@ -180,7 +185,7 @@ class StructuredAddress(Address):
                 lines.insert(1, " ".join([self.street, self.house_num]))
             else:
                 lines.insert(1, self.street)
-        return self._split_lines(lines, max_chars)
+        return chain(*(self._split(line, max_chars) for line in lines))
 
 
 class QRBill:

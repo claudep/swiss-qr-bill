@@ -8,6 +8,11 @@ from datetime import datetime
 from qrbill import QRBill
 
 
+def clean_nl(value):
+    """A '\n' in the command line will be escaped to '\\n'."""
+    return value.replace('\\n', '\n') if isinstance(value, str) else value
+
+
 def run():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output',
@@ -80,17 +85,23 @@ def run():
 
     args = parser.parse_args()
     creditor = {
-        'name': args.creditor_name,
-        'line1': args.creditor_line1, 'line2': args.creditor_line2,
-        'street': args.creditor_street, 'house_num': args.creditor_housenumber,
-        'pcode': args.creditor_postalcode, 'city': args.creditor_city,
+        'name': clean_nl(args.creditor_name),
+        'line1': clean_nl(args.creditor_line1),
+        'line2': clean_nl(args.creditor_line2),
+        'street': clean_nl(args.creditor_street),
+        'house_num': args.creditor_housenumber,
+        'pcode': args.creditor_postalcode,
+        'city': args.creditor_city,
         'country': args.creditor_country,
     } if args.creditor_name else None
     debtor = {
-        'name': args.debtor_name,
-        'line1': args.debtor_line1, 'line2': args.debtor_line2,
-        'street': args.debtor_street, 'house_num': args.debtor_housenumber,
-        'pcode': args.debtor_postalcode, 'city': args.debtor_city,
+        'name': clean_nl(args.debtor_name),
+        'line1': clean_nl(args.debtor_line1),
+        'line2': clean_nl(args.debtor_line2),
+        'street': clean_nl(args.debtor_street),
+        'house_num': args.debtor_housenumber,
+        'pcode': args.debtor_postalcode,
+        'city': args.debtor_city,
         'country': args.debtor_country,
     } if args.debtor_name else None
 
