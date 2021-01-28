@@ -44,6 +44,14 @@ For usage::
 If no `--output` SVG file path is specified, the SVG file will be named after
 the account and the current date/time and written in the current directory.
 
+Note that if you don't like the automatic line wrapping in the human-readable
+part of some address, you can replace a space by a newline sequence in the
+creditor or debtor name, line1, line2, or street to force a line break in the
+printed addresses.
+(e.g. `--creditor-street "Rue des Quatorze Contours du Chemin\ndu Creux du Van"`)
+The data encoded in the QR bill will *not* have the newline character. It will
+be replaced by a regular space.
+
 Python usage example
 ====================
 

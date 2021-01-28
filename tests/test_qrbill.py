@@ -34,16 +34,62 @@ class AddressTests(unittest.TestCase):
 
     def test_split_lines(self):
         self.assertEqual(
-            list(Address._split_lines(['Short line', ''], 30)),
-            ['Short line', '']
+            Address._split('Short line', 30),
+            ['Short line']
         )
         self.assertEqual(
-            list(Address._split_lines(['Line1', 'A very long line that will not fit in available space'], 20)),
-            ['Line1', 'A very long line', 'that will not fit in', 'available space']
+            Address._split('A very long line that will not fit in available space', 20),
+            ['A very long line', 'that will not fit in', 'available space']
         )
         self.assertEqual(
-            list(Address._split_lines(['AVeryLongLineWithoutSpacesAndCannotBeSplit'], 20)),
+            Address._split('AVeryLongLineWithoutSpacesAndCannotBeSplit', 20),
             ['AVeryLongLineWithoutSpacesAndCannotBeSplit']
+        )
+
+    def test_newlines(self):
+        # Combined address
+        addr = Address.create(
+            name='A long name line with\nforced newline position',
+            line1='A long street line with\nforced newline position',
+            line2='Second line',
+        )
+        self.assertEqual(
+            addr.data_list(),
+            [
+                'K', 'A long name line with forced newline position',
+                'A long street line with forced newline position',
+                'Second line', '', '', 'CH',
+            ]
+        )
+        self.assertEqual(
+            list(addr.as_paragraph()),
+            [
+                'A long name line with', 'forced newline position',
+                'A long street line with', 'forced newline position', 'Second line',
+            ]
+        )
+        # Structured address
+        addr = Address.create(
+            name='A long name line with\nforced newline position',
+            street='A long street line with\nforced newline position',
+            pcode='2735',
+            city='Bévilard',
+        )
+        self.assertEqual(
+            addr.data_list(),
+            [
+                'S', 'A long name line with forced newline position',
+                'A long street line with forced newline position', '',
+                '2735', 'Bévilard', 'CH',
+            ]
+        )
+        self.assertEqual(
+            list(addr.as_paragraph()),
+            [
+                'A long name line with', 'forced newline position',
+                'A long street line with', 'forced newline position',
+                'CH-2735 Bévilard',
+            ]
         )
 
 
