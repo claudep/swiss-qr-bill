@@ -95,7 +95,7 @@ class Address:
         (if possible).
         """
         if '\n' in line:
-            return list(chain(*[Address._split(l, max_chars) for l in line.split('\n')]))
+            return list(chain(*[Address._split(li, max_chars) for li in line.split('\n')]))
         if len(line) <= max_chars:
             return [line]
         else:

@@ -55,15 +55,17 @@ class AddressTests(unittest.TestCase):
         )
         self.assertEqual(
             addr.data_list(),
-            ['K', 'A long name line with forced newline position',
-             'A long street line with forced newline position',
-             'Second line', '', '', 'CH',
+            [
+                'K', 'A long name line with forced newline position',
+                'A long street line with forced newline position',
+                'Second line', '', '', 'CH',
             ]
         )
         self.assertEqual(
             list(addr.as_paragraph()),
-            ['A long name line with', 'forced newline position',
-             'A long street line with', 'forced newline position', 'Second line',
+            [
+                'A long name line with', 'forced newline position',
+                'A long street line with', 'forced newline position', 'Second line',
             ]
         )
         # Structured address
@@ -75,16 +77,18 @@ class AddressTests(unittest.TestCase):
         )
         self.assertEqual(
             addr.data_list(),
-            ['S', 'A long name line with forced newline position',
-             'A long street line with forced newline position', '',
-             '2735', 'Bévilard', 'CH',
+            [
+                'S', 'A long name line with forced newline position',
+                'A long street line with forced newline position', '',
+                '2735', 'Bévilard', 'CH',
             ]
         )
         self.assertEqual(
             list(addr.as_paragraph()),
-            ['A long name line with', 'forced newline position',
-             'A long street line with', 'forced newline position',
-             'CH-2735 Bévilard'
+            [
+                'A long name line with', 'forced newline position',
+                'A long street line with', 'forced newline position',
+                'CH-2735 Bévilard',
             ]
         )
 
