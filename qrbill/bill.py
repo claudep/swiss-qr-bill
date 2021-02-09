@@ -368,7 +368,11 @@ class QRBill:
             error_correction=qrcode.constants.ERROR_CORRECT_M,
         )
 
-    def draw_swiss_cross(self, dwg, grp, qr_width):
+    def draw_swiss_cross(self, dwg, grp, origin, size):
+        """
+        draw swiss cross of size 20 in the middle of a square
+        with upper left corner at origin and given size.
+        """
         group = grp.add(dwg.g(id="swiss-cross"))
         group.add(
             dwg.polygon(points=[
@@ -389,8 +393,9 @@ class QRBill:
                 fill='none', stroke='white', stroke_width=1.4357,
             )
         )
-        x = 250 + (qr_width * 0.52)
-        y = 58 + (qr_width * 0.52)
+        org_x, org_y = origin
+        x = org_x + (size / 2) - 10
+        y = org_y + (size / 2) - 10
         group.translate(tx=x, ty=y)
 
     def draw_blank_rect(self, dwg, grp, x, y, width, height):
@@ -511,14 +516,14 @@ class QRBill:
             )
             y_pos += 28
 
-        grp.add(dwg.text(self.label("Currency"), (margin, mm(80)), **self.head_font_info))
-        grp.add(dwg.text(self.label("Amount"), (add_mm(margin, mm(12)), mm(80)), **self.head_font_info))
-        grp.add(dwg.text(self.currency, (margin, mm(85)), **self.font_info))
+        grp.add(dwg.text(self.label("Currency"), (margin, mm(72)), **self.head_font_info))
+        grp.add(dwg.text(self.label("Amount"), (add_mm(margin, mm(12)), mm(72)), **self.head_font_info))
+        grp.add(dwg.text(self.currency, (margin, mm(77)), **self.font_info))
         if self.amount:
-            grp.add(dwg.text(format_amount(self.amount), (add_mm(margin, mm(12)), mm(85)), **self.font_info))
+            grp.add(dwg.text(format_amount(self.amount), (add_mm(margin, mm(12)), mm(77)), **self.font_info))
         else:
             self.draw_blank_rect(
-                dwg, grp, x=add_mm(margin, mm(25)), y=mm(77),
+                dwg, grp, x=add_mm(margin, mm(25)), y=mm(75),
                 width=mm(27), height=mm(11)
             )
 
@@ -564,22 +569,28 @@ class QRBill:
             d=path_data,
             style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none",
         )
-        path.translate(tx=250, ty=60)
-        # Limit scaling to some max dimensions
-        scale_factor = 3 - (max(im.width - 60, 0) * 0.05)
-        path.scale(sx=scale_factor, sy=scale_factor)
+
+        # Limit scaling to max dimension
+        max_width = mm(45)
+        scale_factor = min(3, (max_width / (im.width+2)))
+
+        # qr-code path doesn't start at (0,0), apply some x correction
+        qr_left = payment_left - (3*scale_factor)
+        qr_top = 60 - (3*scale_factor)
+        path.translate(tx=qr_left, ty=qr_top)
+        path.scale(scale_factor)
         grp.add(path)
 
-        self.draw_swiss_cross(dwg, grp, im.width * scale_factor)
+        self.draw_swiss_cross(dwg, grp, (payment_left, 60), (im.width + 2) * scale_factor)
 
-        grp.add(dwg.text(self.label("Currency"), (payment_left, mm(80)), **self.head_font_info))
-        grp.add(dwg.text(self.label("Amount"), (add_mm(payment_left, mm(12)), mm(80)), **self.head_font_info))
-        grp.add(dwg.text(self.currency, (payment_left, mm(85)), **self.font_info))
+        grp.add(dwg.text(self.label("Currency"), (payment_left, mm(72)), **self.head_font_info))
+        grp.add(dwg.text(self.label("Amount"), (add_mm(payment_left, mm(12)), mm(72)), **self.head_font_info))
+        grp.add(dwg.text(self.currency, (payment_left, mm(77)), **self.font_info))
         if self.amount:
-            grp.add(dwg.text(format_amount(self.amount), (add_mm(payment_left, mm(12)), mm(85)), **self.font_info))
+            grp.add(dwg.text(format_amount(self.amount), (add_mm(payment_left, mm(12)), mm(77)), **self.font_info))
         else:
             self.draw_blank_rect(
-                dwg, grp, x=add_mm(RECEIPT_WIDTH, margin, mm(12)), y=mm(83),
+                dwg, grp, x=add_mm(RECEIPT_WIDTH, margin, mm(12)), y=mm(75),
                 width=mm(40), height=mm(15)
             )
 
