@@ -342,7 +342,7 @@ class QRBillTests(unittest.TestCase):
         # amount formatted
         self.assertIn(
             '<text {font10} x="{x}" y="{y}">1 949.70</text>'.format(
-                font10=font10, x=mm(17), y=mm(85),
+                font10=font10, x=mm(17), y=mm(77),
             ),
             content
         )

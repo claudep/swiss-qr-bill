@@ -516,14 +516,14 @@ class QRBill:
             )
             y_pos += 28
 
-        grp.add(dwg.text(self.label("Currency"), (margin, mm(80)), **self.head_font_info))
-        grp.add(dwg.text(self.label("Amount"), (add_mm(margin, mm(12)), mm(80)), **self.head_font_info))
-        grp.add(dwg.text(self.currency, (margin, mm(85)), **self.font_info))
+        grp.add(dwg.text(self.label("Currency"), (margin, mm(72)), **self.head_font_info))
+        grp.add(dwg.text(self.label("Amount"), (add_mm(margin, mm(12)), mm(72)), **self.head_font_info))
+        grp.add(dwg.text(self.currency, (margin, mm(77)), **self.font_info))
         if self.amount:
-            grp.add(dwg.text(format_amount(self.amount), (add_mm(margin, mm(12)), mm(85)), **self.font_info))
+            grp.add(dwg.text(format_amount(self.amount), (add_mm(margin, mm(12)), mm(77)), **self.font_info))
         else:
             self.draw_blank_rect(
-                dwg, grp, x=add_mm(margin, mm(25)), y=mm(77),
+                dwg, grp, x=add_mm(margin, mm(25)), y=mm(75),
                 width=mm(27), height=mm(11)
             )
 
@@ -583,14 +583,14 @@ class QRBill:
 
         self.draw_swiss_cross(dwg, grp, (payment_left, 60), (im.width + 2) * scale_factor)
 
-        grp.add(dwg.text(self.label("Currency"), (payment_left, mm(80)), **self.head_font_info))
-        grp.add(dwg.text(self.label("Amount"), (add_mm(payment_left, mm(12)), mm(80)), **self.head_font_info))
-        grp.add(dwg.text(self.currency, (payment_left, mm(85)), **self.font_info))
+        grp.add(dwg.text(self.label("Currency"), (payment_left, mm(72)), **self.head_font_info))
+        grp.add(dwg.text(self.label("Amount"), (add_mm(payment_left, mm(12)), mm(72)), **self.head_font_info))
+        grp.add(dwg.text(self.currency, (payment_left, mm(77)), **self.font_info))
         if self.amount:
-            grp.add(dwg.text(format_amount(self.amount), (add_mm(payment_left, mm(12)), mm(85)), **self.font_info))
+            grp.add(dwg.text(format_amount(self.amount), (add_mm(payment_left, mm(12)), mm(77)), **self.font_info))
         else:
             self.draw_blank_rect(
-                dwg, grp, x=add_mm(RECEIPT_WIDTH, margin, mm(12)), y=mm(83),
+                dwg, grp, x=add_mm(RECEIPT_WIDTH, margin, mm(12)), y=mm(75),
                 width=mm(40), height=mm(15)
             )
 
