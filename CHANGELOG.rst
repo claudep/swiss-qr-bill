@@ -3,8 +3,8 @@
 ChangeLog
 =========
 
-Unreleased
-----------
+0.6.0 (2021-02-11)
+------------------
 - Added the possibility to include newline sequences in name, street, line1, or
   line2 part of addresses to improve printed line wrapping of long lines.
 - Moved QR-code and amount section to better comply with the style guide (#52).
