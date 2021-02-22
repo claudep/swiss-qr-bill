@@ -86,10 +86,10 @@ command line with the `svg2pdf` script, or directly from Python::
             },
             amount='22.45',
         )
-    >>> with tempfile.NamedTemporaryFile(mode='w') as temp:
+    >>> with tempfile.TemporaryFile(encoding='utf-8', mode='r+') as temp:
     >>>     my_bill.as_svg(temp)
     >>>     temp.seek(0)
-    >>>     drawing = svg2rlg(temp.name)
+    >>>     drawing = svg2rlg(temp)
     >>> renderPDF.drawToFile(drawing, "file.pdf")
 
 or to produce a bitmap image output::
