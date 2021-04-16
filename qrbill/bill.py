@@ -366,6 +366,7 @@ class QRBill:
             self.qr_data(),
             image_factory=factory,
             error_correction=qrcode.constants.ERROR_CORRECT_M,
+            border=0,
         )
 
     def draw_swiss_cross(self, dwg, grp, origin, size):
@@ -570,13 +571,11 @@ class QRBill:
             style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none",
         )
 
-        # Limit scaling to max dimension
-        max_width = mm(45)
-        scale_factor = min(3, (max_width / (im.width + 2)))
+        # Limit scaling to max dimension (specs says 46mm, keep a bit of margin)
+        scale_factor = mm(45.8) / im.width
 
-        # qr-code path doesn't start at (0,0), apply some x correction
-        qr_left = payment_left - (3 * scale_factor)
-        qr_top = 60 - (3 * scale_factor)
+        qr_left = payment_left
+        qr_top = 60
         path.translate(tx=qr_left, ty=qr_top)
         path.scale(scale_factor)
         grp.add(path)
