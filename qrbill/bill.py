@@ -21,7 +21,7 @@ MM_TO_UU = 3.543307
 BILL_HEIGHT = '105mm'
 RECEIPT_WIDTH = '62mm'
 PAYMENT_WIDTH = '148mm'
-MAX_CHARS_PAYMENT_LINE = 48
+MAX_CHARS_PAYMENT_LINE = 72
 MAX_CHARS_RECEIPT_LINE = 38
 A4 = ('210mm', '297mm')
 
@@ -478,7 +478,7 @@ class QRBill:
         """Draw the bill in SVG format."""
         margin = mm(5)
         payment_left = add_mm(RECEIPT_WIDTH, margin)
-        payment_detail_left = add_mm(payment_left, mm(70))
+        payment_detail_left = add_mm(payment_left, mm(46 + 5))
 
         grp = dwg.add(dwg.g())
         # Receipt

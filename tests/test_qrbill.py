@@ -327,7 +327,7 @@ class QRBillTests(unittest.TestCase):
             '<text {font10} x="{x}" y="{y4}">CH-9400 Rorschach</text>'
             '<text {font8} x="{x}" y="{y5}">Payable by </text>'
             '<text {font10} x="{x}" y="{y6}">31.10.2019</text>'.format(
-                font8=font8, font10=font10, x='485.43306',
+                font8=font8, font10=font10, x='418.11023',
                 y1=mm(52.5), y2=mm(56), y3=mm(59.5), y4=mm(63), y5=mm(67.5), y6=mm(71),
             )
         )
