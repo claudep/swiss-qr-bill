@@ -532,7 +532,7 @@ class QRBill:
 
         # Right-aligned
         grp.add(dwg.text(
-            self.label("Acceptance point"), (add_mm(RECEIPT_WIDTH, margin * -1), mm(91)),
+            self.label("Acceptance point"), (add_mm(RECEIPT_WIDTH, margin * -1), mm(86)),
             text_anchor='end', **self.head_font_info
         ))
 
