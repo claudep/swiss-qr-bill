@@ -395,9 +395,11 @@ class QRBill:
             )
         )
         orig_x, orig_y = origin
-        x = orig_x + (size / 2) - 10
-        y = orig_y + (size / 2) - 10
+        scale_factor = mm(7) / 19
+        x = orig_x + (size / 2) - (10 * scale_factor)
+        y = orig_y + (size / 2) - (10 * scale_factor)
         group.translate(tx=x, ty=y)
+        group.scale(scale_factor)
 
     def draw_blank_rect(self, dwg, grp, x, y, width, height):
         """Draw a empty blank rect with corners (e.g. amount, debtor)"""
@@ -580,7 +582,7 @@ class QRBill:
         path.scale(scale_factor)
         grp.add(path)
 
-        self.draw_swiss_cross(dwg, grp, (payment_left, 60), (im.width + 2) * scale_factor)
+        self.draw_swiss_cross(dwg, grp, (payment_left, 60), im.width * scale_factor)
 
         grp.add(dwg.text(self.label("Currency"), (payment_left, mm(72)), **self.head_font_info))
         grp.add(dwg.text(self.label("Amount"), (add_mm(payment_left, mm(12)), mm(72)), **self.head_font_info))
