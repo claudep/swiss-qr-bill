@@ -198,15 +198,10 @@ class QRBill:
     # QR reference, Creditor Reference (ISO 11649), without reference
     reference_types = ('QRR', 'SCOR', 'NON')
 
-    title_font_info = {'font_size': 12, 'font_family': 'Helvetica', 'font_weight': 'bold'}
-    font_info = {'font_size': 10, 'font_family': 'Helvetica'}
-    head_font_info = {'font_size': 8, 'font_family': 'Helvetica', 'font_weight': 'bold'}
-    proc_font_info = {'font_size': 7, 'font_family': 'Helvetica'}
-
     def __init__(
             self, account=None, creditor=None, final_creditor=None, amount=None,
             currency='CHF', due_date=None, debtor=None, ref_number=None, extra_infos='',
-            alt_procs=(), language='en', top_line=True, payment_line=True):
+            alt_procs=(), language='en', top_line=True, payment_line=True, font_factor=1):
         """
         Arguments
         ---------
@@ -232,6 +227,8 @@ class QRBill:
             print a horizontal line at the top of the bill
         payment_line: bool
             print a vertical line between the receipt and the bill itself
+        font_factor: integer
+            a zoom factor for all texts in the bill
         """
         # Account (IBAN) validation
         if not account:
@@ -344,6 +341,23 @@ class QRBill:
         self.language = language
         self.top_line = top_line
         self.payment_line = payment_line
+        self.font_factor = font_factor
+
+    @property
+    def title_font_info(self):
+        return {'font_size': 12 * self.font_factor, 'font_family': 'Helvetica', 'font_weight': 'bold'}
+
+    @property
+    def font_info(self):
+        return {'font_size': 10 * self.font_factor, 'font_family': 'Helvetica'}
+
+    @property
+    def head_font_info(self):
+        return {'font_size': 8 * self.font_factor, 'font_family': 'Helvetica', 'font_weight': 'bold'}
+
+    @property
+    def proc_font_info(self):
+        return {'font_size': 7 * self.font_factor, 'font_family': 'Helvetica'}
 
     def qr_data(self):
         """
