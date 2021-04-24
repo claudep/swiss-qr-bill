@@ -428,6 +428,24 @@ class QRBillTests(unittest.TestCase):
         )
         self.assertEqual(self._produce_svg(bill)[:40], '<?xml version="1.0" encoding="utf-8" ?>\n')
 
+    def test_font_factor(self):
+        bill = QRBill(
+            account="CH 53 8000 5000 0102 83664",
+            creditor={
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+            },
+            font_factor=1.5
+        )
+        self.assertIn(
+            '<text font-family="Helvetica" font-size="18.0" font-weight="bold"'
+            ' x="17.71654" y="35.43307">Receipt</text>'
+            '<text font-family="Helvetica" font-size="12.0" font-weight="bold"'
+            ' x="17.71654" y="53.14961">Account / Payable to</text>'
+            '<text font-family="Helvetica" font-size="15.0" x="17.71654"'
+            ' y="65.55118">CH53 8000 5000 0102 8366 4</text>',
+            self._produce_svg(bill)
+        )
+
 
 class CommandLineTests(unittest.TestCase):
     def test_no_args(self):

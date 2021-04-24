@@ -88,6 +88,8 @@ def run():
                         help='Do not print top separation line')
     parser.add_argument('--no-payment-line', dest="payment_line", default=True, action='store_false',
                         help='Do not print vertical separation line between receipt and payment parts')
+    parser.add_argument('--font-factor', dest="font_factor", default=1.0, type=float,
+                        help='Font factor to provide a zoom for all texts on the bill')
 
     args = parser.parse_args()
     creditor = {
@@ -128,6 +130,7 @@ def run():
             language=args.language,
             top_line=args.top_line,
             payment_line=args.payment_line,
+            font_factor=args.font_factor,
         )
     except ValueError as err:
         sys.exit("Error: %s" % err)
