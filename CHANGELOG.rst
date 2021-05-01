@@ -9,7 +9,7 @@ ChangeLog
 - QR-code size is now more in line with the specs, including the embedded Swiss
   cross (#58, #59).
 - Widen space at the right of the QR-code (#57).
-- A new ``--font-factor``command-line option allows to scale the font if the
+- A new ``--font-factor`` command-line option allows to scale the font if the
   actual size does not fit your needs (#55).
 
 0.6.0 (2021-02-11)
