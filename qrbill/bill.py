@@ -554,14 +554,14 @@ class QRBill:
         if self.top_line:
             grp.add(dwg.line(
                 start=(0, mm(0.141)), end=(add_mm(RECEIPT_WIDTH, PAYMENT_WIDTH), mm(0.141)),
-                stroke='black', stroke_dasharray='2 2'
+                stroke='black', stroke_dasharray='2 2', fill='none'
             ))
 
         # Separation line between receipt and payment parts
         if self.payment_line:
             grp.add(dwg.line(
                 start=(mm(RECEIPT_WIDTH), 0), end=(mm(RECEIPT_WIDTH), mm(BILL_HEIGHT)),
-                stroke='black', stroke_dasharray='2 2'
+                stroke='black', stroke_dasharray='2 2', fill='none'
             ))
             grp.add(dwg.text(
                 "✂", insert=(add_mm(RECEIPT_WIDTH, mm(-1.5)), 40),
