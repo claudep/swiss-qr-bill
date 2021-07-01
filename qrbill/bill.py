@@ -23,6 +23,7 @@ RECEIPT_WIDTH = '62mm'
 PAYMENT_WIDTH = '148mm'
 MAX_CHARS_PAYMENT_LINE = 72
 MAX_CHARS_RECEIPT_LINE = 38
+MAX_CHARS_INFO_LINE = 50
 A4 = ('210mm', '297mm')
 
 # Annex D: Multilingual headings
@@ -748,7 +749,14 @@ def format_amount(amount_):
 
 
 def wrap_infos(infos):
+    result_text = ''
     for text in infos:
-        while(text):
-            yield text[:MAX_CHARS_PAYMENT_LINE]
-            text = text[MAX_CHARS_PAYMENT_LINE:]
+        tokens = text.split()
+        for token in tokens:
+            next_length = len(result_text) + len(token) + 1
+            if next_length > MAX_CHARS_INFO_LINE:
+                yield result_text
+                result_text = ""
+            result_text += token + ' '
+        if len(result_text):
+            yield result_text
