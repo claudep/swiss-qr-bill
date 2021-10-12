@@ -1,4 +1,4 @@
-name: pyogame
+name: swiss-qr-bill
 on:
   pull_request:
   push:
