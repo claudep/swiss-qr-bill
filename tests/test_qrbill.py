@@ -6,7 +6,7 @@ from decimal import Decimal
 from io import StringIO
 
 from qrbill import QRBill
-from qrbill.bill import Address, format_ref_number, format_amount, mm
+from qrbill import Address, format_ref_number, format_amount, mm
 
 
 class AddressTests(unittest.TestCase):

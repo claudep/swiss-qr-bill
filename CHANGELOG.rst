@@ -2,6 +2,14 @@
 
 ChangeLog
 =========
+0.6.2 (2021-10-12)
+------------------
+- Shorten import statement to ``from qrbill import QRBill``.
+- Add Github Actions to test the code.
+- Refactored all const vars to a separate file called constants.py.
+- Put the most important class QRBill at the top of the file.
+- Enforced a 80 column on the source code.
+- Add requirements.txt and fixing dependency versions.
 
 0.6.1 (2021-05-01)
 ------------------

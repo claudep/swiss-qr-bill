@@ -1,0 +1,22 @@
+name: pyogame
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: python3.8
+        uses: docker://python:3.8
+      - name: dependecys
+        run: pip install -r requirements.txt
+      - name: compile
+        run: python -c "from qrbill import QRBill"
+      - name: tests
+        run: python tests/test_qrbill.py
+
+

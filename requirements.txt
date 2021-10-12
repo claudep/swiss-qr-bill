@@ -1,0 +1,6 @@
+qrbill~=0.6.1
+qrcode~=7.3.1
+svgwrite~=1.4.1
+iso3166~=2.0.2
+python-stdnum~=1.17
+setuptools~=57.0.0
