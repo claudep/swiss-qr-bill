@@ -17,6 +17,6 @@ jobs:
       - name: compile
         run: python3 -c "from qrbill import QRBill"
       - name: tests
-        run: python3 tests/test_qrbill.py
+        run: python ./tests/test_qrbill.py
 
 
