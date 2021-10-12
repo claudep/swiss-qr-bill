@@ -14,9 +14,11 @@ jobs:
         uses: docker://python:3.8
       - name: Install Python dependencies
         uses: py-actions/py-dependency-install@v2
+      - name: Install qrbill
+        run: python3 -m pip install -e ./
       - name: compile
         run: python3 -c "from qrbill import QRBill"
       - name: tests
-        run: python ./tests/test_qrbill.py
+        run: python3 ./tests/test_qrbill.py
 
 
