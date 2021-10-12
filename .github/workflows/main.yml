@@ -12,11 +12,11 @@ jobs:
           ref: master
       - name: python3.8
         uses: docker://python:3.8
-      - name: dependecys
-        run: python setup.py install
+      - name: Install Python dependencies
+        uses: py-actions/py-dependency-install@v2
       - name: compile
-        run: python -c "from qrbill import QRBill"
+        run: python3 -c "from qrbill import QRBill"
       - name: tests
-        run: python tests/test_qrbill.py
+        run: python3 tests/test_qrbill.py
 
 
