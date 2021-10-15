@@ -17,7 +17,7 @@ jobs:
       - name: Install qrbill
         run: python3 -m pip install -e ./
       - name: compile
-        run: python3 -c "from qrbill import QRBill"
+        run: python3 -c "from qrbill.bill import QRBill"
       - name: tests
         run: python3 ./tests/test_qrbill.py
 
