@@ -1,0 +1,24 @@
+name: swiss-qr-bill
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: python3.8
+        uses: docker://python:3.8
+      - name: Install Python dependencies
+        uses: py-actions/py-dependency-install@v2
+      - name: Install qrbill
+        run: python3 -m pip install -e ./
+      - name: compile
+        run: python3 -c "from qrbill import QRBill"
+      - name: tests
+        run: python3 ./tests/test_qrbill.py
+
+
