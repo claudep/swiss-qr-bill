@@ -57,7 +57,7 @@ Python usage example
 
 ::
 
-    >>> from qrbill.bill import QRBill
+    >>> from qrbill import QRBill
     >>> my_bill = QRBill(
             account='CH5800791123000889012',
             creditor={
@@ -75,7 +75,7 @@ If you want to produce a PDF version of the resulting bill, we suggest using the
 command line with the `svg2pdf` script, or directly from Python::
 
     >>> import tempfile
-    >>> from qrbill.bill import QRBill
+    >>> from qrbill import QRBill
     >>> from svglib.svglib import svg2rlg
     >>> from reportlab.graphics import renderPDF
 
