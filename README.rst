@@ -109,3 +109,11 @@ You can run tests either by executing::
 or::
 
     $ python setup.py test
+
+
+Sponsors
+========
+
+.. image:: https://seantis.ch/static/img/logo.svg
+    :width: 150
+    :target: https://seantis.ch/
