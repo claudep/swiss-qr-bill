@@ -3,6 +3,12 @@
 ChangeLog
 =========
 
+0.7.0 (2021-12-18)
+------------------
+- License changed from GPL to MIT (#72).
+- Prevented separation line filled on some browsers.
+- Scissors symbol is now an SVG path (#46).
+
 0.6.1 (2021-05-01)
 ------------------
 - Added ``--version`` command-line option.
