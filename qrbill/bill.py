@@ -640,13 +640,14 @@ class QRBill:
         y_pos = 10
         line_space = 3.5
 
-        def add_header(text):
+        def add_header(text, first=False):
             nonlocal dwg, grp, payment_detail_left, y_pos
-            y_pos += 1
+            if not first:
+                y_pos += 1
             grp.add(dwg.text(text, (payment_detail_left, mm(y_pos)), **payment_head_font))
             y_pos += line_space
 
-        add_header(self.label("Account / Payable to"))
+        add_header(self.label("Account / Payable to"), first=True)
         grp.add(dwg.text(
             iban.format(self.account), (payment_detail_left, mm(y_pos)), **self.font_info
         ))

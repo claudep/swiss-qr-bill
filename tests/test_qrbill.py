@@ -328,7 +328,7 @@ class QRBillTests(unittest.TestCase):
             '<text {font9} x="{x}" y="{y5}">Payable by </text>'
             '<text {font10} x="{x}" y="{y6}">31.10.2019</text>'.format(
                 font9=font9, font10=font10, x='418.11023',
-                y1=mm(52.5), y2=mm(56), y3=mm(59.5), y4=mm(63), y5=mm(67.5), y6=mm(71),
+                y1=mm(51.5), y2=mm(55), y3=mm(58.5), y4=mm(62), y5=mm(66.5), y6=mm(70),
             )
         )
         self.assertIn(expected, content)
