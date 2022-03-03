@@ -1,3 +1,4 @@
+import re
 import subprocess
 import sys
 import tempfile
@@ -315,7 +316,7 @@ class QRBillTests(unittest.TestCase):
         )
         with tempfile.NamedTemporaryFile(suffix='.svg') as fh:
             bill.as_svg(fh.name)
-            content = fh.read().decode()
+            content = strip_svg_path(fh.read().decode())
         self.assertTrue(content.startswith('<?xml version="1.0" encoding="utf-8" ?>'))
         font9 = 'font-family="Helvetica" font-size="9" font-weight="bold"'
         font10 = 'font-family="Helvetica" font-size="10"'
@@ -328,7 +329,7 @@ class QRBillTests(unittest.TestCase):
             '<text {font9} x="{x}" y="{y5}">Payable by </text>'
             '<text {font10} x="{x}" y="{y6}">31.10.2019</text>'.format(
                 font9=font9, font10=font10, x='418.11023',
-                y1=mm(51.5), y2=mm(55), y3=mm(58.5), y4=mm(62), y5=mm(66.5), y6=mm(70),
+                y1=mm(57.5), y2=mm(61), y3=mm(64.5), y4=mm(68), y5=mm(74.5), y6=mm(78),
             )
         )
         self.assertIn(expected, content)
@@ -512,6 +513,10 @@ class CommandLineTests(unittest.TestCase):
             '\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\nCHF\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n'
             'QRR\r\n210000000003139471430009017\r\nOrder of 15.09.2019\r\nEPD\n'
         )
+
+
+def strip_svg_path(content):
+    return re.sub(r'<path[^>]*', '', content)
 
 
 if __name__ == '__main__':
