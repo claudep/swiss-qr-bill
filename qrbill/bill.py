@@ -370,9 +370,10 @@ class QRBill:
     def font_info(self):
         return {'font_size': 10 * self.font_factor, 'font_family': 'Helvetica'}
 
-    @property
-    def head_font_info(self):
-        return {'font_size': 8 * self.font_factor, 'font_family': 'Helvetica', 'font_weight': 'bold'}
+    def head_font_info(self, part=None):
+        return {
+            'font_size': (8 if part == 'receipt' else 9) * self.font_factor,
+            'font_family': 'Helvetica', 'font_weight': 'bold'}
 
     @property
     def proc_font_info(self):
@@ -517,8 +518,9 @@ class QRBill:
         # Receipt
         y_pos = 15
         line_space = 3.5
+        receipt_head_font = self.head_font_info(part='receipt')
         grp.add(dwg.text(self.label("Receipt"), (margin, mm(10)), **self.title_font_info))
-        grp.add(dwg.text(self.label("Account / Payable to"), (margin, mm(y_pos)), **self.head_font_info))
+        grp.add(dwg.text(self.label("Account / Payable to"), (margin, mm(y_pos)), **receipt_head_font))
         y_pos += line_space
         grp.add(dwg.text(
             iban.format(self.account), (margin, mm(y_pos)), **self.font_info
@@ -530,7 +532,7 @@ class QRBill:
 
         if self.ref_number:
             y_pos += 1
-            grp.add(dwg.text(self.label("Reference"), (margin, mm(y_pos)), **self.head_font_info))
+            grp.add(dwg.text(self.label("Reference"), (margin, mm(y_pos)), **receipt_head_font))
             y_pos += line_space
             grp.add(dwg.text(format_ref_number(self), (margin, mm(y_pos)), **self.font_info))
             y_pos += line_space
@@ -538,7 +540,7 @@ class QRBill:
         y_pos += 1
         grp.add(dwg.text(
             self.label("Payable by") if self.debtor else self.label("Payable by (name/address)"),
-            (margin, mm(y_pos)), **self.head_font_info
+            (margin, mm(y_pos)), **receipt_head_font
         ))
         y_pos += line_space
         if self.debtor:
@@ -552,8 +554,8 @@ class QRBill:
             )
             y_pos += 28
 
-        grp.add(dwg.text(self.label("Currency"), (margin, mm(72)), **self.head_font_info))
-        grp.add(dwg.text(self.label("Amount"), (add_mm(margin, mm(12)), mm(72)), **self.head_font_info))
+        grp.add(dwg.text(self.label("Currency"), (margin, mm(72)), **receipt_head_font))
+        grp.add(dwg.text(self.label("Amount"), (add_mm(margin, mm(12)), mm(72)), **receipt_head_font))
         grp.add(dwg.text(self.currency, (margin, mm(77)), **self.font_info))
         if self.amount:
             grp.add(dwg.text(format_amount(self.amount), (add_mm(margin, mm(12)), mm(77)), **self.font_info))
@@ -566,7 +568,7 @@ class QRBill:
         # Right-aligned
         grp.add(dwg.text(
             self.label("Acceptance point"), (add_mm(RECEIPT_WIDTH, margin * -1), mm(86)),
-            text_anchor='end', **self.head_font_info
+            text_anchor='end', **receipt_head_font
         ))
 
         # Top separation line
@@ -593,6 +595,7 @@ class QRBill:
             grp.add(path)
 
         # Payment part
+        payment_head_font = self.head_font_info(part='payment')
         grp.add(dwg.text(self.label("Payment part"), (payment_left, mm(10)), **self.title_font_info))
 
         # Get QR code SVG from qrcode lib, read it and redraw path in svgwrite drawing.
@@ -622,8 +625,8 @@ class QRBill:
 
         self.draw_swiss_cross(dwg, grp, (payment_left, 60), im.width * scale_factor)
 
-        grp.add(dwg.text(self.label("Currency"), (payment_left, mm(72)), **self.head_font_info))
-        grp.add(dwg.text(self.label("Amount"), (add_mm(payment_left, mm(12)), mm(72)), **self.head_font_info))
+        grp.add(dwg.text(self.label("Currency"), (payment_left, mm(72)), **payment_head_font))
+        grp.add(dwg.text(self.label("Amount"), (add_mm(payment_left, mm(12)), mm(72)), **payment_head_font))
         grp.add(dwg.text(self.currency, (payment_left, mm(77)), **self.font_info))
         if self.amount:
             grp.add(dwg.text(format_amount(self.amount), (add_mm(payment_left, mm(12)), mm(77)), **self.font_info))
@@ -640,7 +643,7 @@ class QRBill:
         def add_header(text):
             nonlocal dwg, grp, payment_detail_left, y_pos
             y_pos += 1
-            grp.add(dwg.text(text, (payment_detail_left, mm(y_pos)), **self.head_font_info))
+            grp.add(dwg.text(text, (payment_detail_left, mm(y_pos)), **payment_head_font))
             y_pos += line_space
 
         add_header(self.label("Account / Payable to"))
