@@ -513,6 +513,7 @@ class QRBill:
         margin = mm(5)
         payment_left = add_mm(RECEIPT_WIDTH, margin)
         payment_detail_left = add_mm(payment_left, mm(46 + 5))
+        currency_top = mm(72)
 
         grp = dwg.add(dwg.g())
         # Receipt
@@ -554,14 +555,18 @@ class QRBill:
             )
             y_pos += 28
 
-        grp.add(dwg.text(self.label("Currency"), (margin, mm(72)), **receipt_head_font))
-        grp.add(dwg.text(self.label("Amount"), (add_mm(margin, mm(12)), mm(72)), **receipt_head_font))
-        grp.add(dwg.text(self.currency, (margin, mm(77)), **self.font_info))
+        grp.add(dwg.text(self.label("Currency"), (margin, currency_top), **receipt_head_font))
+        grp.add(dwg.text(self.label("Amount"), (add_mm(margin, mm(12)), currency_top), **receipt_head_font))
+        grp.add(dwg.text(self.currency, (margin, add_mm(currency_top, mm(5))), **self.font_info))
         if self.amount:
-            grp.add(dwg.text(format_amount(self.amount), (add_mm(margin, mm(12)), mm(77)), **self.font_info))
+            grp.add(dwg.text(
+                format_amount(self.amount),
+                (add_mm(margin, mm(12)), add_mm(currency_top, mm(5))),
+                **self.font_info
+            ))
         else:
             self.draw_blank_rect(
-                dwg, grp, x=add_mm(margin, mm(25)), y=mm(75),
+                dwg, grp, x=add_mm(margin, mm(25)), y=add_mm(currency_top, mm(3)),
                 width=mm(27), height=mm(11)
             )
 
@@ -625,14 +630,18 @@ class QRBill:
 
         self.draw_swiss_cross(dwg, grp, (payment_left, 60), im.width * scale_factor)
 
-        grp.add(dwg.text(self.label("Currency"), (payment_left, mm(72)), **payment_head_font))
-        grp.add(dwg.text(self.label("Amount"), (add_mm(payment_left, mm(12)), mm(72)), **payment_head_font))
+        grp.add(dwg.text(self.label("Currency"), (payment_left, currency_top), **payment_head_font))
+        grp.add(dwg.text(self.label("Amount"), (add_mm(payment_left, mm(12)), currency_top), **payment_head_font))
         grp.add(dwg.text(self.currency, (payment_left, mm(77)), **self.font_info))
         if self.amount:
-            grp.add(dwg.text(format_amount(self.amount), (add_mm(payment_left, mm(12)), mm(77)), **self.font_info))
+            grp.add(dwg.text(
+                format_amount(self.amount),
+                (add_mm(payment_left, mm(12)), add_mm(currency_top, mm(5))),
+                **self.font_info
+            ))
         else:
             self.draw_blank_rect(
-                dwg, grp, x=add_mm(RECEIPT_WIDTH, margin, mm(12)), y=mm(75),
+                dwg, grp, x=add_mm(RECEIPT_WIDTH, margin, mm(12)), y=add_mm(currency_top, mm(3)),
                 width=mm(40), height=mm(15)
             )
 
