@@ -3,6 +3,11 @@
 ChangeLog
 =========
 
+0.7.1 (2022-03-07)
+------------------
+- Fixed bad position of amount rect on receipt part (#74).
+- Increased title font size and section spacing on payment part.
+
 0.7.0 (2021-12-18)
 ------------------
 - License changed from GPL to MIT (#72).
