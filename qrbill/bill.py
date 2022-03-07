@@ -566,7 +566,7 @@ class QRBill:
             ))
         else:
             self.draw_blank_rect(
-                dwg, grp, x=add_mm(margin, mm(25)), y=add_mm(currency_top, mm(3)),
+                dwg, grp, x=add_mm(margin, mm(25)), y=add_mm(currency_top, mm(-2)),
                 width=mm(27), height=mm(11)
             )
 
