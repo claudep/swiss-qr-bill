@@ -675,9 +675,9 @@ class QRBill:
 
         if self.extra_infos:
             add_header(self.label("Additional information"))
-            if '##' in self.extra_infos:
-                extra_infos = self.extra_infos.split('##')
-                extra_infos[1] = '##' + extra_infos[1]
+            if '//' in self.extra_infos:
+                extra_infos = self.extra_infos.split('//')
+                extra_infos[1] = '//' + extra_infos[1]
             else:
                 extra_infos = [self.extra_infos]
             # TODO: handle line breaks for long infos (mandatory 5mm margin)

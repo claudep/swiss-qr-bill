@@ -3,6 +3,10 @@
 ChangeLog
 =========
 
+Unreleased
+----------
+- Replaced ``##`` with ``//`` as separator in additional informations (#75).
+
 0.7.1 (2022-03-07)
 ------------------
 - Fixed bad position of amount rect on receipt part (#74).
