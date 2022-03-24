@@ -293,7 +293,7 @@ class QRBillTests(unittest.TestCase):
             },
             ref_number='210000000003139471430009017',
             extra_infos=(
-                'Order of 15.09.2019##S1/01/20170309/11/10201409/20/1400'
+                'Order of 15.09.2019//S1/01/20170309/11/10201409/20/1400'
                 '0000/22/36958/30/CH106017086/40/1020/41/3010'
             )
         )
@@ -311,7 +311,7 @@ class QRBillTests(unittest.TestCase):
             'Rue du Lac\r\n1268\r\n2501\r\nBiel\r\nCH\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n'
             '1949.70\r\nCHF\r\nS\r\nPia-Maria Rutschmann-Schnyder\r\nGrosse Marktgasse\r\n'
             '28\r\n9400\r\nRorschach\r\nCH\r\nQRR\r\n210000000003139471430009017\r\n'
-            'Order of 15.09.2019##S1/01/20170309/11/10201409/20/14000000/22/36958/30/CH106017086'
+            'Order of 15.09.2019//S1/01/20170309/11/10201409/20/14000000/22/36958/30/CH106017086'
             '/40/1020/41/3010\r\nEPD'
         )
         with tempfile.NamedTemporaryFile(suffix='.svg') as fh:
