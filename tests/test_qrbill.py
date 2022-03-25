@@ -329,21 +329,21 @@ class QRBillTests(unittest.TestCase):
             '<text {font9} x="{x}" y="{y5}">Payable by </text>'
             '<text {font10} x="{x}" y="{y6}">31.10.2019</text>'.format(
                 font9=font9, font10=font10, x='418.11023',
-                y1=mm(57.5), y2=mm(61), y3=mm(64.5), y4=mm(68), y5=mm(74.5), y6=mm(78),
+                y1=mm(58.5), y2=mm(62), y3=mm(65.5), y4=mm(69), y5=mm(75.5), y6=mm(79),
             )
         )
         self.assertIn(expected, content)
         # IBAN formatted
         self.assertIn(
             '<text {font10} x="{x}" y="{y}">CH44 3199 9123 0008 8901 2</text>'.format(
-                font10=font10, x=mm(5), y=mm(18.5),
+                font10=font10, x=mm(5), y=mm(19.5),
             ),
             content
         )
         # amount formatted
         self.assertIn(
             '<text {font10} x="{x}" y="{y}">1 949.70</text>'.format(
-                font10=font10, x=mm(17), y=mm(77),
+                font10=font10, x=mm(17), y=mm(78),
             ),
             content
         )
@@ -437,14 +437,17 @@ class QRBillTests(unittest.TestCase):
             },
             font_factor=1.5
         )
+        content = strip_svg_path(self._produce_svg(bill))
         self.assertIn(
             '<text font-family="Helvetica" font-size="18.0" font-weight="bold"'
-            ' x="17.71654" y="35.43307">Receipt</text>'
+            ' x="17.71654" y="{y1}">Receipt</text>'
             '<text font-family="Helvetica" font-size="12.0" font-weight="bold"'
-            ' x="17.71654" y="53.14961">Account / Payable to</text>'
+            ' x="17.71654" y="{y2}">Account / Payable to</text>'
             '<text font-family="Helvetica" font-size="15.0" x="17.71654"'
-            ' y="65.55118">CH53 8000 5000 0102 8366 4</text>',
-            self._produce_svg(bill)
+            ' y="{y3}">CH53 8000 5000 0102 8366 4</text>'.format(
+                y1=mm(11), y2=mm(16), y3=mm(19.5)
+            ),
+            content
         )
 
 

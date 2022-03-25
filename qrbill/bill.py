@@ -18,7 +18,7 @@ AMOUNT_REGEX = r'^\d{1,9}\.\d{2}$'
 DATE_REGEX = r'(\d{4})-(\d{2})-(\d{2})'
 
 MM_TO_UU = 3.543307
-BILL_HEIGHT = '105mm'
+BILL_HEIGHT = 106  # 105mm + 1mm for horizontal scissors to show up.
 RECEIPT_WIDTH = '62mm'
 PAYMENT_WIDTH = '148mm'
 MAX_CHARS_PAYMENT_LINE = 72
@@ -471,12 +471,12 @@ class QRBill:
             )
         else:
             dwg = svgwrite.Drawing(
-                size=(A4[0], BILL_HEIGHT),  # A4 width, A6 height.
+                size=(A4[0], f'{BILL_HEIGHT}mm'),  # A4 width, A6 height.
                 viewBox=('0 0 %f %f' % (mm(A4[0]), mm(BILL_HEIGHT))),
             )
         dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), fill='white'))  # Force white background
 
-        bill_group = self.draw_bill(dwg)
+        bill_group = self.draw_bill(dwg, horiz_scissors=not full_page)
         if full_page:
             self.transform_to_full_page(dwg, bill_group)
 
@@ -498,7 +498,7 @@ class QRBill:
 
         # add text snippet
         x_center = mm(A4[0]) / 2
-        y_pos = y_offset - mm(2)
+        y_pos = y_offset - mm(1)
 
         dwg.add(dwg.text(
             self.label("Separate before paying in"),
@@ -508,19 +508,20 @@ class QRBill:
             **self.font_info)
         )
 
-    def draw_bill(self, dwg):
+    def draw_bill(self, dwg, horiz_scissors=True):
         """Draw the bill in SVG format."""
         margin = mm(5)
         payment_left = add_mm(RECEIPT_WIDTH, margin)
         payment_detail_left = add_mm(payment_left, mm(46 + 5))
-        currency_top = mm(72)
+        above_padding = 1  # 1mm added for scissors display
+        currency_top = mm(72 + above_padding)
 
         grp = dwg.add(dwg.g())
         # Receipt
-        y_pos = 15
+        y_pos = 15 + above_padding
         line_space = 3.5
         receipt_head_font = self.head_font_info(part='receipt')
-        grp.add(dwg.text(self.label("Receipt"), (margin, mm(10)), **self.title_font_info))
+        grp.add(dwg.text(self.label("Receipt"), (margin, mm(y_pos - 5)), **self.title_font_info))
         grp.add(dwg.text(self.label("Account / Payable to"), (margin, mm(y_pos)), **receipt_head_font))
         y_pos += line_space
         grp.add(dwg.text(
@@ -572,21 +573,32 @@ class QRBill:
 
         # Right-aligned
         grp.add(dwg.text(
-            self.label("Acceptance point"), (add_mm(RECEIPT_WIDTH, margin * -1), mm(86)),
+            self.label("Acceptance point"), (add_mm(RECEIPT_WIDTH, margin * -1), mm(86 + above_padding)),
             text_anchor='end', **receipt_head_font
         ))
 
         # Top separation line
         if self.top_line:
             grp.add(dwg.line(
-                start=(0, mm(0.141)), end=(add_mm(RECEIPT_WIDTH, PAYMENT_WIDTH), mm(0.141)),
+                start=(0, mm(0.141 + above_padding)),
+                end=(add_mm(RECEIPT_WIDTH, PAYMENT_WIDTH), mm(0.141 + above_padding)),
                 stroke='black', stroke_dasharray='2 2', fill='none'
             ))
+            if horiz_scissors:
+                # Scissors on horizontal line
+                path = dwg.path(
+                    d=SCISSORS_SVG_PATH,
+                    style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none",
+                )
+                path.scale(1.9)
+                path.translate(tx=24, ty=0)
+                grp.add(path)
 
         # Separation line between receipt and payment parts
         if self.payment_line:
             grp.add(dwg.line(
-                start=(mm(RECEIPT_WIDTH), 0), end=(mm(RECEIPT_WIDTH), mm(BILL_HEIGHT)),
+                start=(mm(RECEIPT_WIDTH), mm(above_padding)),
+                end=(mm(RECEIPT_WIDTH), mm(BILL_HEIGHT - above_padding)),
                 stroke='black', stroke_dasharray='2 2', fill='none'
             ))
             # Scissors on vertical line
@@ -601,7 +613,7 @@ class QRBill:
 
         # Payment part
         payment_head_font = self.head_font_info(part='payment')
-        grp.add(dwg.text(self.label("Payment part"), (payment_left, mm(10)), **self.title_font_info))
+        grp.add(dwg.text(self.label("Payment part"), (payment_left, mm(10 + above_padding)), **self.title_font_info))
 
         # Get QR code SVG from qrcode lib, read it and redraw path in svgwrite drawing.
         buff = BytesIO()
@@ -623,16 +635,16 @@ class QRBill:
         scale_factor = mm(45.8) / im.width
 
         qr_left = payment_left
-        qr_top = 60
+        qr_top = 60 + above_padding
         path.translate(tx=qr_left, ty=qr_top)
         path.scale(scale_factor)
         grp.add(path)
 
-        self.draw_swiss_cross(dwg, grp, (payment_left, 60), im.width * scale_factor)
+        self.draw_swiss_cross(dwg, grp, (payment_left, qr_top), im.width * scale_factor)
 
         grp.add(dwg.text(self.label("Currency"), (payment_left, currency_top), **payment_head_font))
         grp.add(dwg.text(self.label("Amount"), (add_mm(payment_left, mm(12)), currency_top), **payment_head_font))
-        grp.add(dwg.text(self.currency, (payment_left, mm(77)), **self.font_info))
+        grp.add(dwg.text(self.currency, (payment_left, mm(currency_top + 5)), **self.font_info))
         if self.amount:
             grp.add(dwg.text(
                 format_amount(self.amount),
@@ -646,7 +658,7 @@ class QRBill:
             )
 
         # Right side of the bill
-        y_pos = 10
+        y_pos = 10 + above_padding
         line_space = 3.5
 
         def add_header(text, first=False):
