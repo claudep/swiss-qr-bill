@@ -1,4 +1,5 @@
 import re
+import warnings
 from datetime import date
 from decimal import Decimal
 from io import BytesIO
@@ -219,7 +220,8 @@ class QRBill:
 
     def __init__(
             self, account=None, creditor=None, final_creditor=None, amount=None,
-            currency='CHF', due_date=None, debtor=None, ref_number=None, extra_infos='',
+            currency='CHF', due_date=None, debtor=None, ref_number=None,
+            reference_number=None, extra_infos='', additional_information='',
             alt_procs=(), language='en', top_line=True, payment_line=True, font_factor=1):
         """
         Arguments
@@ -236,8 +238,8 @@ class QRBill:
         due_date: str (YYYY-MM-DD)
         debtor: Address
             Address (combined or structured) of the debtor
-        extra_infos: str
-            Extra information aimed for the bill recipient
+        additional_information: str
+            Additional information aimed for the bill recipient
         alt_procs: list of str (max 2)
             two additional fields for alternative payment schemes
         language: str
@@ -320,18 +322,23 @@ class QRBill:
         else:
             self.debtor = debtor
 
-        if not ref_number:
+        if ref_number and reference_number:
+            raise ValueError("You cannot provide values for both ref_number and reference_number")
+        if ref_number:
+            warnings.warn("ref_number is deprecated and replaced by reference_number")
+            reference_number = ref_number
+        if not reference_number:
             self.ref_type = 'NON'
-            self.ref_number = None
-        elif ref_number.strip()[:2].upper() == "RF":
-            if iso11649.is_valid(ref_number):
+            self.reference_number = None
+        elif reference_number.strip()[:2].upper() == "RF":
+            if iso11649.is_valid(reference_number):
                 self.ref_type = 'SCOR'
-                self.ref_number = iso11649.validate(ref_number)
+                self.reference_number = iso11649.validate(reference_number)
             else:
                 raise ValueError("The reference number is invalid")
-        elif esr.is_valid(ref_number):
+        elif esr.is_valid(reference_number):
             self.ref_type = 'QRR'
-            self.ref_number = esr.format(ref_number).replace(" ", "")
+            self.reference_number = esr.format(reference_number).replace(" ", "")
         else:
             raise ValueError("The reference number is invalid")
 
@@ -344,9 +351,14 @@ class QRBill:
             if self.ref_type == 'QRR':
                 raise ValueError("A QRR reference number is only allowed for a QR-IBAN")
 
-        if extra_infos and len(extra_infos) > 140:
+        if extra_infos and additional_information:
+            raise ValueError("You cannot provide values for both extra_infos and additional_information")
+        if extra_infos:
+            warnings.warn("extra_infos is deprecated and replaced by additional_information")
+            additional_information = extra_infos
+        if additional_information and len(additional_information) > 140:
             raise ValueError("Additional information cannot contain more than 140 characters")
-        self.extra_infos = extra_infos
+        self.additional_information = additional_information
 
         if len(alt_procs) > 2:
             raise ValueError("Only two lines allowed in alternative procedure parameters")
@@ -389,7 +401,11 @@ class QRBill:
         values.extend(self.final_creditor.data_list() if self.final_creditor else [''] * 7)
         values.extend([self.amount or '', self.currency or ''])
         values.extend(self.debtor.data_list() if self.debtor else [''] * 7)
-        values.extend([self.ref_type or '', self.ref_number or '', self.extra_infos or ''])
+        values.extend([
+            self.ref_type or '',
+            self.reference_number or '',
+            self.additional_information or '',
+        ])
         values.append('EPD')
         values.extend(self.alt_procs)
         return "\r\n".join([str(v) for v in values])
@@ -532,7 +548,7 @@ class QRBill:
             grp.add(dwg.text(line_text, (margin, mm(y_pos)), **self.font_info))
             y_pos += line_space
 
-        if self.ref_number:
+        if self.reference_number:
             y_pos += 1
             grp.add(dwg.text(self.label("Reference"), (margin, mm(y_pos)), **receipt_head_font))
             y_pos += line_space
@@ -678,22 +694,22 @@ class QRBill:
             grp.add(dwg.text(line_text, (payment_detail_left, mm(y_pos)), **self.font_info))
             y_pos += line_space
 
-        if self.ref_number:
+        if self.reference_number:
             add_header(self.label("Reference"))
             grp.add(dwg.text(
                 format_ref_number(self), (payment_detail_left, mm(y_pos)), **self.font_info
             ))
             y_pos += line_space
 
-        if self.extra_infos:
+        if self.additional_information:
             add_header(self.label("Additional information"))
-            if '//' in self.extra_infos:
-                extra_infos = self.extra_infos.split('//')
-                extra_infos[1] = '//' + extra_infos[1]
+            if '//' in self.additional_information:
+                additional_information = self.additional_information.split('//')
+                additional_information[1] = '//' + additional_information[1]
             else:
-                extra_infos = [self.extra_infos]
+                additional_information = [self.additional_information]
             # TODO: handle line breaks for long infos (mandatory 5mm margin)
-            for info in wrap_infos(extra_infos):
+            for info in wrap_infos(additional_information):
                 grp.add(dwg.text(info, (payment_detail_left, mm(y_pos)), **self.font_info))
                 y_pos += line_space
 
@@ -751,9 +767,9 @@ def mm(val):
 
 
 def format_ref_number(bill):
-    if not bill.ref_number:
+    if not bill.reference_number:
         return ''
-    num = bill.ref_number
+    num = bill.reference_number
     if bill.ref_type == "QRR":
         return esr.format(num)
     elif bill.ref_type == "SCOR":

@@ -9,6 +9,10 @@ Unreleased
 - Print scissors symbol on horizontal separation line when not in full page.
   WARNING: the resulting bill is 1 millimiter higher to be able to show the
   entire symbol (#65).
+- Renamed ``--extra-infos`` command line parameter to ``--additional-information``
+  and renamed ``extra_infos`` and ``ref_number`` ``QRBill.__init__`` arguments
+  to ``additional_information`` and ``reference_number``, respectively.
+  The old arguments are still accepted but raise a deprecation warning (#68).
 
 0.7.1 (2022-03-07)
 ------------------
