@@ -72,7 +72,8 @@ def run():
                         help='debtor country')
     parser.add_argument('--reference-number',
                         help='reference number')
-    parser.add_argument('--extra-infos',
+    # extra-infos kept for backwards compatibility
+    parser.add_argument('--additional-information', '--extra-infos',
                         help='payment purpose')
     parser.add_argument('--alt-procs',
                         nargs='*',
@@ -124,8 +125,8 @@ def run():
             currency=args.currency,
             due_date=args.due_date,
             debtor=debtor,
-            ref_number=args.reference_number,
-            extra_infos=args.extra_infos,
+            reference_number=args.reference_number,
+            additional_information=args.additional_information,
             alt_procs=args.alt_procs,
             language=args.language,
             top_line=args.top_line,

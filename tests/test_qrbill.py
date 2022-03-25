@@ -291,8 +291,8 @@ class QRBillTests(unittest.TestCase):
                 'city': 'Rorschach',
                 'country': 'CH',
             },
-            ref_number='210000000003139471430009017',
-            extra_infos=(
+            reference_number='210000000003139471430009017',
+            additional_information=(
                 'Order of 15.09.2019//S1/01/20170309/11/10201409/20/1400'
                 '0000/22/36958/30/CH106017086/40/1020/41/3010'
             )
@@ -359,13 +359,13 @@ class QRBillTests(unittest.TestCase):
         self.assertEqual(bill.ref_type, 'NON')
         self.assertEqual(format_ref_number(bill), '')
 
-        bill = QRBill(**min_data, ref_number='RF18539007547034')
+        bill = QRBill(**min_data, reference_number='RF18539007547034')
         self.assertEqual(bill.ref_type, 'SCOR')
         self.assertEqual(format_ref_number(bill), 'RF18 5390 0754 7034')
         with self.assertRaisesRegex(ValueError, "The reference number is invalid"):
-            bill = QRBill(**min_data, ref_number='RF19539007547034')
+            bill = QRBill(**min_data, reference_number='RF19539007547034')
         with self.assertRaisesRegex(ValueError, "A QRR reference number is only allowed for a QR-IBAN"):
-            bill = QRBill(**min_data, ref_number='18 78583')
+            bill = QRBill(**min_data, reference_number='18 78583')
 
         min_data = {
             'account': "CH 44 3199 9123 0008 89012",
@@ -373,22 +373,22 @@ class QRBillTests(unittest.TestCase):
                 'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
             },
         }
-        bill = QRBill(**min_data, ref_number='210000000003139471430009017')
+        bill = QRBill(**min_data, reference_number='210000000003139471430009017')
         self.assertEqual(bill.ref_type, 'QRR')
         self.assertEqual(format_ref_number(bill), '21 00000 00003 13947 14300 09017')
 
         # check leading zeros
-        bill = QRBill(**min_data, ref_number='18 78583')
+        bill = QRBill(**min_data, reference_number='18 78583')
         self.assertEqual(bill.ref_type, 'QRR')
         self.assertEqual(format_ref_number(bill), '00 00000 00000 00000 00018 78583')
 
         # invalid QRR
         with self.assertRaisesRegex(ValueError, "The reference number is invalid"):
-            bill = QRBill(**min_data, ref_number='18539007547034')
+            bill = QRBill(**min_data, reference_number='18539007547034')
         with self.assertRaisesRegex(ValueError, "The reference number is invalid"):
-            bill = QRBill(**min_data, ref_number='ref-number')
+            bill = QRBill(**min_data, reference_number='ref-number')
         with self.assertRaisesRegex(ValueError, "A QR-IBAN requires a QRR reference number"):
-            bill = QRBill(**min_data, ref_number='RF18539007547034')
+            bill = QRBill(**min_data, reference_number='RF18539007547034')
 
     def test_alt_procs(self):
         min_data = {
@@ -502,7 +502,7 @@ class CommandLineTests(unittest.TestCase):
             sys.executable, 'scripts/qrbill', '--account', 'CH 44 3199 9123 0008 89012',
             '--creditor-name',  'Jane', '--creditor-postalcode', '1000',
             '--creditor-city', 'Lausanne', '--reference-number', '210000000003139471430009017',
-            '--extra-infos', 'Order of 15.09.2019', '--text',
+            '--additional-information', 'Order of 15.09.2019', '--text',
         ]
         out, err = subprocess.Popen(
             cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
