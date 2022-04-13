@@ -4,7 +4,7 @@ ChangeLog
 =========
 
 0.8.0 (2022-04-13)
-----------
+------------------
 - Replaced ``##`` with ``//`` as separator in additional informations (#75).
 - Print scissors symbol on horizontal separation line when not in full page.
   WARNING: the resulting bill is 1 millimiter higher to be able to show the
