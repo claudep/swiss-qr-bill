@@ -33,7 +33,7 @@ More complete::
     $ qrbill --account "CH44 3199 9123 0008 8901 2" --reference-number "210000000003139471430009017"
     --creditor-name "Robert Schneider AG" --creditor-street "Rue du Lac 1268"
     --creditor-postalcode "2501" --creditor-city "Biel"
-    --extra-infos "Bill No. 3139 for garden work and disposal of cuttings."
+    --additional-information "Bill No. 3139 for garden work and disposal of cuttings."
     --debtor-name "Pia Rutschmann" --debtor-street "Marktgasse 28" --debtor-postalcode "9400"
     --debtor-city "Rorschach" --due-date "2019-10-31" --language "de"
 
