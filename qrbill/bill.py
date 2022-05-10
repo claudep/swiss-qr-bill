@@ -660,7 +660,7 @@ class QRBill:
 
         grp.add(dwg.text(self.label("Currency"), (payment_left, currency_top), **payment_head_font))
         grp.add(dwg.text(self.label("Amount"), (add_mm(payment_left, mm(12)), currency_top), **payment_head_font))
-        grp.add(dwg.text(self.currency, (payment_left, mm(currency_top + 5)), **self.font_info))
+        grp.add(dwg.text(self.currency, (payment_left, add_mm(currency_top, mm(5))), **self.font_info))
         if self.amount:
             grp.add(dwg.text(
                 format_amount(self.amount),

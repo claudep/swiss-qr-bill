@@ -340,10 +340,29 @@ class QRBillTests(unittest.TestCase):
             ),
             content
         )
-        # amount formatted
+        # amount formatted (receipt part)
+        self.assertIn(
+            '<text {font10} x="{x}" y="{y}">CHF</text>'.format(
+                font10=font10, x=mm(5), y=mm(78),
+            ),
+            content
+        )
         self.assertIn(
             '<text {font10} x="{x}" y="{y}">1 949.70</text>'.format(
                 font10=font10, x=mm(17), y=mm(78),
+            ),
+            content
+        )
+        # amount formatted (payment part)
+        self.assertIn(
+            '<text {font10} x="{x}" y="{y}">CHF</text>'.format(
+                font10=font10, x=mm(67), y=mm(78),
+            ),
+            content
+        )
+        self.assertIn(
+            '<text {font10} x="{x}" y="{y}">1 949.70</text>'.format(
+                font10=font10, x=mm(79), y=mm(78),
             ),
             content
         )
