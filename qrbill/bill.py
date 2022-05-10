@@ -752,8 +752,11 @@ class QRBill:
 
 def add_mm(*mms):
     """Utility to allow additions of '23mm'-type strings."""
-    return sum(
-        mm(float(m[:-2])) if isinstance(m, str) else m for m in mms
+    return round(
+        sum(
+            mm(float(m[:-2])) if isinstance(m, str) else m for m in mms
+        ),
+        5
     )
 
 
