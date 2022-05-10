@@ -3,6 +3,11 @@
 ChangeLog
 =========
 
+0.8.1 (2022-05-10)
+------------------
+- Fixed a regression where the currency was not visible in the payment part
+  (#81).
+
 0.8.0 (2022-04-13)
 ------------------
 - Replaced ``##`` with ``//`` as separator in additional informations (#75).
