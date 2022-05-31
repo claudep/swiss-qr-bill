@@ -484,11 +484,13 @@ class QRBill:
             dwg = svgwrite.Drawing(
                 size=A4,
                 viewBox=('0 0 %f %f' % (mm(A4[0]), mm(A4[1]))),
+                debug=False,
             )
         else:
             dwg = svgwrite.Drawing(
                 size=(A4[0], f'{BILL_HEIGHT}mm'),  # A4 width, A6 height.
                 viewBox=('0 0 %f %f' % (mm(A4[0]), mm(BILL_HEIGHT))),
+                debug=False,
             )
         dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), fill='white'))  # Force white background
 
