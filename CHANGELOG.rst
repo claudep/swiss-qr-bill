@@ -3,6 +3,10 @@
 ChangeLog
 =========
 
+0.9.0 (2022-09-07)
+------------------
+- Removed field "due_date" as it is not documented in SIX payment standards v2.2
+
 0.8.1 (2022-05-10)
 ------------------
 - Fixed a regression where the currency was not visible in the payment part

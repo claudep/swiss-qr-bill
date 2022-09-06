@@ -282,7 +282,6 @@ class QRBillTests(unittest.TestCase):
             },
             amount='1949.7',
             currency='CHF',
-            due_date='2019-10-31',
             debtor={
                 'name': 'Pia-Maria Rutschmann-Schnyder',
                 'street': 'Grosse Marktgasse',

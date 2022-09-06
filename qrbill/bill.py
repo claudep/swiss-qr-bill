@@ -56,7 +56,6 @@ LABELS = {
         'it': 'Pagabile da (nome/indirizzo)',
     },
     # The extra ending space allows to differentiate from the other 'Payable by' above.
-    'Payable by ': {'de': 'Zahlbar bis', 'fr': 'Payable jusqu’au', 'it': 'Pagabile fino al'},
     'In favour of': {'de': 'Zugunsten', 'fr': 'En faveur de', 'it': 'A favore di'},
 }
 
@@ -220,7 +219,7 @@ class QRBill:
 
     def __init__(
             self, account=None, creditor=None, final_creditor=None, amount=None,
-            currency='CHF', due_date=None, debtor=None, ref_number=None,
+            currency='CHF', debtor=None, ref_number=None,
             reference_number=None, extra_infos='', additional_information='',
             alt_procs=(), language='en', top_line=True, payment_line=True, font_factor=1):
         """
@@ -235,7 +234,6 @@ class QRBill:
         amount: str
         currency: str
             two values allowed: 'CHF' and 'EUR'
-        due_date: str (YYYY-MM-DD)
         debtor: Address
             Address (combined or structured) of the debtor
         additional_information: str
@@ -295,12 +293,6 @@ class QRBill:
         if currency not in self.allowed_currencies:
             raise ValueError("Currency can only contain: %s" % ", ".join(self.allowed_currencies))
         self.currency = currency
-        if due_date:
-            m = re.match(DATE_REGEX, due_date)
-            if not m:
-                raise ValueError("The date must match the pattern 'YYYY-MM-DD'")
-            due_date = date(*[int(g)for g in m.groups()])
-        self.due_date = due_date
         if not creditor:
             raise ValueError("Creditor information is mandatory")
         try:
@@ -734,13 +726,6 @@ class QRBill:
             for line_text in self.final_creditor.as_paragraph():
                 grp.add(dwg.text(line_text, (payment_detail_left, mm(y_pos)), **self.font_info))
                 y_pos += line_space
-
-        if self.due_date:
-            add_header(self.label("Payable by "))
-            grp.add(dwg.text(
-                format_date(self.due_date), (payment_detail_left, mm(y_pos)), **self.font_info
-            ))
-            y_pos += line_space
 
         # Bottom section
         y_pos = mm(94)

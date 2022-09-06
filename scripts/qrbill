@@ -52,8 +52,6 @@ def run():
     # chapter 4.3.3 elemet Ccy
     parser.add_argument('--currency', default='CHF', choices=['CHF', 'EUR'],
                         help='currency of payment')
-    parser.add_argument('--due-date',
-                        help='due date of payment in the form YYYY-MM-DD')
     parser.add_argument('--debtor-name',
                         help='debtor name')
     parser.add_argument('--debtor-line1',
@@ -123,7 +121,6 @@ def run():
             creditor=creditor,
             amount=args.amount,
             currency=args.currency,
-            due_date=args.due_date,
             debtor=debtor,
             reference_number=args.reference_number,
             additional_information=args.additional_information,
