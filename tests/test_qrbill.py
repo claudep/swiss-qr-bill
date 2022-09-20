@@ -238,6 +238,27 @@ class QRBillTests(unittest.TestCase):
             self.assertEqual(bill.amount, expected)
             self.assertEqual(format_amount(bill.amount), printed)
 
+    def test_additionnal_info_break(self):
+        """
+        Line breaks in additional_information are converted to space in QR data
+        (but still respected on info display)
+        """
+        bill = QRBill(
+            account="CH 53 8000 5000 0102 83664",
+            creditor={
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+            },
+            additional_information="Hello\nLine break",
+        )
+        self.assertEqual(
+            bill.qr_data(),
+            'SPC\r\n0200\r\n1\r\nCH5380005000010283664\r\nS\r\nJane\r\n\r\n\r\n'
+            '1000\r\nLausanne\r\nCH\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\nCHF\r\n'
+            '\r\n\r\n\r\n\r\n\r\n\r\n\r\nNON\r\n\r\nHello Line break\r\nEPD'
+        )
+        with open("test1.svg", 'w') as fh:
+            bill.as_svg(fh.name)
+
     def test_minimal_data(self):
         bill = QRBill(
             account="CH 53 8000 5000 0102 83664",

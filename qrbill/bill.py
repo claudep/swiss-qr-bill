@@ -404,7 +404,7 @@ class QRBill:
         values.extend([
             self.ref_type or '',
             self.reference_number or '',
-            self.additional_information or '',
+            replace_linebreaks(self.additional_information),
         ])
         values.append('EPD')
         values.extend(self.alt_procs)
@@ -792,7 +792,13 @@ def format_amount(amount_):
 
 
 def wrap_infos(infos):
-    for text in infos:
-        while(text):
-            yield text[:MAX_CHARS_PAYMENT_LINE]
-            text = text[MAX_CHARS_PAYMENT_LINE:]
+    for line in infos:
+        for text in line.splitlines():
+            while text:
+                yield text[:MAX_CHARS_PAYMENT_LINE]
+                text = text[MAX_CHARS_PAYMENT_LINE:]
+
+
+def replace_linebreaks(text):
+    text = text or ''
+    return ' '.join(text.splitlines())
