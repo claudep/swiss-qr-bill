@@ -3,6 +3,11 @@
 ChangeLog
 =========
 
+Unreleased
+----------
+- BREAKING: Removed the ``due-date`` command line argument and the ``due_date``
+  QRBill init kwarg, as this field is no longer in the most recent specs (#84).
+
 0.8.1 (2022-05-10)
 ------------------
 - Fixed a regression where the currency was not visible in the payment part

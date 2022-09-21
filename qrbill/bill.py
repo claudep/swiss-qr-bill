@@ -1,6 +1,5 @@
 import re
 import warnings
-from datetime import date
 from decimal import Decimal
 from io import BytesIO
 from itertools import chain
@@ -16,7 +15,6 @@ from stdnum.ch import esr
 IBAN_ALLOWED_COUNTRIES = ['CH', 'LI']
 QR_IID = {"start": 30000, "end": 31999}
 AMOUNT_REGEX = r'^\d{1,9}\.\d{2}$'
-DATE_REGEX = r'(\d{4})-(\d{2})-(\d{2})'
 
 MM_TO_UU = 3.543307
 BILL_HEIGHT = 106  # 105mm + 1mm for horizontal scissors to show up.
@@ -55,8 +53,6 @@ LABELS = {
         'fr': 'Payable par (nom/adresse)',
         'it': 'Pagabile da (nome/indirizzo)',
     },
-    # The extra ending space allows to differentiate from the other 'Payable by' above.
-    'Payable by ': {'de': 'Zahlbar bis', 'fr': 'Payable jusqu’au', 'it': 'Pagabile fino al'},
     'In favour of': {'de': 'Zugunsten', 'fr': 'En faveur de', 'it': 'A favore di'},
 }
 
@@ -220,7 +216,7 @@ class QRBill:
 
     def __init__(
             self, account=None, creditor=None, final_creditor=None, amount=None,
-            currency='CHF', due_date=None, debtor=None, ref_number=None,
+            currency='CHF', debtor=None, ref_number=None,
             reference_number=None, extra_infos='', additional_information='',
             alt_procs=(), language='en', top_line=True, payment_line=True, font_factor=1):
         """
@@ -235,7 +231,6 @@ class QRBill:
         amount: str
         currency: str
             two values allowed: 'CHF' and 'EUR'
-        due_date: str (YYYY-MM-DD)
         debtor: Address
             Address (combined or structured) of the debtor
         additional_information: str
@@ -295,12 +290,6 @@ class QRBill:
         if currency not in self.allowed_currencies:
             raise ValueError("Currency can only contain: %s" % ", ".join(self.allowed_currencies))
         self.currency = currency
-        if due_date:
-            m = re.match(DATE_REGEX, due_date)
-            if not m:
-                raise ValueError("The date must match the pattern 'YYYY-MM-DD'")
-            due_date = date(*[int(g)for g in m.groups()])
-        self.due_date = due_date
         if not creditor:
             raise ValueError("Creditor information is mandatory")
         try:
@@ -735,13 +724,6 @@ class QRBill:
                 grp.add(dwg.text(line_text, (payment_detail_left, mm(y_pos)), **self.font_info))
                 y_pos += line_space
 
-        if self.due_date:
-            add_header(self.label("Payable by "))
-            grp.add(dwg.text(
-                format_date(self.due_date), (payment_detail_left, mm(y_pos)), **self.font_info
-            ))
-            y_pos += line_space
-
         # Bottom section
         y_pos = mm(94)
         for alt_proc_line in self.alt_procs:
@@ -781,12 +763,6 @@ def format_ref_number(bill):
         return iso11649.format(num)
     else:
         return num
-
-
-def format_date(date_):
-    if not date_:
-        return ''
-    return date_.strftime('%d.%m.%Y')
 
 
 def format_amount(amount_):
