@@ -35,7 +35,7 @@ More complete::
     --creditor-postalcode "2501" --creditor-city "Biel"
     --additional-information "Bill No. 3139 for garden work and disposal of cuttings."
     --debtor-name "Pia Rutschmann" --debtor-street "Marktgasse 28" --debtor-postalcode "9400"
-    --debtor-city "Rorschach" --due-date "2019-10-31" --language "de"
+    --debtor-city "Rorschach" --language "de"
 
 For usage::
 
