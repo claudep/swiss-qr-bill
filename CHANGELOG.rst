@@ -3,10 +3,13 @@
 ChangeLog
 =========
 
-Unreleased
-----------
+1.0.0 (2022-09-21)
+------------------
 - BREAKING: Removed the ``due-date`` command line argument and the ``due_date``
   QRBill init kwarg, as this field is no longer in the most recent specs (#84).
+- Handle line breaks in additional information, so it is showing in the printed
+  version, but stripped from the QR data (#86).
+- Improved performance by deactivating debug mode in svgwrite (#82).
 
 0.8.1 (2022-05-10)
 ------------------
