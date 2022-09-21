@@ -303,7 +303,6 @@ class QRBillTests(unittest.TestCase):
             },
             amount='1949.7',
             currency='CHF',
-            due_date='2019-10-31',
             debtor={
                 'name': 'Pia-Maria Rutschmann-Schnyder',
                 'street': 'Grosse Marktgasse',
@@ -346,11 +345,9 @@ class QRBillTests(unittest.TestCase):
             '<text {font9} x="{x}" y="{y1}">Payable by</text>'
             '<text {font10} x="{x}" y="{y2}">Pia-Maria Rutschmann-Schnyder</text>'
             '<text {font10} x="{x}" y="{y3}">Grosse Marktgasse 28</text>'
-            '<text {font10} x="{x}" y="{y4}">CH-9400 Rorschach</text>'
-            '<text {font9} x="{x}" y="{y5}">Payable by </text>'
-            '<text {font10} x="{x}" y="{y6}">31.10.2019</text>'.format(
+            '<text {font10} x="{x}" y="{y4}">CH-9400 Rorschach</text>'.format(
                 font9=font9, font10=font10, x='418.11023',
-                y1=mm(58.5), y2=mm(62), y3=mm(65.5), y4=mm(69), y5=mm(75.5), y6=mm(79),
+                y1=mm(58.5), y2=mm(62), y3=mm(65.5), y4=mm(69),
             )
         )
         self.assertIn(expected, content)
