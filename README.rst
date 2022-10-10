@@ -65,7 +65,10 @@ Python usage example
             },
             amount='22.45',
         )
-    >>> bill.as_svg('/tmp/my_bill.svg')
+    >>> my_bill.as_svg('/tmp/my_bill.svg')
+
+Please note that if you use this module in a python script you should not name 
+your script qrcode.py because otherwise it will create a circular import error
 
 Outputting as PDF or bitmap
 ===========================
