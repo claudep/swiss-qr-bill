@@ -65,7 +65,7 @@ Python usage example
             },
             amount='22.45',
         )
-    >>> bill.as_svg('/tmp/my_bill.svg')
+    >>> my_bill.as_svg('/tmp/my_bill.svg')
 
 Outputting as PDF or bitmap
 ===========================
