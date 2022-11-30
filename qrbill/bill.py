@@ -213,6 +213,7 @@ class QRBill:
     allowed_currencies = ('CHF', 'EUR')
     # QR reference, Creditor Reference (ISO 11649), without reference
     reference_types = ('QRR', 'SCOR', 'NON')
+    font_family = 'Arial,Helvetica'
 
     def __init__(
             self, account=None, creditor=None, final_creditor=None, amount=None,
@@ -365,20 +366,20 @@ class QRBill:
 
     @property
     def title_font_info(self):
-        return {'font_size': 12 * self.font_factor, 'font_family': 'Helvetica', 'font_weight': 'bold'}
+        return {'font_size': 12 * self.font_factor, 'font_family': self.font_family, 'font_weight': 'bold'}
 
     @property
     def font_info(self):
-        return {'font_size': 10 * self.font_factor, 'font_family': 'Helvetica'}
+        return {'font_size': 10 * self.font_factor, 'font_family': self.font_family}
 
     def head_font_info(self, part=None):
         return {
             'font_size': (8 if part == 'receipt' else 9) * self.font_factor,
-            'font_family': 'Helvetica', 'font_weight': 'bold'}
+            'font_family': self.font_family, 'font_weight': 'bold'}
 
     @property
     def proc_font_info(self):
-        return {'font_size': 7 * self.font_factor, 'font_family': 'Helvetica'}
+        return {'font_size': 7 * self.font_factor, 'font_family': self.font_family}
 
     def qr_data(self):
         """
