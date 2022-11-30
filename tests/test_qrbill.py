@@ -338,8 +338,8 @@ class QRBillTests(unittest.TestCase):
             bill.as_svg(fh.name)
             content = strip_svg_path(fh.read().decode())
         self.assertTrue(content.startswith('<?xml version="1.0" encoding="utf-8" ?>'))
-        font9 = 'font-family="Helvetica" font-size="9" font-weight="bold"'
-        font10 = 'font-family="Helvetica" font-size="10"'
+        font9 = 'font-family="Arial,Helvetica" font-size="9" font-weight="bold"'
+        font10 = 'font-family="Arial,Helvetica" font-size="10"'
         # Test the Payable by section:
         expected = (
             '<text {font9} x="{x}" y="{y1}">Payable by</text>'
@@ -476,13 +476,13 @@ class QRBillTests(unittest.TestCase):
         )
         content = strip_svg_path(self._produce_svg(bill))
         self.assertIn(
-            '<text font-family="Helvetica" font-size="18.0" font-weight="bold"'
+            '<text font-family="{ffamily}" font-size="18.0" font-weight="bold"'
             ' x="17.71654" y="{y1}">Receipt</text>'
-            '<text font-family="Helvetica" font-size="12.0" font-weight="bold"'
+            '<text font-family="{ffamily}" font-size="12.0" font-weight="bold"'
             ' x="17.71654" y="{y2}">Account / Payable to</text>'
-            '<text font-family="Helvetica" font-size="15.0" x="17.71654"'
+            '<text font-family="{ffamily}" font-size="15.0" x="17.71654"'
             ' y="{y3}">CH53 8000 5000 0102 8366 4</text>'.format(
-                y1=mm(11), y2=mm(16), y3=mm(19.5)
+                ffamily='Arial,Helvetica', y1=mm(11), y2=mm(16), y3=mm(19.5)
             ),
             content
         )

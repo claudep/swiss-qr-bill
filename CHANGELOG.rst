@@ -3,6 +3,12 @@
 ChangeLog
 =========
 
+Unreleased
+----------
+
+- Add Arial font name in addition to Helvetica for better font fallback on some
+  systems.
+
 1.0.0 (2022-09-21)
 ------------------
 - BREAKING: Removed the ``due-date`` command line argument and the ``due_date``
