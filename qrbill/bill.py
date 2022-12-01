@@ -211,8 +211,6 @@ class QRBill:
     version = '0200'
     coding = 1  # Latin character set
     allowed_currencies = ('CHF', 'EUR')
-    # QR reference, Creditor Reference (ISO 11649), without reference
-    reference_types = ('QRR', 'SCOR', 'NON')
     font_family = 'Arial,Helvetica'
 
     def __init__(
