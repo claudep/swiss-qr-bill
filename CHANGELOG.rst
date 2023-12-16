@@ -3,9 +3,8 @@
 ChangeLog
 =========
 
-Unreleased
-----------
-
+1.1.0 (2023-12-16)
+------------------
 - Add Arial font name in addition to Helvetica for better font fallback on some
   systems.
 - Drop support for Python < 3.8, and add testing for Python 3.11 and 3.12.
