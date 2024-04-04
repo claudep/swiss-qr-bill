@@ -1,16 +1,24 @@
+from __future__ import annotations
+
 import re
 import warnings
 from decimal import Decimal
 from io import BytesIO
 from itertools import chain
 from pathlib import Path
+from typing import overload, Any, Final, Literal, TYPE_CHECKING
+from typing_extensions import deprecated
 
 import qrcode
 import qrcode.image.svg
-import svgwrite
+import svgwrite  # type: ignore[import-untyped]
 from iso3166 import countries
-from stdnum import iban, iso11649
-from stdnum.ch import esr
+from stdnum import iban, iso11649  # type: ignore[import-untyped]
+from stdnum.ch import esr  # type: ignore[import-untyped]
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsWrite
+    from collections.abc import Iterable, Iterator, Mapping
 
 IBAN_ALLOWED_COUNTRIES = ['CH', 'LI']
 QR_IID = {"start": 30000, "end": 31999}
@@ -77,8 +85,43 @@ SCISSORS_SVG_PATH = (
 
 
 class Address:
+    @overload
     @classmethod
-    def create(cls, **kwargs):
+    def create(
+        cls,
+        *,
+        name: str | None = None,
+        line1: str,
+        line2: str | None = None,
+        country: str | None
+    ) -> CombinedAddress: ...
+
+    @overload
+    @classmethod
+    def create(
+        cls,
+        *,
+        name: str | None = None,
+        line1: str | None = None,
+        line2: str,
+        country: str | None
+    ) -> CombinedAddress: ...
+
+    @overload
+    @classmethod
+    def create(
+        cls,
+        *,
+        name: str,
+        street: str | None = None,
+        house_num: str | None = None,
+        pcode: str,
+        city: str,
+        country: str | None = None
+    ) -> StructuredAddress: ...
+
+    @classmethod
+    def create(cls, **kwargs: str | None) -> CombinedAddress | StructuredAddress:
         if kwargs.get('line1') or kwargs.get('line2'):
             for arg_name in ('street', 'house_num', 'pcode', 'city'):
                 if kwargs.pop(arg_name, False):
@@ -92,7 +135,7 @@ class Address:
             return StructuredAddress(**kwargs)
 
     @staticmethod
-    def parse_country(country):
+    def parse_country(country: str | None) -> str:
         country = (country or '').strip()
         # allow users to write the country as if used in an address in the local language
         if not country or country.lower() in ['schweiz', 'suisse', 'svizzera', 'svizra']:
@@ -105,7 +148,7 @@ class Address:
             raise ValueError("The country code '%s' is not an ISO 3166 valid code" % country)
 
     @staticmethod
-    def _split(line, max_chars):
+    def _split(line: str, max_chars: int) -> list[str]:
         """
         The line should be no more than `max_chars` chars, splitting on spaces
         (if possible).
@@ -134,9 +177,17 @@ class CombinedAddress(Address):
     Combined address
     (name, line1, line2, country)
     """
-    combined = True
+    combined: Final = True
 
-    def __init__(self, *, name=None, line1=None, line2=None, country=None):
+    def __init__(
+        self,
+        *,
+        name: str | None = None,
+        line1: str | None = None,
+        line2: str | None = None,
+        country: str | None = None
+    ) -> None:
+
         self.name = (name or '').strip()
         self.line1 = (line1 or '').strip()
         if not (0 <= len(self.line1) <= 70):
@@ -146,14 +197,14 @@ class CombinedAddress(Address):
             raise ValueError("An address line should have between 0 and 70 characters.")
         self.country = self.parse_country(country)
 
-    def data_list(self):
+    def data_list(self) -> list[str]:
         # 'K': combined address
         return [
             'K', self.name.replace('\n', ' '), self.line1.replace('\n', ' '),
             self.line2.replace('\n', ' '), '', '', self.country
         ]
 
-    def as_paragraph(self, max_chars=MAX_CHARS_PAYMENT_LINE):
+    def as_paragraph(self, max_chars: int = MAX_CHARS_PAYMENT_LINE) -> Iterator[str]:
         return chain(*(self._split(line, max_chars) for line in [self.name, self.line1, self.line2]))
 
 
@@ -162,9 +213,18 @@ class StructuredAddress(Address):
     Structured address
     (name, street, house_num, pcode, city, country)
     """
-    combined = False
+    combined: Final = False
 
-    def __init__(self, *, name=None, street=None, house_num=None, pcode=None, city=None, country=None):
+    def __init__(
+        self,
+        *,
+        name: str | None = None,
+        street: str | None = None,
+        house_num: str | None = None,
+        pcode: str | None = None,
+        city: str | None = None,
+        country: str | None = None
+    ) -> None:
         self.name = (name or '').strip()
         if not (1 <= len(self.name) <= 70):
             raise ValueError("An address name should have between 1 and 70 characters.")
@@ -186,7 +246,7 @@ class StructuredAddress(Address):
             raise ValueError("A city cannot have more than 35 characters.")
         self.country = self.parse_country(country)
 
-    def data_list(self):
+    def data_list(self) -> list[str]:
         """Return address values as a list, appropriate for qr generation."""
         # 'S': structured address
         return [
@@ -194,7 +254,7 @@ class StructuredAddress(Address):
             self.house_num, self.pcode, self.city, self.country
         ]
 
-    def as_paragraph(self, max_chars=MAX_CHARS_PAYMENT_LINE):
+    def as_paragraph(self, max_chars: int = MAX_CHARS_PAYMENT_LINE) -> Iterator[str]:
         lines = [self.name, "%s-%s %s" % (self.country, self.pcode, self.city)]
         if self.street:
             if self.house_num:
@@ -213,11 +273,71 @@ class QRBill:
     allowed_currencies = ('CHF', 'EUR')
     font_family = 'Arial,Helvetica'
 
+    creditor: CombinedAddress | StructuredAddress
+    final_creditor: CombinedAddress | StructuredAddress | None
+    debtor: CombinedAddress | StructuredAddress | None
+    reference_number: str | None
+
+    @overload
     def __init__(
-            self, account=None, creditor=None, final_creditor=None, amount=None,
-            currency='CHF', debtor=None, ref_number=None,
-            reference_number=None, extra_infos='', additional_information='',
-            alt_procs=(), language='en', top_line=True, payment_line=True, font_factor=1):
+        self,
+        account: str,
+        creditor: Mapping[str, str | None],
+        final_creditor: Mapping[str, str | None] | None = None,
+        amount: Decimal | str | None = None,
+        currency: Literal['CHF', 'EUR'] = 'CHF',
+        debtor: Mapping[str, str | None] | None = None,
+        ref_number: None = None,
+        reference_number: str | None = None,
+        extra_infos: str = '',
+        additional_information: str = '',
+        alt_procs: list[str] | tuple[()] | tuple[str] | tuple[str, str] = (),
+        language: Literal['en', 'de', 'fr', 'it'] = 'en',
+        top_line: bool = True,
+        payment_line: bool = True,
+        font_factor: int = 1
+    ) -> None: ...
+
+    @deprecated("ref_number is deprecated and replaced by reference_number")
+    @overload
+    def __init__(
+        self,
+        account: str,
+        creditor: Mapping[str, str | None],
+        final_creditor: Mapping[str, str | None] | None = None,
+        amount: Decimal | str | None = None,
+        currency: Literal['CHF', 'EUR'] = 'CHF',
+        debtor: Mapping[str, str | None] | None = None,
+        *,
+        ref_number: str,
+        reference_number: None = None,
+        extra_infos: str = '',
+        additional_information: str = '',
+        alt_procs: list[str] | tuple[()] | tuple[str] | tuple[str, str] = (),
+        language: Literal['en', 'de', 'fr', 'it'] = 'en',
+        top_line: bool = True,
+        payment_line: bool = True,
+        font_factor: int = 1
+    ) -> None: ...
+
+    def __init__(
+        self,
+        account: str | None = None,
+        creditor: Mapping[str, str | None] | None = None,
+        final_creditor: Mapping[str, str | None] | None = None,
+        amount: Decimal | str | None = None,
+        currency: Literal['CHF', 'EUR'] = 'CHF',
+        debtor: Mapping[str, str | None] | None = None,
+        ref_number: str | None = None,
+        reference_number: str | None = None,
+        extra_infos: str = '',
+        additional_information: str = '',
+        alt_procs: list[str] | tuple[()] | tuple[str] | tuple[str, str] = (),
+        language: Literal['en', 'de', 'fr', 'it'] = 'en',
+        top_line: bool = True,
+        payment_line: bool = True,
+        font_factor: int = 1
+    ) -> None:
         """
         Arguments
         ---------
@@ -292,7 +412,7 @@ class QRBill:
         if not creditor:
             raise ValueError("Creditor information is mandatory")
         try:
-            self.creditor = Address.create(**creditor)
+            self.creditor = Address.create(**creditor)  # type: ignore[arg-type]
         except ValueError as err:
             raise ValueError("The creditor address is invalid: %s" % err)
         if final_creditor is not None:
@@ -304,7 +424,7 @@ class QRBill:
             self.final_creditor = final_creditor
         if debtor is not None:
             try:
-                self.debtor = Address.create(**debtor)
+                self.debtor = Address.create(**debtor)  # type: ignore[arg-type]
             except ValueError as err:
                 raise ValueError("The debtor address is invalid: %s" % err)
         else:
@@ -363,23 +483,23 @@ class QRBill:
         self.font_factor = font_factor
 
     @property
-    def title_font_info(self):
+    def title_font_info(self) -> dict[str, Any]:
         return {'font_size': 12 * self.font_factor, 'font_family': self.font_family, 'font_weight': 'bold'}
 
     @property
-    def font_info(self):
+    def font_info(self) -> dict[str, Any]:
         return {'font_size': 10 * self.font_factor, 'font_family': self.font_family}
 
-    def head_font_info(self, part=None):
+    def head_font_info(self, part: str | None = None) -> dict[str, Any]:
         return {
             'font_size': (8 if part == 'receipt' else 9) * self.font_factor,
             'font_family': self.font_family, 'font_weight': 'bold'}
 
     @property
-    def proc_font_info(self):
+    def proc_font_info(self) -> dict[str, Any]:
         return {'font_size': 7 * self.font_factor, 'font_family': self.font_family}
 
-    def qr_data(self):
+    def qr_data(self) -> str:
         """
         Return data to be encoded in the QR code in the standard text
         representation.
@@ -396,18 +516,24 @@ class QRBill:
         ])
         values.append('EPD')
         values.extend(self.alt_procs)
-        return "\r\n".join([str(v) for v in values])
+        return "\r\n".join(str(v) for v in values)
 
-    def qr_image(self):
+    def qr_image(self) -> qrcode.image.svg.SvgPathImage:
         factory = qrcode.image.svg.SvgPathImage
-        return qrcode.make(
+        return qrcode.make(  # type: ignore[no-any-return]
             self.qr_data(),
             image_factory=factory,
             error_correction=qrcode.constants.ERROR_CORRECT_M,
             border=0,
         )
 
-    def draw_swiss_cross(self, dwg, grp, origin, size):
+    def draw_swiss_cross(
+        self,
+        dwg: svgwrite.Drawing,
+        grp: svgwrite.container.Group,
+        origin: tuple[float, float],
+        size: float
+    ) -> None:
         """
         draw swiss cross of size 20 in the middle of a square
         with upper left corner at origin and given size.
@@ -439,7 +565,15 @@ class QRBill:
         group.translate(tx=x, ty=y)
         group.scale(scale_factor)
 
-    def draw_blank_rect(self, dwg, grp, x, y, width, height):
+    def draw_blank_rect(
+        self,
+        dwg: svgwrite.Drawing,
+        grp: svgwrite.container.Group,
+        x: float,
+        y: float,
+        width: float,
+        height: float
+    ) -> None:
         """Draw a empty blank rect with corners (e.g. amount, debtor)"""
         # 0.75pt ~= 0.26mm
         stroke_info = {'stroke': 'black', 'stroke_width': '0.26mm', 'stroke_linecap': 'square'}
@@ -459,10 +593,10 @@ class QRBill:
             **stroke_info
         ))
 
-    def label(self, txt):
+    def label(self, txt: str) -> str:
         return txt if self.language == 'en' else LABELS[txt][self.language]
 
-    def as_svg(self, file_out, full_page=False):
+    def as_svg(self, file_out: str | Path | SupportsWrite[str], full_page: bool = False) -> None:
         """
         Format as SVG and write the result to file_out.
         file_out can be a str, a pathlib.Path or a file-like object open in text
@@ -491,7 +625,7 @@ class QRBill:
         else:
             dwg.write(file_out)
 
-    def transform_to_full_page(self, dwg, bill):
+    def transform_to_full_page(self, dwg: svgwrite.Drawing, bill: svgwrite.container.Group) -> None:
         """Renders to a A4 page, adding bill in a group element.
 
         Adds a note about separating the bill as well.
@@ -514,7 +648,7 @@ class QRBill:
             **self.font_info)
         )
 
-    def draw_bill(self, dwg, horiz_scissors=True):
+    def draw_bill(self, dwg: svgwrite.Drawing, horiz_scissors: bool = True) -> svgwrite.container.Group:
         """Draw the bill in SVG format."""
         margin = mm(5)
         payment_left = add_mm(RECEIPT_WIDTH, margin)
@@ -524,7 +658,7 @@ class QRBill:
 
         grp = dwg.add(dwg.g())
         # Receipt
-        y_pos = 15 + above_padding
+        y_pos: float = 15 + above_padding
         line_space = 3.5
         receipt_head_font = self.head_font_info(part='receipt')
         grp.add(dwg.text(self.label("Receipt"), (margin, mm(y_pos - 5)), **self.title_font_info))
@@ -667,7 +801,7 @@ class QRBill:
         y_pos = 10 + above_padding
         line_space = 3.5
 
-        def add_header(text, first=False):
+        def add_header(text: str, first: bool = False) -> None:
             nonlocal dwg, grp, payment_detail_left, y_pos
             if not first:
                 y_pos += 3
@@ -733,42 +867,39 @@ class QRBill:
         return grp
 
 
-def add_mm(*mms):
+def add_mm(*mms: str | float) -> float:
     """Utility to allow additions of '23mm'-type strings."""
     return round(
         sum(
-            mm(float(m[:-2])) if isinstance(m, str) else m for m in mms
+            mm(m) if isinstance(m, str) else m for m in mms
         ),
         5
     )
 
 
-def mm(val):
+def mm(val: str | float) -> float:
     """Convert val (as mm, either number of '12mm' str) into user units."""
-    try:
-        val = float(val.rstrip('mm'))
-    except AttributeError:
-        pass
+    val = float(val.rstrip('mm')) if isinstance(val, str) else val
     return round(val * MM_TO_UU, 5)
 
 
-def format_ref_number(bill):
+def format_ref_number(bill: QRBill) -> str:
     if not bill.reference_number:
         return ''
     num = bill.reference_number
     if bill.ref_type == "QRR":
-        return esr.format(num)
+        return esr.format(num)  # type: ignore[no-any-return]
     elif bill.ref_type == "SCOR":
-        return iso11649.format(num)
+        return iso11649.format(num)  # type: ignore[no-any-return]
     else:
         return num
 
 
-def format_amount(amount_):
+def format_amount(amount_: str | float) -> str:
     return '{:,.2f}'.format(float(amount_)).replace(",", " ")
 
 
-def wrap_infos(infos):
+def wrap_infos(infos: Iterable[str]) -> Iterator[str]:
     for line in infos:
         for text in line.splitlines():
             while text:
@@ -776,6 +907,6 @@ def wrap_infos(infos):
                 text = text[MAX_CHARS_PAYMENT_LINE:]
 
 
-def replace_linebreaks(text):
+def replace_linebreaks(text: str | None) -> str:
     text = text or ''
     return ' '.join(text.splitlines())
