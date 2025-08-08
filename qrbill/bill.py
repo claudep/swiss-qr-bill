@@ -668,7 +668,7 @@ class QRBill:
         line_space = 3.5
 
         def add_header(text, first=False):
-            nonlocal dwg, grp, payment_detail_left, y_pos
+            nonlocal y_pos
             if not first:
                 y_pos += 3
             grp.add(dwg.text(text, (payment_detail_left, mm(y_pos)), **payment_head_font))
