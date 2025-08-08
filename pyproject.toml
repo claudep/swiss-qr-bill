@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qrbill"
+version = "1.1.0"
+dependencies = [
+    "iso3166",
+    "python-stdnum>=1.13",
+    "qrcode",
+    "svgwrite",
+]
+description = "A library to generate Swiss QR-bill payment slips."
+readme = "README.rst"
+requires-python = ">= 3.9"
+authors = [
+    {name = "Claude Paroz", email = "claude@2xlibre.net"},
+]
+license = "MIT"
+license-files = [
+    "LICENSE.TXT",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3",
+]
+
+[project.scripts]
+qrbill = "scripts:qrbill"
+
+[project.urls]
+Homepage = "https://github.com/claudep/swiss-qr-bill/"
+Changelog = "https://github.com/claudep/swiss-qr-bill/CHANGELOG.rst"
+
+[tool.setuptools]
+packages = ["qrbill"]
