@@ -427,6 +427,40 @@ class QRBillTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "A QR-IBAN requires a QRR reference number"):
             bill = QRBill(**min_data, reference_number='RF18539007547034')
 
+    def test_billing_information(self):
+        min_data = {
+            'account': "CH 53 8000 5000 0102 83664",
+            'creditor': {
+                'name': 'Jane', 'pcode': '1000', 'city': 'Lausanne',
+            },
+        }
+        err1 = "Additional information and billing information combined cannot contain more than 140 characters"
+        with self.assertRaisesRegex(ValueError, err1):
+            QRBill(**min_data, additional_information='x' * 120, billing_information='y' * 21)
+        err2 = "Billing information must start with //"
+        with self.assertRaisesRegex(ValueError, err2):
+            QRBill(**min_data, billing_information='Rechnung: 123456789')
+        bill = QRBill(
+            **min_data,
+            billing_information=(
+                '//S1/01/20170309/11/10201409/20/1400'
+                '0000/22/36958/30/CH106017086/40/1020/41/3010'
+            ))
+        self.assertEqual(
+            bill.qr_data(),
+            'SPC\r\n0200\r\n1\r\nCH5380005000010283664\r\nS\r\nJane\r\n'
+            '\r\n\r\n1000\r\nLausanne\r\nCH\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n'
+            '\r\nCHF\r\n\r\n\r\n\r\n'
+            '\r\n\r\n\r\n\r\nNON\r\n\r\n\r\nEPD\r\n'
+            '//S1/01/20170309/11/10201409/20/14000000/22/36958/30/CH106017086'
+            '/40/1020/41/3010'
+        )
+        svg_result = self._produce_svg(bill)
+        self.assertEqual(svg_result[:40], '<?xml version="1.0" encoding="utf-8" ?>\n')
+        # Billing information shall not be part of the SVG
+        self.assertNotIn(
+            '//S1/01/20170309/11/10201409/20/14000000/22/36958/30/CH106017086/40/1020/41/3010', svg_result)
+
     def test_alt_procs(self):
         min_data = {
             'account': "CH 53 8000 5000 0102 83664",

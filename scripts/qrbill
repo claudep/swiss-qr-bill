@@ -69,6 +69,8 @@ def run():
     # extra-infos kept for backwards compatibility
     parser.add_argument('--additional-information', '--extra-infos',
                         help='payment purpose')
+    parser.add_argument('--billing-information',
+                        help='Coded information for automated booking of the payment')
     parser.add_argument('--alt-procs',
                         nargs='*',
                         help='alternative payment parameters (2 lines max)',
@@ -120,6 +122,7 @@ def run():
             debtor=debtor,
             reference_number=args.reference_number,
             additional_information=args.additional_information,
+            billing_information=args.billing_information,
             alt_procs=args.alt_procs,
             language=args.language,
             top_line=args.top_line,

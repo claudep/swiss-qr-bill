@@ -217,6 +217,7 @@ class QRBill:
             self, account=None, creditor=None, final_creditor=None, amount=None,
             currency='CHF', debtor=None, ref_number=None,
             reference_number=None, extra_infos='', additional_information='',
+            billing_information='',
             alt_procs=(), language='en', top_line=True, payment_line=True, font_factor=1):
         """
         Arguments
@@ -348,6 +349,14 @@ class QRBill:
             raise ValueError("Additional information cannot contain more than 140 characters")
         self.additional_information = additional_information
 
+        if billing_information:
+            if len(self.additional_information + billing_information) > 140:
+                raise ValueError(
+                    "Additional information and billing information combined cannot contain more than 140 characters")
+            if not billing_information.startswith('//'):
+                raise ValueError("Billing information must start with //")
+        self.billing_information = billing_information
+
         if len(alt_procs) > 2:
             raise ValueError("Only two lines allowed in alternative procedure parameters")
         if any(len(el) > 100 for el in alt_procs):
@@ -395,6 +404,10 @@ class QRBill:
             replace_linebreaks(self.additional_information),
         ])
         values.append('EPD')
+        # Billing information is an additional field. It is only added if
+        # it does contain content or if subsequent alt_procs do have content
+        if self.billing_information or self.alt_procs:
+            values.append(self.billing_information)
         values.extend(self.alt_procs)
         return "\r\n".join([str(v) for v in values])
 
