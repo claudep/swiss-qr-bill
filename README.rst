@@ -102,13 +102,9 @@ or to produce a bitmap image output::
 Running tests
 =============
 
-You can run tests either by executing::
+You can run tests by executing::
 
-    $ python tests/test_qrbill.py
-
-or::
-
-    $ python setup.py test
+    $ PYTHONPATH=. python tests/test_qrbill.py
 
 
 Sponsors
