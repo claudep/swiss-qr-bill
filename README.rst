@@ -1,5 +1,7 @@
-.. image:: https://travis-ci.com/claudep/swiss-qr-bill.svg?branch=master
-    :target: https://travis-ci.com/claudep/swiss-qr-bill
+.. image:: https://github.com/claudep/swiss-qr-bill/actions/workflows/test.yml/badge.svg
+   :alt: CI
+   :target: https://github.com/claudep/swiss-qr-bill/actions/workflows/test.yml
+
 .. image:: https://img.shields.io/pypi/v/qrbill.svg
    :target: https://pypi.python.org/pypi/qrbill/
 
