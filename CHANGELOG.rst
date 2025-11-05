@@ -3,6 +3,11 @@
 ChangeLog
 =========
 
+Unreleased
+----------
+- Add testing for Python 3.14.
+- Removed support for Python 3.9.
+
 1.2.0 (2025-11-05)
 ------------------
 - Allowed adding billing information (``--billing-information`` script option,

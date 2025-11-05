@@ -13,7 +13,7 @@ dependencies = [
 ]
 description = "A library to generate Swiss QR-bill payment slips."
 readme = "README.rst"
-requires-python = ">= 3.9"
+requires-python = ">= 3.10"
 authors = [
     {name = "Claude Paroz", email = "claude@2xlibre.net"},
 ]
