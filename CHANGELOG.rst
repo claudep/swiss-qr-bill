@@ -3,6 +3,12 @@
 ChangeLog
 =========
 
+1.2.0 (2025-11-05)
+------------------
+- Allowed adding billing information (``--billing-information`` script option,
+  starting with "//", to allow automated billing procedures) (#98).
+- Replaced setup.* files by pyproject.toml.
+
 1.1.0 (2023-12-16)
 ------------------
 - Add Arial font name in addition to Helvetica for better font fallback on some
