@@ -570,8 +570,8 @@ class QRBill:
                 y_pos += line_space
         else:
             self.draw_blank_rect(
-                dwg, grp, x=margin, y=mm(y_pos),
-                width=mm(52), height=mm(25)
+                dwg, grp, x=margin, y=mm(y_pos - 2),
+                width=mm(52), height=min([mm(25), currency_top - mm(y_pos + 2)]),
             )
             y_pos += 28
 
@@ -672,7 +672,7 @@ class QRBill:
             ))
         else:
             self.draw_blank_rect(
-                dwg, grp, x=add_mm(RECEIPT_WIDTH, margin, mm(12)), y=add_mm(currency_top, mm(3)),
+                dwg, grp, x=add_mm(RECEIPT_WIDTH, margin, mm(10.5)), y=add_mm(currency_top, mm(3)),
                 width=mm(40), height=mm(15)
             )
 

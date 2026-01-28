@@ -7,6 +7,9 @@ Unreleased
 ----------
 - Add testing for Python 3.14.
 - Removed support for Python 3.9.
+- When debtor address is replaced by the placeholder rectangle and the length
+  of printed information reaches the amount section height, rect markers do not
+  overlap any longer.
 
 1.2.0 (2025-11-05)
 ------------------
