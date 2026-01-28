@@ -31,7 +31,7 @@ qrbill = "scripts:qrbill"
 
 [project.urls]
 Homepage = "https://github.com/claudep/swiss-qr-bill/"
-Changelog = "https://github.com/claudep/swiss-qr-bill/CHANGELOG.rst"
+Changelog = "https://github.com/claudep/swiss-qr-bill/blob/master/CHANGELOG.rst"
 
 [tool.setuptools]
 packages = ["qrbill"]
