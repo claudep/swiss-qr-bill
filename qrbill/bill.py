@@ -266,8 +266,7 @@ class QRBill:
             elif not isinstance(amount, str):
                 raise ValueError("Amount can only be specified as str or Decimal.")
             # remove commonly used thousands separators
-            amount = amount.replace("'", "").strip()
-            # people often don't add .00 for amounts without cents/rappen
+            amount = amount.replace("'", "").replace(" ", "").replace(",", "").strip()            # people often don't add .00 for amounts without cents/rappen
             if "." not in amount:
                 amount = amount + ".00"
             # support lazy people who write 12.1 instead of 12.10
