@@ -149,8 +149,8 @@ class CombinedAddress(Address):
     def data_list(self):
         # 'K': combined address
         return [
-            'K', self.name.replace('\n', ' '), self.line1.replace('\n', ' '),
-            self.line2.replace('\n', ' '), '', '', self.country
+            'K', replace_linebreaks(self.name), replace_linebreaks(self.line1),
+            replace_linebreaks(self.line2), '', '', self.country
         ]
 
     def as_paragraph(self, max_chars=MAX_CHARS_PAYMENT_LINE):
@@ -190,8 +190,9 @@ class StructuredAddress(Address):
         """Return address values as a list, appropriate for qr generation."""
         # 'S': structured address
         return [
-            'S', self.name.replace('\n', ' '), self.street.replace('\n', ' '),
-            self.house_num, self.pcode, self.city, self.country
+            'S', replace_linebreaks(self.name), replace_linebreaks(self.street),
+            replace_linebreaks(self.house_num), replace_linebreaks(self.pcode),
+            replace_linebreaks(self.city), self.country
         ]
 
     def as_paragraph(self, max_chars=MAX_CHARS_PAYMENT_LINE):

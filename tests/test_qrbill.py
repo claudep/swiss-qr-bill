@@ -93,6 +93,18 @@ class AddressTests(unittest.TestCase):
             ]
         )
 
+    def test_carriage_return_does_not_move_the_amount(self):
+        bill = QRBill(
+            account='CH 53 8000 5000 0102 83664',
+            amount='50.00',
+            creditor={
+                'name': 'Jane', 'pcode': '1000\r12.00', 'city': 'Lausanne', 'country': 'CH',
+            },
+        )
+        lines = bill.qr_data().splitlines()
+        self.assertEqual(lines[18], '50.00')
+        self.assertNotIn('12.00', lines)
+
 
 class QRBillTests(unittest.TestCase):
     def _produce_svg(self, bill, **kwargs):
