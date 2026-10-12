@@ -5,6 +5,8 @@
 .. image:: https://img.shields.io/pypi/v/qrbill.svg
    :target: https://pypi.python.org/pypi/qrbill/
 
+**THIS REPOSITORY IS ARCHIVED AND HOSTED NOW ON https://codeberg.org/claudep/swiss-qr-bill/**
+
 Python library to generate Swiss QR-bills
 =========================================
 
